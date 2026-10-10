@@ -1,0 +1,11 @@
+GSAP 3.13.0 and ScrollTrigger
+Copyright (c) GreenSock. Distributed under the GSAP Standard License.
+https://gsap.com/standard-license/
+
+Three.js 0.180.0
+Copyright (c) 2010-2025 three.js authors. MIT license included.
+
+Space Grotesk and Space Mono fonts
+Distributed under the SIL Open Font License 1.1. License files included.
+
+All Red Studio artwork and concept studies were created for this website.

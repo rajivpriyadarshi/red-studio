@@ -52,3 +52,7 @@ To change the contact address, update `dist/index.html` and `dist/app.js`.
 ## GitHub Pages deployment
 
 The workflow in `.github/workflows/pages.yml` publishes `dist/` when website files change on `main`. It can also be started manually from the repository's Actions tab. No dependency installation or build step is required.
+
+## Orbit concept
+
+A second Red Studio direction is published separately at [Red Studio — Orbit](https://rajivpriyadarshi.github.io/red-studio/orbit/). Its static files live in `dist/orbit/`; the original landing page remains at the root URL.
