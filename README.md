@@ -2,7 +2,9 @@
 
 A multidisciplinary design studio landing page built around **Designed to be felt**.
 
-[Open the hosted preview](https://red-studio-feeling.zinc-money-p-8104.chatgpt.site/). The current hosted preview is private and requires the owner's ChatGPT sign-in.
+[Open Red Studio](https://rajivpriyadarshi.github.io/red-studio/).
+
+The website is published on GitHub Pages. A separate [private preview](https://red-studio-feeling.zinc-money-p-8104.chatgpt.site/) is available through the owner's ChatGPT sign-in.
 
 ## Run locally
 
@@ -46,3 +48,7 @@ Offgrid, Form, and Echo are original illustrative concept studies, not client co
 Project inquiries are addressed to `rajivpriyadarshi@outlook.com`. The form creates an email draft for the visitor to review and send in their email app. It does not submit inquiries to a server.
 
 To change the contact address, update `dist/index.html` and `dist/app.js`.
+
+## GitHub Pages deployment
+
+The workflow in `.github/workflows/pages.yml` publishes `dist/` when website files change on `main`. It can also be started manually from the repository's Actions tab. No dependency installation or build step is required.
