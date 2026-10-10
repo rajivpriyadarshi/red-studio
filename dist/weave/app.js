@@ -1,24 +1,30 @@
 import {projects,createArtwork} from './art.js';
-import {createExhibition} from './exhibition.js?v=intro-1';
+import {createExhibition} from './exhibition.js?v=morph-2';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];const gsap=window.gsap;const preference=matchMedia('(prefers-reduced-motion:reduce)');
-const state={target:0,current:0,activeId:0,entry:1,calm:preference.matches,modal:false,failed:false,reveal:0,gallery:false};let selected=[0,1,2,3,4,5],scene=null,travel=null,filterMotion=null,lastActive=-1,manualPause=false,entrance=null,opener=null,pageTravel=null,pageFrame=0,pageGoal=0,workTop=0,studioTop=0;
+const state={target:0,current:0,activeId:0,entry:1,calm:preference.matches,modal:false,failed:false,reveal:0,focus:0,gallery:false};let selected=[0,1,2,3,4,5],scene=null,travel=null,filterMotion=null,lastActive=-1,manualPause=false,entrance=null,opener=null,pageTravel=null,pageFrame=0,pageGoal=0,workTop=0,morphTop=0,studioTop=0;
 await Promise.all([document.fonts.load('20px Space'),document.fonts.load('12px Mono')]);
 const artwork=createArtwork().map((art,index)=>({...art,project:projects[index]}));
 $('#year').textContent=new Date().getFullYear();
-// Motion contract: intro -> studio -> exhibition, reversibly. The same mesh unfolds
-// along the page's progress. Navigation retargets from the current scroll position;
-// wheel/pointer input cancels programmatic travel. Reduced motion uses direct cuts.
+// Motion contract: intro -> studio -> exposed loop -> red ribbon -> work.
+// Recentring precedes unfolding; the same vertices and red material persist.
+// Native scroll scrubs the visible 1.35-viewport morph in either direction.
+// Work navigation travels to the loop (1.1s), then unfolds it (2.8s), with
+// the project planes arriving last. Input interrupts at the current shape.
+// Reduced motion skips the runway and cuts directly to the destination.
 function syncPage(){
- const y=window.scrollY;state.gallery=y>=workTop-3;const t=Math.max(0,Math.min(1,(y-innerHeight*.22)/Math.max(1,workTop-innerHeight*.22)));state.reveal=state.calm?(state.gallery?1:0):t*t*(3-2*t);
- document.body.classList.toggle('in-work',state.gallery);document.body.classList.toggle('in-intro',!state.gallery);document.body.classList.toggle('in-studio',y>=studioTop-90&&y<workTop-75);
- $('#exhibition-ui').inert=!state.gallery;$('.hero').inert=y>=studioTop-40;$('#studio-intro').inert=state.gallery||y<studioTop-innerHeight*.45;
- $('#intro-nav').classList.toggle('active',!state.gallery);$('#work-nav').classList.toggle('active',state.gallery);scene?.invalidate();
+ const y=window.scrollY,clamp=v=>Math.max(0,Math.min(1,v));state.gallery=y>=workTop-3;const t=clamp((y-morphTop)/Math.max(1,workTop-morphTop));state.reveal=preference.matches?(state.gallery?1:0):t;const centre=clamp((y-(morphTop-innerHeight*.75))/(innerHeight*.75));state.focus=centre*centre*(3-2*centre);
+ const unfolding=y>=morphTop-3&&!state.gallery;document.body.classList.toggle('in-work',state.gallery);document.body.classList.toggle('in-morph',unfolding);document.body.classList.toggle('in-intro',!state.gallery);document.body.classList.toggle('in-studio',y>=studioTop-90&&y<morphTop-75);
+ document.body.dataset.morphProgress=t.toFixed(3);$('#morph-caption').style.setProperty('--morph-progress',t);$('#morph-caption').style.setProperty('--morph-opacity',clamp((.92-t)/.12));$('#exhibition-ui').inert=!state.gallery;$('.hero').inert=y>=studioTop-40;$('#studio-intro').inert=y>=morphTop||y<studioTop-innerHeight*.45;
+ $('#intro-nav').classList.toggle('active',y<morphTop);$('#work-nav').classList.toggle('active',y>=morphTop);scene?.invalidate();
 }
-function measurePage(){workTop=$('#work-entry').offsetTop;studioTop=$('#studio-intro').offsetTop;syncPage();}
+function measurePage(){const entry=$('#work-entry');morphTop=entry.offsetTop;workTop=morphTop+entry.offsetHeight-innerHeight;studioTop=$('#studio-intro').offsetTop;syncPage();}
 function onPageScroll(){if(!pageFrame)pageFrame=requestAnimationFrame(()=>{pageFrame=0;syncPage();});}
 function stopPageTravel(){pageTravel?.kill();pageTravel=null;document.body.dataset.pageTravel='rest';}
 function goPage(y,done){stopPageTravel();pageGoal=y;entrance?.progress(1);entrance?.kill();if(state.calm||!gsap||Math.abs(scrollY-y)<2){window.scrollTo(0,y);syncPage();done?.();return;}
- const position={value:window.scrollY};document.body.dataset.pageTravel='moving';pageTravel=gsap.to(position,{value:y,duration:1.5,ease:'power3.inOut',onUpdate(){window.scrollTo(0,position.value);syncPage();},onComplete(){pageTravel=null;document.body.dataset.pageTravel='rest';syncPage();done?.();}});
+ const position={value:window.scrollY},update=()=>{window.scrollTo(0,position.value);syncPage();};document.body.dataset.pageTravel='moving';pageTravel=gsap.timeline({onComplete(){pageTravel=null;document.body.dataset.pageTravel='rest';syncPage();done?.();}});
+ if(y===workTop&&scrollY<workTop-3){if(scrollY<morphTop)pageTravel.to(position,{value:morphTop,duration:1.1,ease:'power3.inOut',onUpdate:update});pageTravel.to(position,{value:y,duration:2.8*Math.max(.3,1-state.reveal),ease:'sine.inOut',onUpdate:update});}
+ else if(scrollY>morphTop&&y<morphTop){pageTravel.to(position,{value:morphTop,duration:1.8*Math.max(.3,state.reveal),ease:'sine.inOut',onUpdate:update}).to(position,{value:y,duration:1.1,ease:'power3.inOut',onUpdate:update});}
+ else pageTravel.to(position,{value:y,duration:1.5,ease:'power3.inOut',onUpdate:update});
 }
 function openGallery(name='all',done){filter(name);goPage(workTop,done);}
 window.addEventListener('scroll',onPageScroll,{passive:true});window.addEventListener('resize',measurePage);window.addEventListener('wheel',stopPageTravel,{passive:true});window.addEventListener('pointerdown',stopPageTravel,{passive:true});document.body.dataset.pageTravel='rest';measurePage();
