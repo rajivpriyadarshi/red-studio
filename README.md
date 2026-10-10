@@ -45,7 +45,7 @@ Alternatively, run `npm run dev` if Node.js and Python 3 are available. Serve th
 
 Offgrid, Form, and Echo are original illustrative concept studies, not client commissions.
 
-Project inquiries are addressed to `rajivpriyadarshi@outlook.com`. The form creates an email draft for the visitor to review and send in their email app. It does not submit inquiries to a server.
+Project inquiries are addressed to `theredstudio@gmail.com`. The form creates an email draft for the visitor to review and send in their email app. It does not submit inquiries to a server.
 
 To change the contact address, update `dist/index.html` and `dist/app.js`.
 
