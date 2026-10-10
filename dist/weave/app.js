@@ -1,5 +1,5 @@
 import {projects,createArtwork} from './art.js';
-import {createExhibition} from './exhibition.js?v=morph-2';
+import {createExhibition} from './exhibition.js?v=red-room-3';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];const gsap=window.gsap;const preference=matchMedia('(prefers-reduced-motion:reduce)');
 const state={target:0,current:0,activeId:0,entry:1,calm:preference.matches,modal:false,failed:false,reveal:0,focus:0,gallery:false};let selected=[0,1,2,3,4,5],scene=null,travel=null,filterMotion=null,lastActive=-1,manualPause=false,entrance=null,opener=null,pageTravel=null,pageFrame=0,pageGoal=0,workTop=0,morphTop=0,studioTop=0;
 await Promise.all([document.fonts.load('20px Space'),document.fonts.load('12px Mono')]);
