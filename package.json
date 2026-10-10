@@ -1,0 +1,1 @@
+{"name":"red-studio","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"python3 -m http.server 5173 --directory dist"},"dependencies":{"gsap":"3.13.0","three":"0.180.0"}}
