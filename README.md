@@ -56,3 +56,9 @@ The workflow in `.github/workflows/pages.yml` publishes `dist/` when website fil
 ## Orbit concept
 
 A second Red Studio direction is published separately at [Red Studio — Orbit](https://rajivpriyadarshi.github.io/red-studio/orbit/). Its static files live in `dist/orbit/`; the original landing page remains at the root URL.
+
+## The Weave concept
+
+A third, independent Red Studio direction is published at [Red Studio — The Weave](https://rajivpriyadarshi.github.io/red-studio/weave/). Its static files live in `dist/weave/`. A continuous woven-metal sculpture anchors a spiral of refractive glass panels, with camera orbiting, flowing particles, atmospheric post effects, and GSAP transitions. The project artwork is original and labelled as concept work.
+
+Scroll or drag to explore; previous/next buttons, the project rail, and keyboard arrows provide alternate navigation. The studio, services, and contact flow are accessible through native dialogs. Audio is optional, motion can be paused, and reduced-motion preferences are supported. Inquiries use `theredstudio@gmail.com`.
