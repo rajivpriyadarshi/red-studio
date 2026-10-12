@@ -43,9 +43,17 @@ function openDialog(dialog,trigger){setMenu(false);lastDialogTrigger=trigger;dia
 $$('dialog').forEach(dialog=>{dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});dialog.addEventListener('close',()=>{gsap?.killTweensOf(dialog);document.body.classList.remove('dialog-open');if(dialog.id==='reel-dialog')reelTimeline?.pause();lastDialogTrigger?.focus({preventScroll:true});});});
 let selectedPackage='';
 function choosePackage(name,price){selectedPackage=name;const label=$('#selected-package');label.hidden=!name;label.textContent=name?`Selected: ${name}${price?' · '+new Intl.NumberFormat('en-GB').format(price)+' NOK excluding VAT':''}. We’ll confirm the scope before starting.`:'';const brief=$('#inquiry-form textarea');if(name&&!brief.value)brief.value=`I'd like to discuss ${name}.\n\nTimeline: \nBudget: \nProject details: `;}
-$$('[data-inquiry]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.package)choosePackage(b.dataset.package,Number(b.closest('.price-card')?.querySelector('[data-price]')?.dataset.price));openDialog($('#inquiry-dialog'),b);}));
+$$('[data-inquiry]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.package)choosePackage(b.dataset.package,Number(b.closest('[data-plan],.price-card')?.querySelector('[data-price]')?.dataset.price));openDialog($('#inquiry-dialog'),b);}));
 const queryPackage=new URLSearchParams(location.search).get('package');
-if(queryPackage)fetch('pricing-data.json').then(r=>r.json()).then(data=>{const p=data.packages.find(p=>p.id===queryPackage);if(p){choosePackage(p.name,p.price);openDialog($('#inquiry-dialog'),$('.contact-title'));}else if(queryPackage==='ongoing'){choosePackage('Ongoing design support — 20 hours / month',22000);openDialog($('#inquiry-dialog'),$('.contact-title'));}}).catch(()=>{});
+const queryBundle=new URLSearchParams(location.search).get('packages');
+if(queryPackage||queryBundle)fetch('pricing-data.json').then(r=>r.json()).then(data=>{
+ const p=data.packages.find(p=>p.id===queryPackage);
+ let bundle=[...new Set((queryBundle||'').split(','))].map(id=>data.packages.find(p=>p.id===id)).filter(Boolean);
+ if(bundle.some(p=>p.id==='identity'))bundle=bundle.filter(p=>p.id!=='logo');
+ if(p){choosePackage(p.name,p.price);openDialog($('#inquiry-dialog'),$('.contact-title'));}
+ else if(queryPackage==='ongoing'){choosePackage('Ongoing design support — 20 hours / month',22000);openDialog($('#inquiry-dialog'),$('.contact-title'));}
+ else if(bundle.length){const total=bundle.reduce((sum,p)=>sum+p.price,0);choosePackage(bundle.map(p=>p.name).join(' + '),total);$('#inquiry-form textarea').value=`I'd like to discuss this combination:\n${bundle.map(p=>`${p.name}: ${p.price.toLocaleString('en-GB')} NOK`).join('\n')}\n\nPackage estimate: ${total.toLocaleString('en-GB')} NOK excluding VAT.\nPlease confirm scope overlap, timing and the final quote.\n\nTimeline: \nProject details: `;openDialog($('#inquiry-dialog'),$('.contact-title'));}
+}).catch(()=>{});
 $$('.service').forEach(detail=>detail.addEventListener('toggle',()=>{if(detail.open&&gsap&&!state.calm)gsap.fromTo(detail.querySelector('.service-content'),{autoAlpha:0,y:12},{autoAlpha:1,y:0,duration:.35,clearProps:'all'});ScrollTrigger?.refresh();}));
 
 const form=$('#inquiry-form');let inquiryText='';
