@@ -88,3 +88,7 @@ The Compliance page describes a proposed project workflow and the site’s actua
 The homepage pricing chapter and the Prices page use illustrated quote sheets, a keyboard-accessible package selector and GSAP transitions. The Prices page includes an itemised estimate builder, VAT display controls and a monthly support section. Brand identity and Logo essentials cannot both be added to the same estimate. The inquiry handoff carries selected scopes and their base-price total; final overlap, timing and tax treatment are confirmed in a written quote.
 
 `dist/pricing-data.json` is the canonical package data. After changing it, run `python3 scripts/render-pricing.py` to regenerate the static package views and embedded configuration. `dist/pricing.js` handles selection, estimates, VAT and reduced motion; `dist/pricing.css` scopes the visual treatment to these two views. No new third-party dependency or build step is needed to run the site.
+
+### Content direction
+
+The supplied “The Red Studio — Death to AI slop” HTML informed the homepage manifesto, studio principles, service descriptions, experimental lab and transparent-pricing language. “Death to AI slop” expresses a standard for original, considered work and visible authorship; it does not claim a ban on AI tools. Proposed AI assistance and confidential-data handling remain addressed in the project approach. Existing prices, deliverables, team details, clearly labelled case-study placeholders and the “Got a feeling?” closing are retained. No EU-project, funding or certification claims were added.

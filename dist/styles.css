@@ -20,3 +20,12 @@
 @media(prefers-reduced-motion:reduce){.motion-orbit{animation:none}}
 
 a.contact-title{display:block}
+
+/* Visible routes from the studio principles to the supporting details. */
+.principle-link{border-bottom:1px solid currentColor;text-underline-offset:3px}.principle-link:hover{color:var(--red)}
+
+/* Let the shorter manifesto carry the same typographic weight as the original hero. */
+.stance-hero{min-height:820px}
+.stance-hero h1{font-size:clamp(100px,12.5vw,175px)}
+.stance-hero h1 .last-line{font-size:1.22em}
+@media(max-width:760px){.stance-hero{min-height:970px}.stance-hero h1{font-size:18.5vw;margin-top:28px;line-height:.9}.stance-hero .hero-art{top:380px;height:360px}}
