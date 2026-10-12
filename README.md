@@ -62,3 +62,23 @@ A second Red Studio direction is published separately at [Red Studio — Orbit](
 A third, independent Red Studio direction is published at [Red Studio — The Weave](https://rajivpriyadarshi.github.io/red-studio/weave/). Its static files live in `dist/weave/`. The site opens with an original “Ideas you can feel” hero: kinetic typography, a red sculptural loop, and a studio introduction to identity, digital, motion, and sound. After the studio chapter, the loop visibly opens and stretches into a continuous red ribbon on its own scroll runway. The same red material and deep-red atmosphere persist throughout, with warm particles, glass edges, reflections, and interface surfaces. Project selection never recolors the environment. The sheet keeps its width, and project planes arrive last. The ribbon anchors a spiral of refractive glass panels, with camera orbiting, flowing particles, atmospheric post effects, and GSAP transitions. The project artwork is original and labelled as concept work.
 
 Scroll or drag to explore; previous/next buttons, the project rail, and keyboard arrows provide alternate navigation. The studio, services, and contact flow are accessible through native dialogs. Audio is optional, motion can be paused, and reduced-motion preferences are supported. Inquiries use `theredstudio@gmail.com`.
+
+## Content rework branch
+
+`content-rework` updates the original landing page. It adds dedicated Services, Prices, Compliance and Studio pages, a Trondheim origin, and the named team: Shubham Jain (Founder) and Rajiv Priyadarshi (Chief Design Officer). Zinc OneView and Zinc Cross-border are explicitly labelled placeholders for Rajiv’s individual work, with case studies to be supplied later. Initials represent the team until real portraits are supplied.
+
+The price list proposes seven fixed-scope packages in NOK, with two feedback rounds, explicit exclusions, a 25% VAT display option where applicable, and approved extras at NOK 1,200/hour excluding VAT. Monthly support is NOK 22,000 for 20 hours. The public Pages workflow still deploys only `main`.
+
+### Pricing basis — researched 12 October 2026
+
+Published Norwegian offers informed the positioning; these are Red Studio’s proposed scopes and prices, not a statistical market average.
+
+- [Gasta](https://www.gasta.no/designpakkar) publishes basic identity at NOK 15,000 and complete identity at NOK 35,000, excluding VAT. This is the closest reference for the two identity packages.
+- [Box](https://box.no/innsikt/designbyra) describes identity projects at NOK 25,000–80,000 and business websites at NOK 40,000–120,000. Red Studio’s NOK 35,000 website package is deliberately limited to one landing page.
+- [Smartbyrå](https://smartbyra.no/nettside-for-bedriften/webbyra-priser/hva-tar-et-webbyra-i-timepris) describes established agency rates at NOK 1,000–1,800/hour excluding VAT. NOK 1,200 is a proposed boutique-studio rate, not a profitability calculation.
+- [Finn’s Workshop](https://www.finns-workshop.no/prisveiledning) lists 30–60 second conceptual films from NOK 45,000 excluding VAT. The NOK 18,000 motion starter covers only 15 seconds of 2D animation using supplied assets; 3D and longer films need a separate quote.
+- [Skatteetaten](https://www.skatteetaten.no/en/rates/value-added-tax/) lists the normal VAT rate at 25%. Registration and the final tax treatment must be established for invoicing; the display toggle is a planning aid.
+
+The sound and campaign prices are proposed effort-based offers, with no direct Norwegian like-for-like benchmark established. Delivery windows assume a complete brief and timely consolidated feedback. Review actual hours and margin after the first three completed projects; reduce scope or adjust prices if the hourly return falls below the operating target.
+
+The Compliance page describes a proposed project workflow and the site’s actual form behaviour. It makes no claim of certification or past EU client experience. Privacy-by-design guidance is linked to the [EDPB](https://www.edpb.europa.eu/sme/be-compliant/be-compliant_en).
