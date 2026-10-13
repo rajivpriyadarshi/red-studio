@@ -191,4 +191,3 @@ function initDirections(root) {
   },options);
   window.addEventListener('pageshow',event => {if(event.persisted){measure();render(false);}},options);
 }
-

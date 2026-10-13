@@ -49,4 +49,3 @@
 @media(hover:none){.direction-gesture{display:none}}
 @media(prefers-reduced-motion:reduce){.direction-controls>button{transition:none}}
 body.motion-paused .direction-controls>button{transition:none}
-
