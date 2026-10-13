@@ -26,7 +26,7 @@ export function createSculpture(container,canvas,state){
  const down=e=>{if(state.calm)return;drag.active=true;drag.lastX=e.clientX;drag.lastY=e.clientY;canvas.setPointerCapture(e.pointerId);};
  const up=()=>{drag.active=false;};
  canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);canvas.addEventListener('pointerleave',()=>{target.x=0;target.y=0;});
- const render=now=>{frame=requestAnimationFrame(render);const delta=Math.min((now-last)/1000,.05);last=now;if(!visible||document.hidden)return;if(state.calm){if(!state.needsRender)return;state.needsRender=false;}else time+=delta;pointer.x+=(target.x-pointer.x)*.045;pointer.y+=(target.y-pointer.y)*.045;
+ const render=now=>{frame=requestAnimationFrame(render);const delta=Math.min((now-last)/1000,.05);last=now;if(!visible||document.hidden||state.paused)return;if(state.calm){if(!state.needsRender)return;state.needsRender=false;}else time+=delta;pointer.x+=(target.x-pointer.x)*.045;pointer.y+=(target.y-pointer.y)*.045;
  group.rotation.x=state.calm?.12:pointer.y*.45+Math.sin(time*.35)*.12+drag.y;
  group.rotation.y=state.calm?.25:time*.13+pointer.x*.8+drag.x+state.heroScroll*.6;
  group.rotation.z=state.calm?-.06:Math.sin(time*.2)*.1;
@@ -47,8 +47,8 @@ export function createSignal(container,canvas,state){
  `});const geometry=new THREE.PlaneGeometry(2,2);scene.add(new THREE.Mesh(geometry,material));let visible=false,time=0,frame=0,last=performance.now(),seed=0;const target=new THREE.Vector2(.65,.4);
  const resize=()=>{const r=container.getBoundingClientRect();renderer.setSize(r.width,r.height,false);uniforms.uResolution.value.set(r.width,r.height);renderer.render(scene,camera);};
  const ro=new ResizeObserver(resize);ro.observe(container);const io=new IntersectionObserver(e=>{visible=e[0].isIntersecting;});io.observe(container);
- const move=e=>{if(state.calm)return;const r=container.getBoundingClientRect();target.set((e.clientX-r.left)/r.width,1-(e.clientY-r.top)/r.height);state.frequency=Math.round(110+target.x*550);};container.addEventListener('pointermove',move);
- const render=now=>{frame=requestAnimationFrame(render);const dt=Math.min((now-last)/1000,.05);last=now;if(!visible||document.hidden||state.calm)return;time+=dt;uniforms.uTime.value=time;uniforms.uMouse.value.lerp(target,.05);uniforms.uSeed.value+=(seed-uniforms.uSeed.value)*.025;renderer.render(scene,camera);};resize();container.classList.add('webgl-ready');frame=requestAnimationFrame(render);
+ const move=e=>{if(state.calm||e.target.closest?.('button,input,label,a'))return;const r=container.getBoundingClientRect();target.set(Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),1-(e.clientY-r.top)/r.height);state.frequency=Math.round(110+target.x*550);};container.addEventListener('pointermove',move);
+ const render=now=>{frame=requestAnimationFrame(render);const dt=Math.min((now-last)/1000,.05);last=now;if(!visible||document.hidden||state.calm||state.paused)return;time+=dt;uniforms.uTime.value=time;uniforms.uMouse.value.lerp(target,.05);uniforms.uSeed.value+=(seed-uniforms.uSeed.value)*.025;renderer.render(scene,camera);};resize();container.classList.add('webgl-ready');frame=requestAnimationFrame(render);
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();container.classList.remove('webgl-ready');});
- return {shuffle(){seed+=2.3;if(state.calm){uniforms.uSeed.value=seed;renderer.render(scene,camera);}},dispose(){cancelAnimationFrame(frame);ro.disconnect();io.disconnect();container.removeEventListener('pointermove',move);renderer.dispose();geometry.dispose();material.dispose();}};
+ return {setFrequency(frequency){target.x=Math.max(0,Math.min(1,(frequency-110)/550));uniforms.uMouse.value.copy(target);renderer.render(scene,camera);},shuffle(){seed+=2.3;if(state.calm){uniforms.uSeed.value=seed;renderer.render(scene,camera);}},dispose(){cancelAnimationFrame(frame);ro.disconnect();io.disconnect();container.removeEventListener('pointermove',move);renderer.dispose();geometry.dispose();material.dispose();}};
 }

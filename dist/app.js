@@ -3,6 +3,7 @@ const gsap=window.gsap,ScrollTrigger=window.ScrollTrigger;
 const preference=matchMedia('(prefers-reduced-motion: reduce)');
 const state={calm:preference.matches,paused:false,heroScroll:0,frequency:220,needsRender:true};
 let motionContext,signal,disposeSculpture,introPlayed=false,reelTimeline,lastDialogTrigger,menuOpen=false;
+const seenEntrances=new WeakSet();
 if(gsap&&ScrollTrigger)gsap.registerPlugin(ScrollTrigger);
 
 function setupMotion(){
@@ -12,17 +13,13 @@ function setupMotion(){
  if(!gsap)return;
  if(state.calm){introPlayed=true;reelTimeline?.pause();return;}
  motionContext=gsap.context(()=>{
-  if(!introPlayed){introPlayed=true;gsap.timeline({defaults:{ease:'power4.out'}}).from('.hero-line',{yPercent:110,rotation:3,duration:1.2,stagger:.09},.05).from('.hero-eyebrow',{autoAlpha:0,y:15,duration:.6},.25).from('.hero-art',{autoAlpha:0,scale:.85,rotation:-8,duration:1.5},.2).from('.hero-bottom>*',{autoAlpha:0,y:18,duration:.8,stagger:.1},.7);}
-  gsap.to('.marquee-track',{xPercent:-50,duration:27,ease:'none',repeat:-1});
-  gsap.to('.hero-art',{y:70,rotation:5,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:1}});
+  if(!introPlayed){introPlayed=true;gsap.timeline({defaults:{ease:'power4.out'}}).from('.hero-line',{yPercent:110,rotation:2,duration:1.05,stagger:.08},.05).from('.hero-eyebrow',{autoAlpha:0,y:12,duration:.5},.2).from('.hero-art',{autoAlpha:0,scale:.94,rotation:-4,duration:1.2},.15).from('.hero-lead,.hero-actions',{autoAlpha:0,y:14,duration:.65,stagger:.08},.65).from('.hero-bottom>*',{autoAlpha:0,y:12,duration:.6,stagger:.08},.8);}
   gsap.to(state,{heroScroll:1,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:.8}});
-  $$('.reveal').forEach(el=>gsap.from(el,{y:38,autoAlpha:0,duration:.9,scrollTrigger:{trigger:el,start:'top 92%',once:true}}));
-  $$('.project-art').forEach(el=>gsap.from(el,{y:45,autoAlpha:0,duration:1,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 92%',once:true}}));
-  gsap.to('.echo-rings',{rotation:18,ease:'none',scrollTrigger:{trigger:'.echo-art',start:'top bottom',end:'bottom top',scrub:1}});
-  gsap.to('.studio-symbol',{rotation:150,ease:'none',scrollTrigger:{trigger:'.studio-section',start:'top bottom',end:'bottom top',scrub:1}});
-  const manifesto=$('.manifesto');if(!manifesto.dataset.split){const words=manifesto.innerHTML.split(/(<[^>]*>|\s+)/);manifesto.innerHTML=words.map(w=>w.startsWith('<')||/^\s*$/.test(w)?w:`<span class="manifesto-word">${w}</span>`).join('');manifesto.dataset.split='true';}
-  gsap.fromTo('.manifesto-word',{opacity:.2},{opacity:1,stagger:.1,ease:'none',scrollTrigger:{trigger:manifesto,start:'top 85%',end:'bottom 45%',scrub:.5}});
-  gsap.from('.contact-title .line-mask>span',{yPercent:105,stagger:.12,duration:1.1,scrollTrigger:{trigger:'.contact-title',start:'top 90%',once:true}});
+  const enter=(el,vars={})=>{if(seenEntrances.has(el))return;gsap.from(el,{y:24,autoAlpha:0,duration:.7,ease:'power3.out',...vars,scrollTrigger:{trigger:el,start:'top 92%',once:true,onEnter:()=>seenEntrances.add(el)}});};
+  $$('.reveal,.project-art,.team-person,.home-process li').forEach(el=>enter(el));
+  $$('.capability-row').forEach(el=>enter(el,{y:14,duration:.55}));
+  if($('.echo-rings'))gsap.to('.echo-rings',{rotation:18,ease:'none',scrollTrigger:{trigger:'.echo-art',start:'top bottom',end:'bottom top',scrub:1}});
+  const contact=$('.contact-title');if(!seenEntrances.has(contact))gsap.from('.contact-title .line-mask>span',{yPercent:105,stagger:.1,duration:.9,scrollTrigger:{trigger:contact,start:'top 90%',once:true,onEnter:()=>seenEntrances.add(contact)}});
  });
 }
 setupMotion();
@@ -31,7 +28,7 @@ preference.addEventListener('change',()=>{state.override=undefined;setupMotion()
 if(gsap&&ScrollTrigger)gsap.to('.progress-line',{scaleX:1,ease:'none',scrollTrigger:{start:0,end:'max',scrub:true}});
 document.fonts.ready.then(()=>ScrollTrigger?.refresh());window.addEventListener('load',()=>ScrollTrigger?.refresh());
 
-import('./scenes.js').then(({createSculpture,createSignal})=>{
+import('./scenes.js?v=structure-1').then(({createSculpture,createSignal})=>{
  try{disposeSculpture=createSculpture($('#hero-art'),$('#sculpture'),state);}catch(e){console.info('Sculpture uses the illustrated fallback.',e.message);}
  try{signal=createSignal($('#playground'),$('#signal-canvas'),state);}catch(e){console.info('Feeling lab uses the visual fallback.',e.message);}
 }).catch(()=>{});
@@ -68,9 +65,11 @@ async function toggleSound(){
 }
 function updateSoundUI(){$('#sound-toggle').setAttribute('aria-pressed',String(soundOn));$('#sound-toggle span').textContent=soundOn?'Sound on':'Sound off';$('#sound-toggle path').setAttribute('d',soundOn?'M3 10h4l5-4v12l-5-4H3z M16 8c3 2 3 6 0 8 M19 5c5 4 5 10 0 14':'M3 10h4l5-4v12l-5-4H3z M16 9l5 6m0-6-5 6');}
 function stopSound(){if(!soundOn)return;soundOn=false;masterGain.gain.setTargetAtTime(0,audioContext.currentTime,.06);const old=oscillators;const oldGain=masterGain;setTimeout(()=>{old.forEach(o=>o.stop());oldGain.disconnect();},350);oscillators=[];updateSoundUI();}
+const frequencyControl=$('#frequency-control');
+frequencyControl?.addEventListener('input',()=>{state.frequency=Number(frequencyControl.value);frequencyControl.setAttribute('aria-valuetext',`${state.frequency} hertz`);$('#frequency-readout').textContent=`FREQUENCY: ${state.frequency} Hz`;signal?.setFrequency(state.frequency);});
 $('#sound-toggle').addEventListener('click',toggleSound);$('#shuffle-feeling').addEventListener('click',()=>{signal?.shuffle();state.frequency=Math.round(110+Math.random()*550);if(!state.calm&&gsap)gsap.fromTo($('#shuffle-feeling span'),{rotation:0},{rotation:360,duration:.6,ease:'power2.out'});});
 const labObserver=new IntersectionObserver(entries=>{if(!entries[0].isIntersecting)stopSound();});labObserver.observe($('#playground'));
-const soundInterval=setInterval(()=>{if(state.frequency!==frequencyText){frequencyText=state.frequency;$('#frequency-readout').textContent=`FREQUENCY: ${state.frequency} Hz`;}if(soundOn){oscillators.forEach((o,i)=>o.frequency.setTargetAtTime(state.frequency*[1,1.005,.5][i],audioContext.currentTime,.08));}},90);
+const soundInterval=setInterval(()=>{if(state.frequency!==frequencyText){frequencyText=state.frequency;$('#frequency-readout').textContent=`FREQUENCY: ${state.frequency} Hz`;if(frequencyControl){frequencyControl.value=String(state.frequency);frequencyControl.setAttribute('aria-valuetext',`${state.frequency} hertz`);}}if(soundOn){oscillators.forEach((o,i)=>o.frequency.setTargetAtTime(state.frequency*[1,1.005,.5][i],audioContext.currentTime,.08));}},90);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopSound();});
 
 const reelWords=['LOGO.','TYPE.','MOVE.','RED.'];
@@ -85,7 +84,9 @@ $$('[data-reel]').forEach(button=>button.addEventListener('click',()=>{openDialo
 $('#reel-play').addEventListener('click',()=>{if(!reelTimeline)return;if(reelTimeline.paused()||reelTimeline.progress()===1){if(reelTimeline.progress()===1)reelTimeline.restart();else reelTimeline.play();$('#reel-play').textContent='Pause Ⅱ';$('#reel-play').setAttribute('aria-label','Pause experiment');}else{reelTimeline.pause();$('#reel-play').textContent='Play ▶';$('#reel-play').setAttribute('aria-label','Play experiment');}});
 $('#reel-replay').addEventListener('click',()=>{reelTimeline?.restart();$('#reel-play').textContent='Pause Ⅱ';$('#reel-play').setAttribute('aria-label','Pause experiment');});
 
-if(matchMedia('(pointer:fine)').matches&&gsap){const cursor=$('.cursor-label');const xTo=gsap.quickTo(cursor,'x',{duration:.2,ease:'power3'}),yTo=gsap.quickTo(cursor,'y',{duration:.2,ease:'power3'});$$('button.project').forEach(project=>{project.addEventListener('pointerenter',()=>{if(!state.calm)gsap.to(cursor,{autoAlpha:1,duration:.2});});project.addEventListener('pointermove',e=>{xTo(e.clientX);yTo(e.clientY);});project.addEventListener('pointerleave',()=>gsap.to(cursor,{autoAlpha:0,duration:.15}));});$$('.play-icon,.contact-link>span').forEach(el=>{const parent=el.parentElement;const x=gsap.quickTo(el,'x',{duration:.4,ease:'power3'}),y=gsap.quickTo(el,'y',{duration:.4,ease:'power3'});parent.addEventListener('pointermove',e=>{if(state.calm)return;const r=parent.getBoundingClientRect();x((e.clientX-r.left-r.width/2)*.12);y((e.clientY-r.top-r.height/2)*.2);});parent.addEventListener('pointerleave',()=>{x(0);y(0);});});}
-window.addEventListener('pagehide',()=>{stopSound();disposeSculpture?.();signal?.dispose();motionContext?.revert();reelTimeline?.kill();labObserver.disconnect();clearInterval(soundInterval);});
+if(matchMedia('(pointer:fine)').matches&&gsap){$$('.play-icon,.contact-link>span').forEach(el=>{const parent=el.parentElement;const x=gsap.quickTo(el,'x',{duration:.4,ease:'power3'}),y=gsap.quickTo(el,'y',{duration:.4,ease:'power3'});parent.addEventListener('pointermove',e=>{if(state.calm)return;const r=parent.getBoundingClientRect();x((e.clientX-r.left-r.width/2)*.12);y((e.clientY-r.top-r.height/2)*.2);});parent.addEventListener('pointerleave',()=>{x(0);y(0);});});}
+
+window.addEventListener('pagehide',event=>{stopSound();state.paused=true;reelTimeline?.pause();if(event.persisted)return;disposeSculpture?.();signal?.dispose();motionContext?.revert();reelTimeline?.kill();labObserver.disconnect();clearInterval(soundInterval);});
+window.addEventListener('pageshow',event=>{if(event.persisted){state.paused=false;state.needsRender=true;ScrollTrigger?.refresh();}});
 
 document.addEventListener('keydown',e=>{if(!menuOpen)return;if(e.key==='Escape'){setMenu(false);$('.menu-button').focus();}if(e.key==='Tab'){const controls=[$('.menu-button'),...$$('#mobile-menu a')];const first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});

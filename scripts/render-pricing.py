@@ -49,7 +49,7 @@ def ratebook(selected, home=False):
 
 
 config_markup = '<script type="application/json" id="pricing-config">'+json.dumps(config,ensure_ascii=False).replace('<','\\u003c')+'</script>'
-home = f'''<section class="pricing-section rate-home section-pad" id="prices" aria-labelledby="prices-title"><div class="section-kicker mono"><span>04 / PRICES</span><span>NOK / EXCLUDING VAT</span></div><div class="rate-home-heading"><h2 id="prices-title">Your next idea.<br><span>Let’s price it.</span></h2><p>Honest, not hidden.<br>Choose a package. See what comes with it.</p></div>{ratebook([by_id['logo'],by_id['website'],by_id['motion']],True)}<div class="rate-home-foot mono"><span>APPROVED EXTRAS: 1,200 NOK / HOUR</span><a href="pricing.html#build-estimate">BUILD A PROJECT ESTIMATE ↗</a></div>{config_markup}</section>'''
+home = f'''<section class="pricing-section rate-home section-pad" id="prices" aria-labelledby="prices-title"><div class="section-kicker mono"><span>03 / PRICES</span><span>NOK / EXCLUDING VAT</span></div><div class="rate-home-heading"><h2 id="prices-title">Your next idea.<br><span>Let’s price it.</span></h2><p>Honest, not hidden.<br>Choose a package. See what comes with it.</p></div>{ratebook([by_id['logo'],by_id['website'],by_id['motion']],True)}<div class="rate-home-foot mono"><span>APPROVED EXTRAS: 1,200 NOK / HOUR</span><a href="pricing.html#build-estimate">BUILD A PROJECT ESTIMATE ↗</a></div>{config_markup}</section>'''
 index_file = DIST/'index.html'
 s = index_file.read_text()
 s, count = re.subn(r'<section class="pricing-section.*?</section>',lambda m:home,s,count=1,flags=re.S)

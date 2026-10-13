@@ -92,3 +92,9 @@ The homepage pricing chapter and the Prices page use illustrated quote sheets, a
 ### Content direction
 
 The supplied “The Red Studio — Death to AI slop” HTML informed the homepage manifesto, studio principles, service descriptions, experimental lab and transparent-pricing language. “Death to AI slop” expresses a standard for original, considered work and visible authorship; it does not claim a ban on AI tools. Proposed AI assistance and confidential-data handling remain addressed in the project approach. Existing prices, deliverables, team details, clearly labelled case-study placeholders and the “Got a feeling?” closing are retained. No EU-project, funding or certification claims were added.
+
+### Homepage critique and restructuring
+
+The homepage now leads with the offering beside the manifesto, then playable motion and sound studies, a compact service index, the illustrated rate book, people and process, and the original contact closing. Oversized case-study placeholders became short, clearly attributed entries for Rajiv’s work at Zinc. Repeated principles and oversized team monograms were consolidated into one studio chapter. Work is a primary navigation destination; Compliance remains available in the footer and project approach. The pricing data, scopes and inquiry flow are retained.
+
+`dist/home.css` scopes the new layout to the homepage. The sound study accepts a keyboard-accessible frequency slider as well as pointer input; sound starts only when requested and stops when the study leaves view. GSAP entrances run once, paused motion keeps all content available, and returning through browser history retains the WebGL scenes when the browser caches the page.
