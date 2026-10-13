@@ -89,6 +89,12 @@ The homepage pricing chapter and the Prices page use illustrated quote sheets, a
 
 `dist/pricing-data.json` is the canonical package data. After changing it, run `python3 scripts/render-pricing.py` to regenerate the static package views and embedded configuration. `dist/pricing.js` handles selection, estimates, VAT and reduced motion; `dist/pricing.css` scopes the visual treatment to these two views. No new third-party dependency or build step is needed to run the site.
 
+### Project carousel
+
+The homepage presents all six project entries in a perspective stack. The active sheet sits forward and above its neighbours; side cards recede with angled transforms, softer opacity and blur. `dist/projects.js` uses the bundled GSAP library for interruptible transitions, direct dragging and a one-time entrance. Visitors can select a side card, use arrows or dots, or browse with Left/Right and Home/End keys. There is no automatic advance. The site motion toggle and system reduced-motion preference keep selection available with immediate changes. Without GSAP, the sheets remain a readable static collection.
+
+`dist/projects.css` scopes the artwork and responsive layout. Offgrid, Form and Echo are illustrative concept studies inspired by the supplied reference. The EU entry remains a placeholder with its name, programme and team role pending; the Zinc entries identify Rajiv’s individual work and are awaiting case-study details.
+
 ### Content direction
 
 The supplied “The Red Studio — Death to AI slop” HTML informed the homepage manifesto, studio principles, service descriptions, experimental lab and transparent-pricing language. “Death to AI slop” expresses a standard for original, considered work and visible authorship; it does not claim a ban on AI tools. Proposed AI assistance and confidential-data handling remain addressed in the project approach. Existing prices, deliverables, team details, clearly labelled case-study placeholders and the “Got a feeling?” closing are retained. No EU-project, funding or certification claims were added.

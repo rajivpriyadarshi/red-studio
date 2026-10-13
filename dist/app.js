@@ -53,8 +53,6 @@ if(queryPackage||queryBundle)fetch('pricing-data.json').then(r=>r.json()).then(d
 }).catch(()=>{});
 $$('.service').forEach(detail=>detail.addEventListener('toggle',()=>{if(detail.open&&gsap&&!state.calm)gsap.fromTo(detail.querySelector('.service-content'),{autoAlpha:0,y:12},{autoAlpha:1,y:0,duration:.35,clearProps:'all'});ScrollTrigger?.refresh();}));
 
-$$('.case-practice').forEach(detail=>detail.addEventListener('toggle',()=>ScrollTrigger?.refresh()));
-
 const form=$('#inquiry-form');let inquiryText='';
 form.addEventListener('submit',e=>{e.preventDefault();if(!form.reportValidity())return;const data=new FormData(form);const services=data.getAll('services');inquiryText=`Hi Red Studio,\n\nI'm ${data.get('name')}, and I'd love to talk about a project.\n\nPackage: ${selectedPackage||'Custom scope'}\nServices: ${services.length?services.join(', '):'To be confirmed'}\n\n${data.get('brief')}\n\nYou can reach me at ${data.get('email')}.\n\n${data.get('name')}`;const link=`mailto:theredstudio@gmail.com?subject=${encodeURIComponent('New project inquiry — '+data.get('name'))}&body=${encodeURIComponent(inquiryText)}`;$('#draft-mail-link').href=link;$('#draft-actions').hidden=false;form.querySelector('button[type=submit]').hidden=true;$('#form-status').textContent='Your draft is ready. Open your email app to review and send, or copy the text below.';});
 form.addEventListener('input',()=>{if(!$('#draft-actions').hidden){$('#draft-actions').hidden=true;form.querySelector('button[type=submit]').hidden=false;$('#form-status').textContent='';}});

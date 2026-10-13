@@ -50,14 +50,6 @@
 .frequency-control>span{display:block;font-size:8px;letter-spacing:.04em;margin-bottom:8px;color:#f3f0e9bd}
 .frequency-control input{display:block;width:100%;margin:0;accent-color:var(--paper);cursor:pointer;min-height:20px}
 .frequency-control input:focus-visible{outline-color:var(--paper);outline-offset:4px}
-.case-notes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.8fr);gap:60px;margin-top:48px;align-items:start}
-.case-notes h3{font-weight:400;font-size:25px;letter-spacing:-.9px;margin:12px 0}
-.case-notes>div>p:not(.mono){font-size:13px;line-height:1.6;color:var(--muted);max-width:280px;margin:0}
-.case-notes .mono{font-size:8px;color:var(--muted);margin:0}
-.case-notes ul{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
-.case-notes li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:21px 0;border-bottom:1px solid var(--line);align-items:center}
-.case-notes h4{font-size:20px;font-weight:400;letter-spacing:-.6px;margin:0 0 8px}
-.case-notes li p{font-size:11px;color:var(--muted);margin:0}
 .home-rework .services-section{padding-top:40px}
 .services-deck{display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);gap:90px;margin-top:42px}
 .services-heading h2{margin:0 0 25px}
@@ -108,7 +100,7 @@
  .services-deck{gap:48px;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr)}.capability-row{gap:14px}.capability-row h3{font-size:25px}
  .studio-grid{gap:48px}.studio-standards dl>div{grid-template-columns:85px minmax(0,1fr);gap:18px}
  .home-rework .hero-actions{gap:20px}.home-rework .hero-actions .pill-link{gap:18px;padding:14px 16px}
- .work-studies{gap:22px}.case-notes{gap:35px}.home-process{gap:25px}
+ .work-studies{gap:22px}.home-process{gap:25px}
 }
 @media(max-width:760px){
  .home-rework{--gutter:22px}.home-rework .section-pad{padding:45px var(--gutter)}
@@ -131,8 +123,6 @@
  .home-rework .playground-content{padding:54px 22px 36px}.home-rework .playground h3{font-size:43px;margin:8px 0 15px}
  .home-rework .playground-content>p{font-size:12px;max-width:260px}.frequency-control{margin-top:16px;max-width:260px}
  .home-rework .playground-controls{margin-top:14px}.home-rework .playground-bottom{display:none}
- .case-notes{grid-template-columns:1fr;gap:23px;margin-top:35px}.case-notes h3{font-size:24px}.case-notes>div>p:not(.mono){font-size:12px;max-width:none}
- .case-notes li{padding:19px 0}.case-notes h4{font-size:18px}.case-notes li p{font-size:10px}.case-notes li>.mono{font-size:7px}
  .home-rework .services-section{padding-top:10px}.services-deck{grid-template-columns:1fr;gap:30px;margin-top:30px}
  .services-heading h2{margin-bottom:20px}.services-heading>p{font-size:14px;max-width:310px;margin-bottom:22px}
  .capability-row{grid-template-columns:22px minmax(0,1fr) 25px;gap:10px;padding:22px 0}.capability-row h3{font-size:23px;margin-bottom:8px}
@@ -145,27 +135,6 @@
  .studio-standards dd{font-size:12px}.studio-standards dt{font-size:13px}.home-process{grid-template-columns:1fr 1fr;gap:28px 22px;margin-top:36px}
  .home-process h3{font-size:21px}.home-process p{font-size:11px}.home-rework .contact-section{padding-top:35px;padding-bottom:40px}
 }
-@media(max-width:380px){.home-rework .hero h1{font-size:18.2vw}.home-rework .hero-lead{font-size:14px}.home-rework .hero-actions{gap:20px}.home-rework .hero-actions .pill-link{gap:14px}.home-rework .hero-art{height:255px}.home-rework .section-title-row h2,.home-rework .services-heading h2,.home-rework .studio-introduction h2{font-size:35px}.capability-row h3{font-size:21px}.case-notes li{grid-template-columns:1fr}.home-rework .playground-top{font-size:6px}.home-rework .playground h3{font-size:40px}}
+@media(max-width:380px){.home-rework .hero h1{font-size:18.2vw}.home-rework .hero-lead{font-size:14px}.home-rework .hero-actions{gap:20px}.home-rework .hero-actions .pill-link{gap:14px}.home-rework .hero-art{height:255px}.home-rework .section-title-row h2,.home-rework .services-heading h2,.home-rework .studio-introduction h2{font-size:35px}.capability-row h3{font-size:21px}.home-rework .playground-top{font-size:6px}.home-rework .playground h3{font-size:40px}}
 @media(prefers-reduced-motion:reduce){.study-play,.capability-arrow{transition:none}.motion-cover:hover .study-play,.capability-row:hover .capability-arrow{transform:none}}
 .home-rework.motion-paused .study-play,.home-rework.motion-paused .capability-arrow{transition:none;transform:none}
-
-/* Reference concepts stay distinct from client case studies awaiting details. */
-.case-notes-index{min-width:0}
-.case-notes .reference-projects li{grid-template-columns:56px minmax(0,1fr) auto;gap:18px;padding:20px 0}
-.case-thumb{width:56px;height:60px;display:grid;place-items:center;overflow:hidden;font-size:22px;font-weight:700;letter-spacing:-1.5px}
-.thumb-pending{border:1px dashed var(--line);color:var(--muted);font:14px Mono;letter-spacing:.02em}
-.thumb-offgrid{background:#d7e476;color:#273822;line-height:.78;font-size:21px}
-.thumb-offgrid>span{transform:rotate(-8deg)}
-.thumb-form{background:#d7d3c8;color:var(--ink);font-size:20px;font-weight:400;letter-spacing:-1.2px}
-.thumb-echo{background:var(--ink);color:var(--paper);font-size:21px;letter-spacing:-1.8px;border-bottom:3px solid var(--red)}
-.pending-project-name{display:block;font-size:11px;line-height:1.5;font-weight:400;color:var(--muted);letter-spacing:0;margin-top:5px}
-.case-practice{margin-top:22px;border-bottom:1px solid var(--line)}
-.case-practice summary{display:grid;grid-template-columns:minmax(0,1fr) auto 14px;align-items:center;gap:16px;list-style:none;cursor:pointer;font-size:12px;padding:17px 0;border-top:1px solid var(--line)}
-.case-practice summary::-webkit-details-marker{display:none}
-.case-practice summary::after{content:'+';font-size:20px;color:var(--red);justify-self:end}
-.case-practice[open] summary::after{content:'−'}
-.case-practice summary:focus-visible{outline:2px solid var(--red);outline-offset:4px}
-.case-practice>p{font-size:12px;line-height:1.6;color:var(--muted);margin:12px 0 20px}
-.case-notes .case-practice li:last-child{border-bottom:0}
-@media(max-width:760px){.case-notes .reference-projects li{gap:14px}.case-thumb{width:52px;height:56px}.case-notes .reference-projects li{grid-template-columns:52px minmax(0,1fr) auto}.case-practice summary{font-size:12px}}
-@media(max-width:380px){.case-notes .reference-projects li{grid-template-columns:48px minmax(0,1fr);gap:8px 14px}.case-notes .reference-projects li>.mono{grid-column:2}.case-thumb{width:48px;height:54px;grid-row:1/3}.case-notes .case-practice li{grid-template-columns:1fr}}
