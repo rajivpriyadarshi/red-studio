@@ -98,3 +98,7 @@ The supplied “The Red Studio — Death to AI slop” HTML informed the homepag
 The homepage now leads with the offering beside the manifesto, then playable motion and sound studies, a compact service index, the illustrated rate book, people and process, and the original contact closing. Oversized case-study placeholders became short, clearly attributed entries for Rajiv’s work at Zinc. Repeated principles and oversized team monograms were consolidated into one studio chapter. Work is a primary navigation destination; Compliance remains available in the footer and project approach. The pricing data, scopes and inquiry flow are retained.
 
 `dist/home.css` scopes the new layout to the homepage. The sound study accepts a keyboard-accessible frequency slider as well as pointer input; sound starts only when requested and stops when the study leaves view. GSAP entrances run once, paused motion keeps all content available, and returning through browser history retains the WebGL scenes when the browser caches the page.
+
+### Project placeholders from the supplied studio draft
+
+The homepage includes Offgrid, Form and Echo from the user-supplied HTML, each labelled as a concept study. An EU-project entry is explicitly a placeholder: the draft mentions EU-project experience but supplies no project name, funding programme or team role. Those details remain pending. Rajiv’s Zinc OneView and Cross-border entries remain available in the expandable practice list.
