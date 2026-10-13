@@ -1,6 +1,6 @@
 # Red Studio
 
-A multidisciplinary design studio landing page built around **Designed to be felt**.
+A multidisciplinary design studio website with GSAP motion and Three.js visuals.
 
 [Open Red Studio](https://rajivpriyadarshi.github.io/red-studio/).
 
@@ -24,8 +24,8 @@ Alternatively, run `npm run dev` if Node.js and Python 3 are available. Serve th
 
 - Interactive Three.js ribbon sculpture with illustrated fallback.
 - GSAP typography, scroll choreography, and project transitions.
-- Custom liquid WebGL shader and opt-in synthesized sound.
-- A 16-second kinetic typography experiment with playback controls.
+- Cinematic visual-directions filmstrip with unfolding frames and changing backdrops.
+- Separate Orbit and Weave concepts with immersive WebGL scenes.
 - Responsive project gallery and service panels.
 - Motion pause controls and support for reduced-motion preferences.
 - An inquiry form that prepares a reviewable email draft.
@@ -34,9 +34,9 @@ Alternatively, run `npm run dev` if Node.js and Python 3 are available. Serve th
 
 - `dist/index.html`: page content, project artwork, and dialogs.
 - `dist/styles.css`: visual design and responsive layouts.
-- `dist/app.js`: GSAP motion, interactions, inquiries, and audio.
+- `dist/app.js`: GSAP motion, navigation, and inquiries.
 - `dist/scenes.js`: Three.js sculpture and liquid shader.
-- `dist/assets/`: bundled fonts and favicon.
+- `dist/assets/`: bundled fonts, favicon, and credited Lummi imagery.
 - `dist/vendor/`: bundled animation and rendering libraries.
 - `dist/licenses/`: third-party license notices.
 - `.openai/hosting.json`: configuration for the existing private hosted preview.
@@ -108,3 +108,9 @@ The homepage now leads with the offering beside the manifesto, then playable mot
 ### Project placeholders from the supplied studio draft
 
 The homepage includes Offgrid, Form and Echo from the user-supplied HTML, each labelled as a concept study. An EU-project entry is explicitly a placeholder: the draft mentions EU-project experience but supplies no project name, funding programme or team role. Those details remain pending. Rajiv’s Zinc OneView and Cross-border entries remain available in the expandable practice list.
+
+### Visual directions filmstrip
+
+The homepage’s former motion/sound demo panels are replaced by an immersive, full-width filmstrip in `dist/directions.js` and `dist/directions.css`. Five frames share a top edge: hovering or focusing a frame unfurls its crop and crossfades the scene, title and discipline. Click, arrow keys, horizontal dragging and horizontal trackpad gestures recenter the strip; vertical page scrolling stays native. Motion pause and system reduced motion make changes immediate.
+
+The photographic artwork is credited Lummi reference imagery, not studio-authored work or client case studies. Local, optimised WebP images and separate small thumbnails are in `dist/assets/directions/`; creator credits and source links are in `dist/licenses/lummi-images.txt`. The interaction was studied from [Crafter UI’s Hero Carousel](https://21st.dev/@crafterui/components/hero-carousel) and independently implemented in the existing GSAP stack.

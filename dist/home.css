@@ -20,36 +20,6 @@
 .home-rework .section-title-row h2,.home-rework .services-heading h2,.home-rework .studio-introduction h2{font-size:clamp(38px,4.6vw,68px);font-weight:400;line-height:1.05;letter-spacing:-.065em}
 .home-rework .section-aside{font-size:14px;max-width:260px;margin-right:0}
 .home-rework .section-kicker{font-size:9px}
-.work-studies{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px}
-.study-card{min-width:0;margin:0}
-.motion-cover{width:100%;padding:0;display:block;position:relative;text-align:left}
-.motion-cover .project-art{display:block;height:420px;aspect-ratio:auto}
-.motion-cover .echo-word{font-size:clamp(85px,12vw,180px);letter-spacing:-.08em;pointer-events:none}
-.motion-cover .echo-rings{display:block;inset:-20% 10%;height:140%;width:80%;pointer-events:none}
-.motion-cover .art-small{font-size:8px;line-height:1.6;left:24px;top:22px;pointer-events:none}
-.study-command{position:absolute;bottom:24px;left:24px;right:24px;display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:.01em}
-.study-play{display:grid;place-items:center;width:46px;height:46px;border:1px solid #f3f0e966;border-radius:50%;font-size:13px;transition:transform .25s var(--ease),background .25s,color .25s}
-.motion-cover:hover .study-play{transform:scale(1.09);background:var(--paper);color:var(--ink)}
-.motion-cover:active .study-play{transform:scale(.96)}
-.study-caption{border-bottom:1px solid var(--line);padding:20px 0 22px}
-.study-caption>div{display:flex;justify-content:space-between;gap:20px;align-items:center}
-.study-caption h3{font-size:23px;font-weight:400;letter-spacing:-.8px;margin:0}
-.study-caption .mono{font-size:8px;color:var(--muted)}
-.study-caption>p{font-size:13px;line-height:1.6;margin:10px 0 0;color:var(--muted)}
-.home-rework .playground{height:420px;min-height:0}
-.home-rework .playground-top,.home-rework .playground-bottom{left:24px;right:24px;font-size:8px;gap:14px}
-.home-rework .playground-top{top:22px}
-.home-rework .playground-bottom{bottom:20px}
-.home-rework .playground-content{padding:62px 24px 48px}
-.home-rework .playground h3{font-size:clamp(38px,4.9vw,70px);line-height:.97;letter-spacing:-.065em;font-weight:400;margin:12px 0 17px}
-.home-rework .playground h3 em{font:inherit;font-family:Georgia,serif}
-.home-rework .playground-content>p{font-size:13px;line-height:1.6;margin:0;max-width:280px}
-.home-rework .playground-controls{margin-top:18px;gap:9px;flex-wrap:wrap}
-.home-rework .playground-controls button{font-size:10px;padding:10px 13px;min-height:40px;gap:9px}
-.frequency-control{display:block;max-width:270px;margin-top:20px;pointer-events:auto}
-.frequency-control>span{display:block;font-size:8px;letter-spacing:.04em;margin-bottom:8px;color:#f3f0e9bd}
-.frequency-control input{display:block;width:100%;margin:0;accent-color:var(--paper);cursor:pointer;min-height:20px}
-.frequency-control input:focus-visible{outline-color:var(--paper);outline-offset:4px}
 .home-rework .services-section{padding-top:40px}
 .services-deck{display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);gap:90px;margin-top:42px}
 .services-heading h2{margin:0 0 25px}
@@ -100,7 +70,7 @@
  .services-deck{gap:48px;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr)}.capability-row{gap:14px}.capability-row h3{font-size:25px}
  .studio-grid{gap:48px}.studio-standards dl>div{grid-template-columns:85px minmax(0,1fr);gap:18px}
  .home-rework .hero-actions{gap:20px}.home-rework .hero-actions .pill-link{gap:18px;padding:14px 16px}
- .work-studies{gap:22px}.home-process{gap:25px}
+.home-process{gap:25px}
 }
 @media(max-width:760px){
  .home-rework{--gutter:22px}.home-rework .section-pad{padding:45px var(--gutter)}
@@ -115,14 +85,8 @@
  .home-rework .hero-bottom p{font-size:7px;max-width:140px}.home-rework .scroll-cue{font-size:7px;gap:15px}.home-rework .scroll-cue span{font-size:20px}
  .home-rework .section-kicker{font-size:7px;gap:20px}.home-rework .section-kicker>span:last-child{text-align:right}
  .home-rework .section-title-row{display:block;margin:28px 0}.home-rework .section-title-row h2,.home-rework .services-heading h2,.home-rework .studio-introduction h2{font-size:39px}
- .home-rework .section-aside{font-size:13px;margin:18px 0 0;max-width:310px}.work-studies{grid-template-columns:1fr;gap:32px}
- .motion-cover .project-art,.home-rework .playground{height:360px}.motion-cover .echo-word{font-size:24vw}
- .motion-cover .art-small{font-size:7px;left:22px;top:20px}.study-command{font-size:9px;left:22px;right:22px;bottom:22px}
- .study-caption{padding:16px 0 19px}.study-caption h3{font-size:22px}.study-caption .mono{font-size:7px}.study-caption>p{font-size:12px}
- .home-rework .playground-top{font-size:7px;top:20px}.home-rework .playground-top,.home-rework .playground-bottom{left:22px;right:22px}
- .home-rework .playground-content{padding:54px 22px 36px}.home-rework .playground h3{font-size:43px;margin:8px 0 15px}
- .home-rework .playground-content>p{font-size:12px;max-width:260px}.frequency-control{margin-top:16px;max-width:260px}
- .home-rework .playground-controls{margin-top:14px}.home-rework .playground-bottom{display:none}
+ .home-rework .section-aside{font-size:13px;margin:18px 0 0;max-width:310px}
+
  .home-rework .services-section{padding-top:10px}.services-deck{grid-template-columns:1fr;gap:30px;margin-top:30px}
  .services-heading h2{margin-bottom:20px}.services-heading>p{font-size:14px;max-width:310px;margin-bottom:22px}
  .capability-row{grid-template-columns:22px minmax(0,1fr) 25px;gap:10px;padding:22px 0}.capability-row h3{font-size:23px;margin-bottom:8px}
@@ -135,6 +99,6 @@
  .studio-standards dd{font-size:12px}.studio-standards dt{font-size:13px}.home-process{grid-template-columns:1fr 1fr;gap:28px 22px;margin-top:36px}
  .home-process h3{font-size:21px}.home-process p{font-size:11px}.home-rework .contact-section{padding-top:35px;padding-bottom:40px}
 }
-@media(max-width:380px){.home-rework .hero h1{font-size:18.2vw}.home-rework .hero-lead{font-size:14px}.home-rework .hero-actions{gap:20px}.home-rework .hero-actions .pill-link{gap:14px}.home-rework .hero-art{height:255px}.home-rework .section-title-row h2,.home-rework .services-heading h2,.home-rework .studio-introduction h2{font-size:35px}.capability-row h3{font-size:21px}.home-rework .playground-top{font-size:6px}.home-rework .playground h3{font-size:40px}}
-@media(prefers-reduced-motion:reduce){.study-play,.capability-arrow{transition:none}.motion-cover:hover .study-play,.capability-row:hover .capability-arrow{transform:none}}
-.home-rework.motion-paused .study-play,.home-rework.motion-paused .capability-arrow{transition:none;transform:none}
+@media(max-width:380px){.home-rework .hero h1{font-size:18.2vw}.home-rework .hero-lead{font-size:14px}.home-rework .hero-actions{gap:20px}.home-rework .hero-actions .pill-link{gap:14px}.home-rework .hero-art{height:255px}.home-rework .section-title-row h2,.home-rework .services-heading h2,.home-rework .studio-introduction h2{font-size:35px}.capability-row h3{font-size:21px}}
+@media(prefers-reduced-motion:reduce){.capability-arrow{transition:none}.capability-row:hover .capability-arrow{transform:none}}
+.home-rework.motion-paused .capability-arrow{transition:none;transform:none}
