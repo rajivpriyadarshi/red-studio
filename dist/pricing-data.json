@@ -1,0 +1,119 @@
+{
+  "currency": "NOK",
+  "vatRate": 0.25,
+  "hourlyRate": 1200,
+  "packages": [
+    {
+      "id": "logo",
+      "name": "Logo essentials",
+      "price": 15000,
+      "time": "2\u20133 weeks",
+      "fit": "A new logo or a focused refresh.",
+      "items": [
+        "Kickoff and two creative directions",
+        "One selected logo, two feedback rounds",
+        "Primary, secondary and icon variants",
+        "Colour, typography and a mini usage guide",
+        "Editable source + SVG, PDF and PNG exports"
+      ],
+      "excludes": "Naming, research interviews, templates and font licences.",
+      "group": "brand"
+    },
+    {
+      "id": "identity",
+      "name": "Brand identity",
+      "price": 35000,
+      "time": "4\u20135 weeks",
+      "fit": "A consistent identity your team can use.",
+      "items": [
+        "Everything in Logo essentials",
+        "Positioning workshop and visual direction",
+        "Brand guidelines up to 20 pages",
+        "Six editable social templates",
+        "A 10-slide presentation template"
+      ],
+      "excludes": "Naming, copywriting, photography and paid licences.",
+      "group": "brand"
+    },
+    {
+      "id": "website",
+      "name": "Landing page",
+      "price": 35000,
+      "time": "3\u20134 weeks",
+      "fit": "One focused page, designed and built.",
+      "items": [
+        "Structure and responsive design",
+        "Build of one page, up to eight sections",
+        "Two feedback rounds and basic motion",
+        "Keyboard, mobile and performance checks",
+        "Deployment to your account and source handoff"
+      ],
+      "excludes": "Copywriting, CMS, hosting, paid tools and custom 3D.",
+      "group": "digital"
+    },
+    {
+      "id": "product",
+      "name": "Product UX/UI sprint",
+      "price": 45000,
+      "time": "3\u20134 weeks",
+      "fit": "One product flow with a clear design handoff.",
+      "items": [
+        "One core journey and wireframes",
+        "Up to ten unique screens",
+        "One responsive breakpoint adaptation",
+        "Clickable prototype and component sheet",
+        "Two feedback rounds and developer handoff"
+      ],
+      "excludes": "Engineering, research recruitment and extra product flows.",
+      "group": "digital"
+    },
+    {
+      "id": "campaign",
+      "name": "Campaign toolkit",
+      "price": 15000,
+      "time": "2\u20133 weeks",
+      "fit": "An existing brand, ready for a campaign.",
+      "items": [
+        "One campaign art direction",
+        "Six editable static templates",
+        "Up to two aspect ratios per template",
+        "Two feedback rounds",
+        "Source files and ready-to-use exports"
+      ],
+      "excludes": "Ad spend, media buying, copywriting, photography and animation.",
+      "group": "campaigns"
+    },
+    {
+      "id": "motion",
+      "name": "Motion starter",
+      "price": 18000,
+      "time": "2\u20133 weeks",
+      "fit": "A short brand or product animation.",
+      "items": [
+        "One 2D animation, up to 15 seconds",
+        "Storyboard and style frames",
+        "Animation of supplied brand assets",
+        "Two feedback rounds, two aspect ratios",
+        "MP4 exports and editable project file"
+      ],
+      "excludes": "3D, character animation, voiceover, music and asset creation.",
+      "group": "motion"
+    },
+    {
+      "id": "sound",
+      "name": "Sound starter",
+      "price": 12000,
+      "time": "2\u20133 weeks",
+      "fit": "A small, recognisable set of brand sounds.",
+      "items": [
+        "One 2\u20135 second sonic logo",
+        "Three related interface sound cues",
+        "Two feedback rounds",
+        "WAV files and a short usage guide",
+        "Usage rights stated in the project agreement"
+      ],
+      "excludes": "Voiceover, licensed music and long-form composition.",
+      "group": "sound"
+    }
+  ]
+}
