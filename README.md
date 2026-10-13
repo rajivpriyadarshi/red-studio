@@ -65,7 +65,7 @@ Scroll or drag to explore; previous/next buttons, the project rail, and keyboard
 
 ## Content rework branch
 
-`content-rework` updates the original landing page. It adds dedicated Services, Prices, Compliance and Studio pages, a Trondheim origin, and the named team: Shubham Jain (Founder) and Rajiv Priyadarshi (Chief Design Officer). Zinc OneView and Zinc Cross-border are explicitly labelled placeholders for Rajiv’s individual work, with case studies to be supplied later. Initials represent the team until real portraits are supplied.
+`content-rework` updates the original landing page. It adds dedicated Services, Prices, Compliance and Studio pages, a Trondheim origin, and the named team: Shubham Jain (Founder) and Rajiv Priyadarshi (Chief Design Officer). Zinc OneView and Zinc Cross-border are explicitly labelled placeholders for Rajiv’s individual work, with case studies to be supplied later. The homepage and Studio page use the supplied portraits of Shubham and Rajiv, presented in grayscale with CSS. Original photo files remain unchanged in `dist/assets/team/`.
 
 The price list proposes seven fixed-scope packages in NOK, with two feedback rounds, explicit exclusions, a 25% VAT display option where applicable, and approved extras at NOK 1,200/hour excluding VAT. Monthly support is NOK 22,000 for 20 hours. The public Pages workflow still deploys only `main`.
 

@@ -47,7 +47,6 @@
 .studio-introduction>p{font-size:15px;line-height:1.75;max-width:400px;margin:0 0 26px}
 .team-roster{display:grid;gap:24px;margin-bottom:40px}
 .team-person{display:flex;align-items:center;gap:20px}
-.person-initials{width:58px;height:64px;display:grid;place-items:center;background:#e8e3d9;color:var(--red);font-size:24px;letter-spacing:-1.5px;flex-shrink:0}
 .team-person h3{font-size:23px;letter-spacing:-.7px;font-weight:400;margin:0 0 7px}
 .team-person p{font-size:8px;color:var(--muted);margin:0}
 .studio-standards>p{font-size:8px;color:var(--muted);margin:0 0 15px}
