@@ -45,7 +45,7 @@ Alternatively, run `npm run dev` if Node.js and Python 3 are available. Serve th
 
 Offgrid, Form, and Echo are original illustrative concept studies, not client commissions.
 
-Project inquiries are addressed to `theredstudio@gmail.com`. The form creates an email draft for the visitor to review and send in their email app. It does not submit inquiries to a server.
+Project inquiries are addressed to `theredstudiopost@gmail.com`. The form creates an email draft for the visitor to review and send in their email app. It does not submit inquiries to a server.
 
 To change the contact address, update `dist/index.html` and `dist/app.js`.
 
@@ -61,7 +61,7 @@ A second Red Studio direction is published separately at [Red Studio — Orbit](
 
 A third, independent Red Studio direction is published at [Red Studio — The Weave](https://rajivpriyadarshi.github.io/red-studio/weave/). Its static files live in `dist/weave/`. The site opens with an original “Ideas you can feel” hero: kinetic typography, a red sculptural loop, and a studio introduction to identity, digital, motion, and sound. After the studio chapter, the loop visibly opens and stretches into a continuous red ribbon on its own scroll runway. The same red material and deep-red atmosphere persist throughout, with warm particles, glass edges, reflections, and interface surfaces. Project selection never recolors the environment. The sheet keeps its width, and project planes arrive last. The ribbon anchors a spiral of refractive glass panels, with camera orbiting, flowing particles, atmospheric post effects, and GSAP transitions. The project artwork is original and labelled as concept work.
 
-Scroll or drag to explore; previous/next buttons, the project rail, and keyboard arrows provide alternate navigation. The studio, services, and contact flow are accessible through native dialogs. Audio is optional, motion can be paused, and reduced-motion preferences are supported. Inquiries use `theredstudio@gmail.com`.
+Scroll or drag to explore; previous/next buttons, the project rail, and keyboard arrows provide alternate navigation. The studio, services, and contact flow are accessible through native dialogs. Audio is optional, motion can be paused, and reduced-motion preferences are supported. Inquiries use `theredstudiopost@gmail.com`.
 
 ## Content rework branch
 
