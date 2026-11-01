@@ -5,30 +5,30 @@
   "packages": [
     {
       "id": "logo",
-      "name": "Logo essentials",
+      "name": "Logo design",
       "price": 15000,
-      "time": "2\u20133 weeks",
+      "time": "2–3 weeks",
       "fit": "A new logo or a focused refresh.",
       "items": [
-        "Kickoff and two creative directions",
-        "One selected logo, two feedback rounds",
-        "Primary, secondary and icon variants",
-        "Colour, typography and a mini usage guide",
-        "Editable source + SVG, PDF and PNG exports"
+        "First conversation and two design directions",
+        "One chosen logo, two feedback rounds",
+        "Versions for print, screen and small icons",
+        "Colours, fonts and a short usage guide",
+        "Editable files plus SVG, PDF and PNG versions"
       ],
       "excludes": "Naming, research interviews, templates and font licences.",
       "group": "brand"
     },
     {
       "id": "identity",
-      "name": "Brand identity",
+      "name": "Logo & design kit",
       "price": 35000,
-      "time": "4\u20135 weeks",
-      "fit": "A consistent identity your team can use.",
+      "time": "4–5 weeks",
+      "fit": "A consistent look your whole team can use.",
       "items": [
-        "Everything in Logo essentials",
-        "Positioning workshop and visual direction",
-        "Brand guidelines up to 20 pages",
+        "Everything in Logo design",
+        "A workshop to agree your message and visual style",
+        "A usage guide up to 20 pages",
         "Six editable social templates",
         "A 10-slide presentation template"
       ],
@@ -37,80 +37,96 @@
     },
     {
       "id": "website",
-      "name": "Landing page",
+      "name": "One-page website",
       "price": 35000,
-      "time": "3\u20134 weeks",
-      "fit": "One focused page, designed and built.",
+      "time": "3–4 weeks",
+      "fit": "One clear page for your project, designed and built.",
       "items": [
-        "Structure and responsive design",
+        "Page plan and design for phones and computers",
         "Build of one page, up to eight sections",
-        "Two feedback rounds and basic motion",
-        "Keyboard, mobile and performance checks",
-        "Deployment to your account and source handoff"
+        "Two feedback rounds and simple animation",
+        "Keyboard, mobile and speed checks",
+        "Publishing to your account and all source files"
       ],
-      "excludes": "Copywriting, CMS, hosting, paid tools and custom 3D.",
+      "excludes": "Writing, content management tools, hosting, paid tools and custom 3D.",
       "group": "digital"
     },
     {
       "id": "product",
-      "name": "Product UX/UI sprint",
+      "name": "App & tool design",
       "price": 45000,
-      "time": "3\u20134 weeks",
-      "fit": "One product flow with a clear design handoff.",
+      "time": "3–4 weeks",
+      "fit": "Make one task in your app or research tool easier to use.",
       "items": [
-        "One core journey and wireframes",
-        "Up to ten unique screens",
-        "One responsive breakpoint adaptation",
-        "Clickable prototype and component sheet",
-        "Two feedback rounds and developer handoff"
+        "One user task mapped out in simple sketches",
+        "Up to ten different screen designs",
+        "Adaptation for one additional screen size",
+        "Clickable demo and reusable design elements",
+        "Two feedback rounds and files for your developer"
       ],
-      "excludes": "Engineering, research recruitment and extra product flows.",
+      "excludes": "Coding, recruiting research participants and extra user tasks.",
       "group": "digital"
     },
     {
       "id": "campaign",
-      "name": "Campaign toolkit",
+      "name": "Slides & poster toolkit",
       "price": 15000,
-      "time": "2\u20133 weeks",
-      "fit": "An existing brand, ready for a campaign.",
+      "time": "2–3 weeks",
+      "fit": "Ready-to-use layouts for sharing your work.",
       "items": [
-        "One campaign art direction",
-        "Six editable static templates",
-        "Up to two aspect ratios per template",
+        "One agreed visual style using your existing logo",
+        "Six editable layouts for slides, posters or social posts",
+        "Up to two shapes or sizes per layout",
         "Two feedback rounds",
-        "Source files and ready-to-use exports"
+        "Editable files and versions ready to share"
       ],
-      "excludes": "Ad spend, media buying, copywriting, photography and animation.",
+      "excludes": "Writing, data analysis, printing, photography, paid advertising and animation.",
       "group": "campaigns"
     },
     {
       "id": "motion",
-      "name": "Motion starter",
+      "name": "Short animation",
       "price": 18000,
-      "time": "2\u20133 weeks",
-      "fit": "A short brand or product animation.",
+      "time": "2–3 weeks",
+      "fit": "A short animated explanation or logo.",
       "items": [
         "One 2D animation, up to 15 seconds",
-        "Storyboard and style frames",
-        "Animation of supplied brand assets",
-        "Two feedback rounds, two aspect ratios",
-        "MP4 exports and editable project file"
+        "A visual plan and sample frames",
+        "Animation using supplied illustrations or logo files",
+        "Two feedback rounds, two shapes or sizes",
+        "MP4 video and editable animation file"
       ],
-      "excludes": "3D, character animation, voiceover, music and asset creation.",
+      "excludes": "3D, character animation, voiceover, music and new illustrations.",
       "group": "motion"
     },
     {
-      "id": "sound",
-      "name": "Sound starter",
+      "id": "video",
+      "name": "Video edit & short cuts",
       "price": 12000,
-      "time": "2\u20133 weeks",
-      "fit": "A small, recognisable set of brand sounds.",
+      "time": "2–3 weeks",
+      "fit": "An interview or project update, ready to share.",
       "items": [
-        "One 2\u20135 second sonic logo",
-        "Three related interface sound cues",
+        "One edited film up to 90 seconds, from up to 20 minutes of supplied footage",
+        "Three short cuts, up to 20 seconds each, in one vertical format",
+        "Basic colour grading, audio cleanup and captions from an approved transcript",
         "Two feedback rounds",
-        "WAV files and a short usage guide",
-        "Usage rights stated in the project agreement"
+        "MP4 exports and the editable project file"
+      ],
+      "excludes": "Filming, voiceover, paid music or footage, translation, complex animation and advanced sound repair.",
+      "group": "video"
+    },
+    {
+      "id": "sound",
+      "name": "Sound signature",
+      "price": 12000,
+      "time": "2–3 weeks",
+      "fit": "A short sound that makes your project recognisable.",
+      "items": [
+        "One original 2–5 second sound signature",
+        "Three related sounds for app actions",
+        "Two feedback rounds",
+        "WAV audio files and a short usage guide",
+        "Usage rights agreed in writing"
       ],
       "excludes": "Voiceover, licensed music and long-form composition.",
       "group": "sound"

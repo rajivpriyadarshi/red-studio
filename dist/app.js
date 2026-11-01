@@ -50,6 +50,14 @@ if(queryPackage||queryBundle)fetch('pricing-data.json').then(r=>r.json()).then(d
  else if(queryPackage==='ongoing'){choosePackage('Ongoing design support — 20 hours / month',22000);openDialog($('#inquiry-dialog'),$('.contact-title'));}
  else if(bundle.length){const total=bundle.reduce((sum,p)=>sum+p.price,0);choosePackage(bundle.map(p=>p.name).join(' + '),total);$('#inquiry-form textarea').value=`I'd like to discuss this combination:\n${bundle.map(p=>`${p.name}: ${p.price.toLocaleString('en-GB')} NOK`).join('\n')}\n\nPackage estimate: ${total.toLocaleString('en-GB')} NOK excluding VAT.\nPlease confirm scope overlap, timing and the final quote.\n\nTimeline: \nProject details: `;openDialog($('#inquiry-dialog'),$('.contact-title'));}
 }).catch(()=>{});
+const inquiryQuery = new URLSearchParams(location.search);
+if (inquiryQuery.has('independent') || inquiryQuery.has('budget')) {
+ const independent = inquiryQuery.has('independent');
+ $('#inquiry-form textarea').value = independent
+  ? "I'd like to ask about the independent rate.\n\nAbout our band or brand: \nWhat we need: \nBudget and timing: "
+  : "I'd like to find a scope that fits our budget.\n\nWhat we need: \nWhat matters most: \nBudget and timing: ";
+ openDialog($('#inquiry-dialog'), $('.contact-title'));
+}
 $$('.service').forEach(detail=>detail.addEventListener('toggle',()=>{if(detail.open&&gsap&&!state.calm)gsap.fromTo(detail.querySelector('.service-content'),{autoAlpha:0,y:12},{autoAlpha:1,y:0,duration:.35,clearProps:'all'});ScrollTrigger?.refresh();}));
 
 const form=$('#inquiry-form');let inquiryText='';
@@ -63,3 +71,25 @@ window.addEventListener('pagehide',event=>{state.paused=true;if(event.persisted)
 window.addEventListener('pageshow',event=>{if(event.persisted){state.paused=false;state.needsRender=true;ScrollTrigger?.refresh();}});
 
 document.addEventListener('keydown',e=>{if(!menuOpen)return;if(e.key==='Escape'){setMenu(false);$('.menu-button').focus();}if(e.key==='Tab'){const controls=[$('.menu-button'),...$$('#mobile-menu a')];const first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+
+// Rate sheets and project cards collapse during module setup. Restore an entry
+// anchor only after that layout is ready, unless the visitor has taken control.
+const entryHash = location.hash;
+if (entryHash && !['#top', '#home'].includes(entryHash)) {
+ let interacted = false;
+ const controls = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+ const markInteraction = () => { interacted = true; };
+ controls.forEach(type => window.addEventListener(type, markInteraction, {once:true, passive:true}));
+ const settleEntryAnchor = async () => {
+  await document.fonts.ready;
+  requestAnimationFrame(() => {
+   if (!interacted && location.hash === entryHash && !document.querySelector('dialog[open]')) {
+    let id; try { id = decodeURIComponent(entryHash.slice(1)); } catch { id = ''; }
+    document.getElementById(id)?.scrollIntoView({behavior:'instant', block:'start'});
+   }
+   controls.forEach(type => window.removeEventListener(type, markInteraction));
+  });
+ };
+ if (document.readyState === 'complete') settleEntryAnchor();
+ else window.addEventListener('load', settleEntryAnchor, {once:true});
+}

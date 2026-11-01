@@ -1,10 +1,10 @@
 # Red Studio
 
-A multidisciplinary design studio website with GSAP motion and Three.js visuals.
+A Trondheim design studio website focused on researchers, with GSAP motion and Three.js visuals.
 
-[Open Red Studio](https://rajivpriyadarshi.github.io/red-studio/).
+[Open Red Studio](https://theredstudio.vercel.app/).
 
-The website is published on GitHub Pages. A separate [private preview](https://red-studio-feeling.zinc-money-p-8104.chatgpt.site/) is available through the owner's ChatGPT sign-in.
+The website is published on Vercel and [GitHub Pages](https://rajivpriyadarshi.github.io/red-studio/). The older private Sites preview is a historical version.
 
 ## Run locally
 
@@ -24,7 +24,9 @@ Alternatively, run `npm run dev` if Node.js and Python 3 are available. Serve th
 
 - Interactive Three.js ribbon sculpture with illustrated fallback.
 - GSAP typography, scroll choreography, and project transitions.
-- Cinematic visual-directions filmstrip with unfolding frames and changing backdrops.
+- One work carousel, plus hover/focus/tap service previews with original illustrative artwork.
+- An opt-in three-note sound and motion demo, generated locally with Web Audio.
+- Expanded team profiles and plain-language services for researchers.
 - Separate Orbit and Weave concepts with immersive WebGL scenes.
 - Responsive project gallery and service panels.
 - Motion pause controls and support for reduced-motion preferences.
@@ -67,7 +69,7 @@ Scroll or drag to explore; previous/next buttons, the project rail, and keyboard
 
 `content-rework` updates the original landing page. It adds dedicated Services, Prices, Compliance and Studio pages, a Trondheim origin, and the named team: Shubham Jain (Founder) and Rajiv Priyadarshi (Chief Design Officer). Zinc OneView and Zinc Cross-border are explicitly labelled placeholders for Rajiv’s individual work, with case studies to be supplied later. The homepage and Studio page use the supplied portraits of Shubham and Rajiv, presented in grayscale with CSS. Original photo files remain unchanged in `dist/assets/team/`.
 
-The price list proposes seven fixed-scope packages in NOK, with two feedback rounds, explicit exclusions, a 25% VAT display option where applicable, and approved extras at NOK 1,200/hour excluding VAT. Monthly support is NOK 22,000 for 20 hours. The public Pages workflow still deploys only `main`.
+The price list proposes eight fixed-scope packages in NOK, with two feedback rounds, explicit exclusions, a 25% VAT display option where applicable, and approved extras at NOK 1,200/hour excluding VAT. Monthly support is NOK 22,000 for 20 hours. The public Pages workflow still deploys only `main`.
 
 ### Pricing basis — researched 12 October 2026
 
@@ -85,7 +87,7 @@ The Compliance page describes a proposed project workflow and the site’s actua
 
 ### Interactive rate book
 
-The homepage pricing chapter and the Prices page use illustrated quote sheets, a keyboard-accessible package selector and GSAP transitions. The Prices page includes an itemised estimate builder, VAT display controls and a monthly support section. Brand identity and Logo essentials cannot both be added to the same estimate. The inquiry handoff carries selected scopes and their base-price total; final overlap, timing and tax treatment are confirmed in a written quote.
+The homepage pricing chapter and the Prices page use illustrated quote sheets, a keyboard-accessible package selector and GSAP transitions. The Prices page includes an itemised estimate builder, VAT display controls and a monthly support section. Logo & design kit and Logo design cannot both be added to the same estimate. The inquiry handoff carries selected scopes and their base-price total; final overlap, timing and tax treatment are confirmed in a written quote.
 
 `dist/pricing-data.json` is the canonical package data. After changing it, run `python3 scripts/render-pricing.py` to regenerate the static package views and embedded configuration. `dist/pricing.js` handles selection, estimates, VAT and reduced motion; `dist/pricing.css` scopes the visual treatment to these two views. No new third-party dependency or build step is needed to run the site.
 
@@ -114,3 +116,13 @@ The homepage includes Offgrid, Form and Echo from the user-supplied HTML, each l
 The homepage’s former motion/sound demo panels are replaced by an immersive, full-width filmstrip in `dist/directions.js` and `dist/directions.css`. Five frames share a top edge: hovering or focusing a frame unfurls its crop and crossfades the scene, title and discipline. Click, arrow keys, horizontal dragging and horizontal trackpad gestures recenter the strip; vertical page scrolling stays native. Motion pause and system reduced motion make changes immediate.
 
 The photographic artwork is credited Lummi reference imagery, not studio-authored work or client case studies. Local, optimised WebP images and separate small thumbnails are in `dist/assets/directions/`; creator credits and source links are in `dist/licenses/lummi-images.txt`. The interaction was studied from [Crafter UI’s Hero Carousel](https://21st.dev/@crafterui/components/hero-carousel) and independently implemented in the existing GSAP stack.
+
+### Research-focused update — 1 November 2026
+
+The homepage now leads with “Your research. Made clear.” and Trondheim, Norway. The stock-image directions filmstrip is removed from the homepage so there is one work showcase. Dedicated services include logos, websites/apps, slides/posters/reports, animation, video editing/colour grading and sound signatures. Existing project statuses remain labelled; no new research-client credentials are claimed.
+
+`dist/research.css` styles the updated sections. `scripts/render-offerings.py` generates the shared static service previews and motion/sound section for the home and Services pages; `dist/offerings.js` enhances them with keyboard and pointer selection. Mobile services scroll horizontally. Animations respect the motion toggle and system preference. The sound sample starts only on an explicit click, can be stopped, and stops on page hide.
+
+The new Video edit & short cuts package is an effort-based studio offer at NOK 12,000 excluding VAT, not a market benchmark: a supplied-footage edit up to 90 seconds plus three short cuts, basic colour/audio treatment, approved captions and two feedback rounds. The independent-rate offer is quoted individually; the written quote shows the standard fee, discount and total. No unapproved blanket discount percentage is published.
+
+Both generators are safe to rerun. Regenerate pricing after package-data changes, and offerings after changing the shared examples. Deploy the repository root with Vercel’s project root set to `dist`; do not deploy a second nested `dist` directory.

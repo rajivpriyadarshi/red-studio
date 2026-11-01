@@ -124,9 +124,9 @@ if (root && configElement) {
     if(input.checked&&(input.value==='logo'||input.value==='identity')){
       const other=checkboxes.find(box=>box.value===(input.value==='logo'?'identity':'logo'));
       if(other.checked){other.checked=false;note.textContent=input.value==='identity'?
-        'Brand identity includes Logo essentials, so the separate logo package was removed.':
-        'Logo essentials selected instead of the full Brand identity package.';}
-      else note.textContent='Brand identity includes Logo essentials. Choose one of those two.';
+        'Logo & design kit includes Logo design, so the separate logo package was removed.':
+        'Logo design selected instead of the full Logo & design kit package.';}
+      else note.textContent='Logo & design kit includes Logo design. Choose one of those two.';
     }
     renderEstimate();
   }));
