@@ -1,0 +1,477 @@
+.press-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.82fr);
+  gap: clamp(40px, 7.5vw, 144px);
+  align-items: start;
+  margin: clamp(36px, 4.4vw, 82px) 0;
+}
+.ticket-machine {
+  width: 100%;
+  max-width: 860px;
+  position: relative;
+  isolation: isolate;
+  container-type: inline-size;
+  --case-radius: clamp(15px, 2vw, 34px);
+}
+.press-console {
+  position: relative;
+  z-index: 2;
+  padding: 1.9% 2% 2.6%;
+  border: 1px solid #711f16;
+  border-radius: var(--case-radius);
+  background: linear-gradient(
+    165deg,
+    #ffac79 0%,
+    #e75c40 28%,
+    #8b2c23 76%,
+    #5c1b19 100%
+  );
+  box-shadow:
+    inset 0 2px 1px #ffdbc08f,
+    inset 0 -5px 2px #741e1b,
+    0 3px 0 #551e1d,
+    0 11px 12px -7px #32301491,
+    0 25px 32px -19px #414a1a91;
+}
+.press-face {
+  position: relative;
+  padding: 2% 4.2% 3%;
+  border-radius: calc(var(--case-radius) * 0.7);
+  background:
+    radial-gradient(ellipse at 10% 0%, #ff987955, transparent 58%),
+    linear-gradient(110deg, #ef5038, #dc3a28 62%, #cf3526);
+  box-shadow:
+    0 0 0 1px #b03224,
+    inset 0 1px 1px #ffc5a6,
+    inset 0 -2px 2px #992c22;
+}
+.machine-top,
+.press-hardware,
+.reel-tools,
+.cinema-tools {
+  display: flex;
+  align-items: center;
+}
+.machine-top {
+  gap: 4%;
+  margin-bottom: 2%;
+  min-height: 45px;
+}
+.cast-mark {
+  color: #ffe8c6;
+  font: italic 900 clamp(31px, 6.7cqw, 56px) / 0.9 var(--heavy);
+  letter-spacing: -0.095em;
+  padding-right: 0.11em;
+  text-shadow:
+    0 1px #a32c20,
+    0 2px 1px #8e2f28;
+}
+.air-grille {
+  height: 12px;
+  width: 22%;
+  border-radius: 4px;
+  background: repeating-linear-gradient(
+    105deg,
+    transparent 0 4px,
+    #a32f23 4px 5px,
+    #6f281f 5px 7px,
+    #fb8b6d 7px 8px
+  );
+  transform: skewX(-14deg);
+}
+.sound-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  font-weight: 600;
+  font-size: 15px;
+  white-space: nowrap;
+}
+.sound-switch[hidden] {
+  display: none;
+}
+.sound-switch::before {
+  content: "";
+  display: block;
+  width: 19px;
+  height: 19px;
+  flex: none;
+  background: currentColor;
+  mask: var(--speaker) center/contain no-repeat;
+  --speaker: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9h4l5-4v14l-5-4H3zM16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14'/%3E%3C/svg%3E");
+}
+.sound-switch[data-muted="true"]::before,
+.press-sound[aria-pressed="false"]::before {
+  --speaker: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9h4l5-4v14l-5-4H3zM16 9l5 6m0-6-5 6'/%3E%3C/svg%3E");
+}
+.press-sound {
+  margin-left: auto;
+  padding: 0 13px;
+  min-height: 36px;
+  border: 1px solid #77241c;
+  border-radius: 22px;
+  background: #62271f;
+  box-shadow:
+    inset 0 1px 2px #321811,
+    0 1px 0 #ff9e75;
+  color: #ffebce;
+}
+.press-sound:focus-visible {
+  outline-color: white;
+}
+.key-bank {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(3px, 0.8cqw, 7px);
+  padding: clamp(4px, 1cqw, 8px);
+  border: 1px solid #932c22;
+  border-radius: 11px;
+  background: #3b2723;
+  box-shadow:
+    inset 1px 2px 4px #1e1514,
+    0 1px 0 #ffba91;
+}
+.press-key {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: clamp(7px, 1.8cqw, 14px);
+  padding: 6px clamp(7px, 1.8cqw, 15px) 8px;
+  min-height: clamp(45px, 8.1cqw, 62px);
+  min-width: 0;
+  border-radius: 5px;
+  border: 1px solid #e6cba9;
+  background: linear-gradient(165deg, #fff6dd, #f0dfbe);
+  box-shadow:
+    inset 0 2px 0 #fff8e6,
+    inset 0 -4px 0 #c0a380,
+    0 2px 2px #211917;
+  color: #382724;
+  font: 700 clamp(14px, 2.85cqw, 21px) / 1.05 var(--sans);
+  letter-spacing: -0.045em;
+  text-decoration: none;
+}
+.press-key i {
+  font:
+    500 clamp(11px, 1.9cqw, 15px) / 1 ui-monospace,
+    monospace;
+  color: #6b5041;
+}
+.press-key:hover {
+  background: #fff8e5;
+}
+.press-key[aria-current="true"],
+.press-key:active {
+  transform: translateY(2px);
+  color: #fff1d7;
+  background: #5e2925;
+  border-color: #3d1d19;
+  box-shadow:
+    inset 0 2px 3px #2e1716,
+    inset 0 -1px 0 #87473d;
+}
+.press-key[aria-current="true"] i {
+  color: #ffcbb4;
+}
+.press-key:focus-visible {
+  outline: 2px solid #202020;
+  outline-offset: -4px;
+}
+.press-key[aria-current="true"]:focus-visible {
+  outline-color: white;
+}
+.press-hardware {
+  height: clamp(20px, 4.7cqw, 40px);
+  gap: 7px;
+  justify-content: flex-end;
+}
+.press-hardware::before {
+  content: "";
+  margin-right: auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid #a14d37;
+  background:
+    linear-gradient(
+      135deg,
+      transparent 39%,
+      #6f5144 43% 54%,
+      #eab69a 57%,
+      transparent 61%
+    ),
+    linear-gradient(135deg, #dba388, #976b58);
+  box-shadow: 0 1px 0 #fca780;
+}
+.status-lamp {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 37% 32%,
+    #e8ffd3,
+    #c7eb7c 42%,
+    #5c8b32 79%
+  );
+  box-shadow:
+    0 0 0 2px #913527,
+    0 0 5px #dfff8666;
+}
+.ticket-machine.feeding .status-lamp {
+  background: #ffdf82;
+  box-shadow:
+    0 0 0 2px #913527,
+    0 0 9px #fff1a1;
+}
+.machine-display {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: #462622;
+  box-shadow:
+    inset 0 1px 2px #28130e,
+    0 1px #fa9a76;
+  color: #ffd1ad;
+  font:
+    600 13px/1.2 ui-monospace,
+    monospace;
+  font-variant-numeric: tabular-nums;
+}
+.machine-display span {
+  opacity: 0.7;
+}
+.press-mouth {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: -6px;
+  height: clamp(18px, 4cqw, 30px);
+  padding: 4px 2%;
+  overflow: hidden;
+  border: 1px solid #742821;
+  border-radius: 8px 8px 5px 5px;
+  background: linear-gradient(
+    #c28569,
+    #67423a 9%,
+    #211918 28%,
+    #100f0f 78%,
+    #4b3632 84%,
+    #c3967a 95%,
+    #5a3831
+  );
+  box-shadow:
+    0 -1px 1px #ffb68b,
+    0 3px 3px #48190e61;
+}
+.feed-drum {
+  display: block;
+  height: 50%;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 13%,
+      #0e0b0c 13% 14%,
+      #c48972 14% 14.5%,
+      transparent 14.5% 15%
+    ),
+    repeating-linear-gradient(#2d2725 0 2px, #8a7064 2px 3px, #403531 3px 5px);
+}
+.cut-blade {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  top: 46%;
+  height: 3px;
+  background: linear-gradient(135deg, #c0a99b 48%, transparent 50%) 0 0 / 5px
+    3px repeat-x;
+}
+.ticket-bed {
+  position: relative;
+  z-index: 1;
+  width: 79%;
+  margin: 0 auto;
+  perspective: 900px;
+  clip-path: inset(0 -13% -25%);
+}
+.ticket-bed::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 auto;
+  height: clamp(10px, 3.4cqw, 23px);
+  pointer-events: none;
+  background: linear-gradient(#321d24a3, #39232022 48%, transparent);
+}
+.paper-feed {
+  padding-top: 8px;
+  transform-origin: 50% 0;
+  filter: drop-shadow(1px 3px 1px #55432238) drop-shadow(3px 13px 9px #5d502539);
+}
+.ticket {
+  display: grid;
+  grid-template-columns: 1fr 12%;
+  position: relative;
+  overflow: hidden;
+  background: var(--paper-color);
+  color: #231c25;
+  mask:
+    radial-gradient(circle at 0 57%, transparent 0 8px, #000 8.8px) left / 51%
+      100% no-repeat,
+    radial-gradient(circle at 100% 57%, transparent 0 8px, #000 8.8px) right /
+      51% 100% no-repeat;
+}
+.ticket::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    170deg,
+    #fff3,
+    transparent 37%,
+    #4023240a 68%,
+    #fff4 92%,
+    #54351f16
+  );
+}
+.ticket-main {
+  width: 100%;
+  padding: clamp(14px, 3.45cqw, 29px);
+  aspect-ratio: 2;
+}
+.ticket-lower {
+  margin: clamp(15px, 3.2cqw, 26px) 0 7px;
+}
+.ticket-lower > b {
+  font-size: clamp(16px, 3.05cqw, 25px);
+}
+.ticket-fee strong {
+  font-size: clamp(40px, 10.8cqw, 88px);
+}
+.ticket-brand,
+.ticket-bottom {
+  font-size: clamp(12px, 2.25cqw, 17px);
+}
+.quote-stock {
+  align-self: start;
+  max-width: 62ch;
+  padding-top: clamp(18px, 3.6vw, 66px);
+}
+.quote-stock h3 {
+  font-size: clamp(36px, 4.1vw, 76px);
+  line-height: 0.98;
+  letter-spacing: -0.065em;
+}
+.quote-stock article > p {
+  margin-top: 15px;
+}
+.quote-stock .scope-detail {
+  margin-top: clamp(21px, 2.2vw, 34px);
+  padding: 13px 0;
+  border-block: 1px solid #515a2e6b;
+}
+.scope-detail summary {
+  font-weight: 700;
+  text-underline-offset: 4px;
+}
+.scope-detail li + li {
+  margin-top: 4px;
+}
+.ask-rate {
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.reel-tools {
+  gap: clamp(12px, 2.4vw, 40px);
+}
+.cinema-tools {
+  gap: 20px;
+}
+.gallery-sound,
+.film-sound {
+  min-width: 44px;
+}
+@media (max-width: 740px) {
+  .press-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 34px;
+    margin: 24px 0 30px;
+  }
+  .press-key {
+    gap: 6px;
+    min-height: 44px;
+  }
+  .press-sound {
+    min-height: 40px;
+    font-size: 13px;
+    padding: 0 11px;
+  }
+  .ticket-main {
+    min-height: 139px;
+  }
+  .ticket-stub i {
+    min-height: 20px;
+  }
+  .quote-stock {
+    width: 100%;
+    padding-top: 0;
+  }
+  .rates-head h2 {
+    font-size: clamp(44px, 13vw, 92px);
+  }
+  .quote-stock h3 {
+    font-size: 34px;
+  }
+  .reel-tools {
+    gap: 3px;
+  }
+  .gallery-sound span {
+    display: none;
+  }
+  .cinema-tools {
+    gap: 14px;
+  }
+}
+@media (max-width: 360px) {
+  .press-key {
+    font-size: 14px;
+    padding-inline: 5px;
+    justify-content: center;
+    text-align: center;
+  }
+  .press-key i {
+    display: none;
+  }
+}
+/* Keep the price in sight below the keys on a short laptop screen. */
+@media (min-width: 741px) and (max-height: 810px) {
+  .rates {
+    padding-top: clamp(24px, 4.3vh, 36px);
+  }
+  .rates-head h2 {
+    font-size: clamp(68px, 12.6vh, 102px);
+  }
+  .rates-head p {
+    margin-top: 11px;
+  }
+  .press-layout {
+    margin-top: clamp(22px, 3.7vh, 31px);
+  }
+  .ticket-machine {
+    max-width: min(100%, 84vh);
+  }
+  .press-face {
+    padding-block: 1.35% 1.9%;
+  }
+  .press-key {
+    min-height: clamp(44px, 6.6vh, 52px);
+  }
+}

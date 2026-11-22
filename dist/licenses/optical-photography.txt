@@ -1,0 +1,10 @@
+Offgrid concept study — coastal photograph by Seth Kane, used under the Unsplash License.
+https://unsplash.com/photos/XOEAHbE_vO8
+https://unsplash.com/license
+Local asset: assets/optics/coast.webp
+The field photograph, tracing and poster in assets/soundings/ adapt this photograph for the fictional Soundings sketchbook.
+The coast is an illustrative landscape, not a photograph of the studio's premises.
+
+Opening motion portrait — SHIHO, Lummi. Form sample artwork — Milan Bundalo, Lummi.
+The original source links and usage notice are in lummi-images.txt.
+The WebGL treatments, optical model, type compositions and audio are made for this site.

@@ -1,17 +1,21 @@
 // Selection updates immediately. Samples settle in 480ms; a new input cancels
 // the old transition. Reduced motion swaps the examples without movement.
 const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
-const isCalm = () => motionQuery.matches || document.body.classList.contains('motion-paused');
+const isCalm = () => motionQuery.matches;
 const gsap = window.gsap;
 const desks = [];
 for (const desk of document.querySelectorAll('[data-offering-desk]')) {
   const links = [...desk.querySelectorAll('[data-offering]')];
   const examples = [...desk.querySelectorAll('[data-example]')];
-  let active = links[0].dataset.offering;
+  const list = desk.querySelector('.offering-list');
+  const requestedService = (hash = location.hash) => examples.find(panel => `#${panel.id}` === hash ||
+    (panel.dataset.example === 'sound' && hash === '#motion-sound'))?.dataset.example;
+  let active = requestedService() || links[0].dataset.offering;
   let tween;
   desk.classList.add('is-interactive');
   function select(id, animate = true) {
     if (!examples.some(panel => panel.dataset.example === id)) return;
+    const changed = active !== id;
     active = id;
     tween?.kill();
     examples.forEach(panel => { panel.hidden = panel.dataset.example !== id; });
@@ -19,32 +23,74 @@ for (const desk of document.querySelectorAll('[data-offering-desk]')) {
       if (link.dataset.offering === id) link.setAttribute('aria-current', 'true');
       else link.removeAttribute('aria-current');
     });
-    const pieces = desk.querySelector(`[data-example="${id}"]`).querySelectorAll('.example-piece');
-    gsap?.set(pieces, {clearProps: 'transform,opacity,visibility'});
-    if (animate && !isCalm() && gsap) {
-      tween = gsap.from(pieces, {y: 32, rotation: -7, scale: .92, autoAlpha: 0,
-        stagger: .045, duration: .48, ease: 'power3.out', clearProps: 'transform,opacity,visibility'});
+    if (list.scrollWidth > list.clientWidth) {
+      const selected = links.find(link => link.dataset.offering === id);
+      const left = list.scrollLeft + selected.getBoundingClientRect().left - list.getBoundingClientRect().left - (list.clientWidth-selected.clientWidth)/2;
+      list.scrollTo({left, behavior:animate && !isCalm() ? 'smooth' : 'instant'});
+    }
+    if (changed) desk.dispatchEvent(new CustomEvent('offering:change', {detail:{id}}));
+    const panel = examples.find(example => example.dataset.example === id);
+    const pieces = panel.querySelectorAll('.service-sample, .sample-caption');
+    gsap?.set(pieces, {clearProps:'clipPath,transform,opacity'});
+    if (changed && animate && !isCalm() && gsap) {
+      tween = gsap.timeline({defaults:{ease:'power3.out'}})
+        .fromTo(pieces[0], {clipPath:'inset(0 0 12% 0)',y:8}, {clipPath:'inset(0 0 0% 0)',y:0,duration:.48,clearProps:'clipPath,transform'})
+        .fromTo(pieces[1], {opacity:0,y:6}, {opacity:1,y:0,duration:.30,clearProps:'opacity,transform'},.08);
     }
   }
+  let hoverTimer, hoveredLink;
+  let lastPointer;
+  function cancelHover(){
+    clearTimeout(hoverTimer);
+    hoveredLink=null;
+  }
+  list.addEventListener('pointerleave',cancelHover);
   links.forEach(link => {
-    link.addEventListener('pointerenter', event => {
-      if (event.pointerType !== 'touch' && active !== link.dataset.offering) select(link.dataset.offering);
+    link.addEventListener('pointermove', event => {
+      if (event.pointerType==='touch') return;
+      if (lastPointer && lastPointer.x===event.clientX && lastPointer.y===event.clientY) return;
+      lastPointer={x:event.clientX,y:event.clientY};
+      if(hoveredLink===link)return;
+      cancelHover();
+      hoveredLink=link;
+      if(active!==link.dataset.offering)hoverTimer=setTimeout(()=>select(link.dataset.offering),85);
     });
-    link.addEventListener('focus', () => { if (active !== link.dataset.offering) select(link.dataset.offering); });
+    link.addEventListener('focus', () => {
+      cancelHover();
+      if (active !== link.dataset.offering) select(link.dataset.offering);
+    });
     link.addEventListener('click', event => {
       event.preventDefault();
+      cancelHover();
       if (active !== link.dataset.offering) select(link.dataset.offering);
       if (matchMedia('(max-width: 760px)').matches) desk.querySelector('.offering-previews').scrollIntoView({block:'nearest', behavior: isCalm()?'instant':'smooth'});
     });
     link.addEventListener('keydown', event => {
-      if (!['ArrowDown','ArrowUp','Home','End'].includes(event.key)) return;
+      if (!['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
       event.preventDefault();
       const index = links.indexOf(link);
-      const next = event.key === 'Home' ? 0 : event.key === 'End' ? links.length-1 : (index+(event.key==='ArrowDown'?1:-1)+links.length)%links.length;
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? links.length-1 : (index+(['ArrowDown','ArrowRight'].includes(event.key)?1:-1)+links.length)%links.length;
       links[next].focus();
     });
   });
+  function followService(hash) {
+    const requested = requestedService(hash);
+    if (!requested) return;
+    select(requested, false);
+    const target = document.getElementById(hash.slice(1));
+    target.scrollIntoView({behavior:'instant', block:'start'});
+  }
+  // Native fragment scrolling cannot reliably target a panel while it is hidden.
+  document.addEventListener('click', event => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link || desk.contains(link) || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (!requestedService(link.hash)) return;
+    event.preventDefault();
+    if (location.hash !== link.hash) history.pushState(null, '', link.hash);
+    followService(link.hash);
+  });
   select(active, false);
+  window.addEventListener('hashchange', () => followService(location.hash));
   desks.push({settle: () => select(active, false)});
 }
 
@@ -52,13 +98,18 @@ for (const desk of document.querySelectorAll('[data-offering-desk]')) {
 // microphone access or tracking. Every voice has a finite lifetime.
 let audioContext;
 const demos = [];
+const demoVisibility = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) demos.find(d => d.element === entry.target)?.stop();
+  });
+});
 for (const demo of document.querySelectorAll('[data-av-demo]')) {
   const button = demo.querySelector('[data-av-play]');
   const status = demo.querySelector('.av-status');
   const stamp = demo.querySelector('.av-timestamp');
   let playing = false, generation = 0, finishTimer, animation;
   let voices = [];
-  function stop(message = 'Sound only plays when you press play.') {
+  function stop(message = 'Sound starts when you press play.') {
     generation++;
     clearTimeout(finishTimer);
     animation?.kill();
@@ -67,9 +118,9 @@ for (const demo of document.querySelectorAll('[data-av-demo]')) {
     playing = false;
     demo.classList.remove('is-playing');
     button.setAttribute('aria-pressed', 'false');
-    button.innerHTML = '<span aria-hidden="true">▶</span> Play sound & motion';
+    button.innerHTML = '<span aria-hidden="true">▶</span> Play sound example';
     stamp.textContent = '00:00 / 00:03';
-    gsap?.set(demo.querySelectorAll('.av-mark svg,.av-mark>span,.av-waves i'), {clearProps:'transform,opacity,visibility'});
+    gsap?.set(demo.querySelectorAll('.av-mark>span,.av-waves i'), {clearProps:'transform,opacity,visibility'});
     status.textContent = message;
   }
   button.addEventListener('click', async () => {
@@ -103,22 +154,35 @@ for (const demo of document.querySelectorAll('[data-av-demo]')) {
       status.textContent = 'Playing a three-note sound signature.';
       stamp.textContent = 'PLAYING / 00:03';
       if (gsap && !isCalm()) {
-        animation = gsap.timeline()
-          .fromTo(demo.querySelector('.av-mark svg'), {rotation:-90, scale:.6}, {rotation:90, scale:1, duration:1.4, ease:'power3.out'}, 0)
-          .fromTo(demo.querySelector('.av-mark>span'), {y:22,autoAlpha:0}, {y:0,autoAlpha:1,duration:.65,ease:'power3.out'}, .3)
-          .fromTo(demo.querySelectorAll('.av-waves i'), {scaleY:.2}, {scaleY:1, duration:.26, stagger:{each:.035,from:'center'}, repeat:3,yoyo:true,ease:'sine.inOut'},0);
+        const bars = demo.querySelectorAll('.av-waves i');
+        const title = demo.querySelector('.av-mark>span');
+        animation = gsap.timeline();
+        for(let beat=0;beat<3;beat++){
+          const at=.04+beat*.48;
+          animation.fromTo(bars,{scaleY:.19},{scaleY:1,duration:.11,stagger:{amount:.12,from:'center'},ease:'power2.out'},at)
+            .to(bars,{scaleY:.32,duration:.24,ease:'sine.out'},at+.22)
+            .fromTo(title,{scale:.97},{scale:1,duration:.42,ease:'power3.out'},at);
+        }
       }
-      finishTimer = setTimeout(() => stop('That’s a sonic logo: a short, recognisable sound. Play it again.'), 3000);
+      finishTimer = setTimeout(() => stop('A short, recognisable sound. Play it again.'), 3000);
     } catch {
       stop('Audio couldn’t start in this browser. You can try again.');
     }
   });
-  demos.push({stop, calm: () => {animation?.kill();gsap?.set(demo.querySelectorAll('.av-mark svg,.av-mark>span,.av-waves i'),{clearProps:'transform,opacity,visibility'});}});
+  demo.closest('[data-offering-desk]')?.addEventListener('offering:change', event => {
+    if (event.detail.id !== demo.closest('[data-example]')?.dataset.example) stop();
+  });
+  demos.push({element:demo, stop, calm: () => {animation?.kill();gsap?.set(demo.querySelectorAll('.av-mark>span,.av-waves i'),{clearProps:'transform,opacity,visibility'});}});
+  demoVisibility.observe(demo);
 }
 function settleMotion() { if (isCalm()) { desks.forEach(d => d.settle()); demos.forEach(d => d.calm()); } }
-const motionObserver = new MutationObserver(settleMotion);
-motionObserver.observe(document.body, {attributes:true,attributeFilter:['class']});
 motionQuery.addEventListener('change', settleMotion);
 document.addEventListener('visibilitychange', () => { if (document.hidden) demos.forEach(d => d.stop()); });
-window.addEventListener('pagehide', () => { desks.forEach(d => d.settle()); demos.forEach(d => d.stop()); motionObserver.disconnect(); motionQuery.removeEventListener('change',settleMotion); });
-window.addEventListener('pageshow', event => { if(event.persisted) { motionObserver.observe(document.body,{attributes:true,attributeFilter:['class']});motionQuery.addEventListener('change',settleMotion);settleMotion(); } });
+window.addEventListener('pagehide', () => { desks.forEach(d => d.settle()); demos.forEach(d => d.stop()); demoVisibility.disconnect(); motionQuery.removeEventListener('change',settleMotion); });
+window.addEventListener('pageshow', event => { if(event.persisted) { demos.forEach(d => demoVisibility.observe(d.element)); motionQuery.addEventListener('change',settleMotion);settleMotion(); } });
+
+for(const slider of document.querySelectorAll('.grade-control')){
+  slider.addEventListener('input',()=>{
+    slider.closest('.sample-video').style.setProperty('--split',slider.value+'%');
+  });
+}

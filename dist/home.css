@@ -1,8 +1,8 @@
 /* The homepage tells a shorter story; detailed scopes live on the service pages. */
 .home-rework{--gutter:max(42px,calc((100vw - 1400px)/2))}
 .home-rework .section-pad{padding:72px var(--gutter)}
-.home-rework .site-header{height:100px;margin-inline:var(--gutter);grid-template-columns:1fr 1fr auto auto;gap:32px}
-.home-rework .desktop-nav{gap:26px}
+
+
 .home-rework .hero{height:calc(100svh - 100px);min-height:680px;max-height:840px;padding:34px var(--gutter) 78px}
 .home-rework .hero-copy{position:relative;z-index:2;width:52%;max-width:680px;pointer-events:none}
 .home-rework .hero h1{font-size:clamp(84px,9.3vw,150px);width:100%;margin:28px 0 0;line-height:.82}
@@ -64,7 +64,7 @@
 .home-rework footer{padding-inline:var(--gutter)}
 @media(min-width:1600px){.home-rework .hero-copy{width:48%}.home-rework .hero h1{font-size:150px}}
 @media(max-width:1100px){
- .home-rework .site-header{grid-template-columns:1fr auto auto;gap:22px}.home-rework .desktop-nav{gap:22px;margin-right:5px}
+
  .home-rework .hero h1{font-size:clamp(78px,10vw,115px)}.home-rework .hero-lead{font-size:15px}
  .services-deck{gap:48px;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr)}.capability-row{gap:14px}.capability-row h3{font-size:25px}
  .studio-grid{gap:48px}.studio-standards dl>div{grid-template-columns:85px minmax(0,1fr);gap:18px}
@@ -73,7 +73,7 @@
 }
 @media(max-width:760px){
  .home-rework{--gutter:22px}.home-rework .section-pad{padding:45px var(--gutter)}
- .home-rework .site-header{height:94px;gap:20px}
+
  .home-rework .hero{height:auto;min-height:0;max-height:none;padding:27px 22px 20px}
  .home-rework .hero-copy{width:100%;max-width:none}.home-rework .hero h1{font-size:18.2vw;margin-top:25px;line-height:.86}
  .home-rework .hero-lead{font-size:15px;margin-top:20px;max-width:320px}.home-rework .hero-actions{margin-top:22px;gap:24px}

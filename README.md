@@ -1,6 +1,6 @@
 # Red Studio
 
-A Trondheim design studio website focused on researchers, with GSAP motion and Three.js visuals.
+A creative studio website born in Trondheim, with GSAP motion and Three.js visuals. Researchers, engineers, businesses and artists can explore relevant starting points alongside an open invitation to anyone with an idea.
 
 [Open Red Studio](https://theredstudio.vercel.app/).
 
@@ -20,36 +20,28 @@ Then open <http://localhost:5173>.
 
 Alternatively, run `npm run dev` if Node.js and Python 3 are available. Serve the files over HTTP; opening `index.html` directly will not load the JavaScript modules correctly.
 
-## Features
+## Current local edition
 
-- Interactive Three.js ribbon sculpture with illustrated fallback.
-- GSAP typography, scroll choreography, and project transitions.
-- One work carousel, plus hover/focus/tap service previews with original illustrative artwork.
-- An opt-in three-note sound and motion demo, generated locally with Web Audio.
-- Expanded team profiles and plain-language services for researchers.
-- Separate Orbit and Weave concepts with immersive WebGL scenes.
-- Responsive project gallery and service panels.
-- Motion pause controls and support for reduced-motion preferences.
-- An inquiry form that prepares a reviewable email draft.
+The local edition on `november-improvements` uses five supplied films as its opening. Full films load on request. Services include an audio-reactive drawing, and the rate selector issues an animated ticket for each package.
 
 ## Source
 
-- `dist/index.html`: page content, project artwork, and dialogs.
-- `dist/styles.css`: visual design and responsive layouts.
-- `dist/app.js`: GSAP motion, navigation, and inquiries.
-- `dist/scenes.js`: Three.js sculpture and liquid shader.
-- `dist/assets/`: bundled fonts, favicon, and credited Lummi imagery.
+- `dist/index.html` and `dist/programme.css` contain the page, responsive layouts and film credits.
+- `dist/programme.js` controls the screenings and price press. The shared menu and email draft are in `dist/programme-nav.js` and `dist/brief.js`.
+- `dist/scope-motion.js` draws the service artwork. `dist/fee-foil.js` generates the three-dimensional ticket die.
+- `dist/pricing-data.json` contains the fixed-fee packages. Run `python3 scripts/render-pricing.py` after editing them.
+- `dist/assets/screenings/` contains the posters, short silent previews, full films and audio excerpt.
 - `dist/vendor/`: bundled animation and rendering libraries.
 - `dist/licenses/`: third-party license notices.
 - `.openai/hosting.json`: configuration for the existing private hosted preview.
 
 ## Content and inquiries
 
-Offgrid, Form, and Echo are original illustrative concept studies, not client commissions.
+The work gallery contains supplied sound and video work. Individual credits and the Audi university assignment are identified in the film player.
 
 Project inquiries are addressed to `theredstudiopost@gmail.com`. The form creates an email draft for the visitor to review and send in their email app. It does not submit inquiries to a server.
 
-To change the contact address, update `dist/index.html` and `dist/app.js`.
+To change the contact address, update the homepage, the project terms and `dist/brief.js`.
 
 ## GitHub Pages deployment
 
@@ -85,11 +77,11 @@ The sound and campaign prices are proposed effort-based offers, with no direct N
 
 The Compliance page describes a proposed project workflow and the site’s actual form behaviour. It makes no claim of certification or past EU client experience. Privacy-by-design guidance is linked to the [EDPB](https://www.edpb.europa.eu/sme/be-compliant/be-compliant_en).
 
-### Interactive rate book
+### Homepage navigation and pricing
 
-The homepage pricing chapter and the Prices page use illustrated quote sheets, a keyboard-accessible package selector and GSAP transitions. The Prices page includes an itemised estimate builder, VAT display controls and a monthly support section. Logo & design kit and Logo design cannot both be added to the same estimate. The inquiry handoff carries selected scopes and their base-price total; final overlap, timing and tax treatment are confirmed in a written quote.
+The main navigation links to sections on the homepage. The old Services, Pricing and Studio addresses forward to the corresponding sections. Privacy and compliance details have their own page.
 
-`dist/pricing-data.json` is the canonical package data. After changing it, run `python3 scripts/render-pricing.py` to regenerate the static package views and embedded configuration. `dist/pricing.js` handles selection, estimates, VAT and reduced motion; `dist/pricing.css` scopes the visual treatment to these two views. No new third-party dependency or build step is needed to run the site.
+The homepage lists all eight fixed-fee packages and monthly support. Open a row for inclusions, exclusions and an inquiry. Prices are in NOK excluding VAT. After editing `dist/pricing-data.json`, run `python3 scripts/render-pricing.py` to regenerate the list.
 
 ### Project carousel
 
@@ -126,3 +118,29 @@ The homepage now leads with “Your research. Made clear.” and Trondheim, Norw
 The new Video edit & short cuts package is an effort-based studio offer at NOK 12,000 excluding VAT, not a market benchmark: a supplied-footage edit up to 90 seconds plus three short cuts, basic colour/audio treatment, approved captions and two feedback rounds. The independent-rate offer is quoted individually; the written quote shows the standard fee, discount and total. No unapproved blanket discount percentage is published.
 
 Both generators are safe to rerun. Regenerate pricing after package-data changes, and offerings after changing the shared examples. Deploy the repository root with Vercel’s project root set to `dist`; do not deploy a second nested `dist` directory.
+
+### Audience refinement — local review
+
+The hero returns to “Death to AI slop”. The headline remains stable; a separate visitor-controlled section offers starting points for anyone with an idea, researchers, engineers and makers, businesses and founders, and bands and artists. Selecting a tab reveals relevant deliverables and an inquiry prompt without replacing an edited visitor draft. Tabs support keyboard navigation, interrupted transitions and reduced motion. The page keeps its Trondheim emphasis, single work showcase, interactive services, sound demo and transparent pricing. Services and Studio copy now address the broader audience.
+
+This audience revision was deployed to Vercel after the owner explicitly confirmed publication on 2 November 2026.
+
+### Living ribbon prototype
+
+The hero ribbon now begins as a strip and folds into an open knot. Dragging the mesh applies a local spring deformation; release leaves a small, resettable change. A single WebGL canvas, mesh and red material unspool between the hero and the audience stage as the page scrolls normally. Audience tabs morph the same vertices into a flowing research path, an engineered structure, an R monogram or a waveform. The Artists route offers an explicit play/stop control for a short original sound, with no autoplay.
+
+`dist/living-ribbon.js` owns geometry, gesture response, scroll handoff and cleanup; `dist/living-ribbon.css` places the stage and controls. `dist/personas.js` dispatches selection changes immediately. The system motion preference switches directly between states. Pull and Reset buttons provide keyboard alternatives; touch areas keep vertical scrolling available. An illustrated fallback remains if WebGL is unavailable. This ribbon version was approved and deployed to Vercel on 2 November 2026.
+
+### Creative brief stage — local review
+
+The audience section now uses a charcoal composition with a horizontal, sticky world selector and original layered design studies. Each audience has its own poster, interface or release artwork. Choosing an audience changes the copy, paper composition and existing ribbon together; hovering or focusing a service lifts its corresponding piece forward. Keyboard navigation and system/site reduced-motion controls remain supported. Mobile uses an internally scrollable selector and stacks artwork above the short brief. Inquiry buttons retain their audience-specific draft prompts.
+
+`dist/brief-studio.css` owns this section, with static markup generated by `scripts/render-personas.py` and interaction in `dist/personas.js`. The studies are explicitly illustrative and make no client-work claims. The hero, project showcase, prices and team copy are preserved. Nothing in this revision is approved for publication.
+
+### Homepage typography cleanup — local review
+
+The homepage now uses a shared reading scale in `dist/readability.css`: 18px body text on desktop, 16px body text on phones, 16px controls and 14px supporting notes. Section titles and item headings follow shared sizes. Decorative figure labels, section folios, repeated location/scroll strips and small text inside illustrative artwork are removed from view. The hero follows its content height, with a shorter transition into the next section. Project captions have extra space for readable descriptions. Ribbon controls remain legible and clickable as the hero scrolls. This revision remains local and unpublished.
+
+### Services consolidation — local review
+
+Motion, video editing and sound remain in the shared Services offering. The three-note sound player now lives inside the Sound service preview on the homepage and Services page; the separate motion/sound feature section is removed. Playback stays opt-in and stops when the visitor changes services, scrolls the player out of view or leaves the page. This refinement has not been deployed.

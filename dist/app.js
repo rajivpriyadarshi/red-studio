@@ -1,45 +1,116 @@
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const gsap=window.gsap,ScrollTrigger=window.ScrollTrigger;
-const preference=matchMedia('(prefers-reduced-motion: reduce)');
-const state={calm:preference.matches,paused:false,heroScroll:0,needsRender:true};
-let motionContext,disposeSculpture,introPlayed=false,lastDialogTrigger,menuOpen=false;
-const seenEntrances=new WeakSet();
-if(gsap&&ScrollTrigger)gsap.registerPlugin(ScrollTrigger);
+import './page.js?v=studio-1122-d';
 
-function setupMotion(){
- motionContext?.revert();state.calm=state.override===undefined?preference.matches:state.override;state.needsRender=true;
- document.body.classList.toggle('motion-paused',state.calm);
- const toggle=$('#motion-toggle');toggle.setAttribute('aria-pressed',String(state.calm));toggle.setAttribute('aria-label',state.calm?'Enable motion':'Pause motion');toggle.querySelector('.settings-label').textContent=state.calm?'Enable motion':'Pause motion';toggle.querySelector('.motion-icon').textContent=state.calm?'▶':'Ⅱ';
- if(!gsap)return;
- if(state.calm){introPlayed=true;return;}
- motionContext=gsap.context(()=>{
-  if(!introPlayed){introPlayed=true;gsap.timeline({defaults:{ease:'power4.out'}}).from('.hero-line',{yPercent:110,rotation:2,duration:1.05,stagger:.08},.05).from('.hero-eyebrow',{autoAlpha:0,y:12,duration:.5},.2).from('.hero-art',{autoAlpha:0,scale:.94,rotation:-4,duration:1.2},.15).from('.hero-lead,.hero-actions',{autoAlpha:0,y:14,duration:.65,stagger:.08},.65).from('.hero-bottom>*',{autoAlpha:0,y:12,duration:.6,stagger:.08},.8);}
-  gsap.to(state,{heroScroll:1,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:.8}});
-  const enter=(el,vars={})=>{if(seenEntrances.has(el))return;gsap.from(el,{y:24,autoAlpha:0,duration:.7,ease:'power3.out',...vars,scrollTrigger:{trigger:el,start:'top 92%',once:true,onEnter:()=>seenEntrances.add(el)}});};
-  $$('.reveal,.project-art,.team-person,.home-process li').forEach(el=>enter(el));
-  $$('.capability-row').forEach(el=>enter(el,{y:14,duration:.55}));
-  if($('.echo-rings'))gsap.to('.echo-rings',{rotation:18,ease:'none',scrollTrigger:{trigger:'.echo-art',start:'top bottom',end:'bottom top',scrub:1}});
-  const contact=$('.contact-title');if(!seenEntrances.has(contact))gsap.from('.contact-title .line-mask>span',{yPercent:105,stagger:.1,duration:.9,scrollTrigger:{trigger:contact,start:'top 90%',once:true,onEnter:()=>seenEntrances.add(contact)}});
- });
+const $=selector=>document.querySelector(selector);
+const $$=selector=>[...document.querySelectorAll(selector)];
+const gsap=window.gsap, preference=matchMedia('(prefers-reduced-motion: reduce)');
+const motionAllowed=()=>gsap&&!preference.matches;
+
+if(gsap && window.ScrollTrigger) {
+  gsap.registerPlugin(window.ScrollTrigger);
+  gsap.matchMedia().add('(prefers-reduced-motion: no-preference)',()=>{
+    gsap.timeline({defaults:{ease:'power3.out'}})
+      .fromTo('.type-mask>*',{yPercent:84},{yPercent:0,duration:.94,stagger:.09,clearProps:'transform'},0)
+      .from('.cover-credit',{opacity:0,y:8,duration:.48,clearProps:'all'},.47);
+    for(const heading of $$('.spread-title h2,.price-intro h2,.end-card h2')){
+      gsap.from(heading,{y:28,clipPath:'inset(0 0 82% 0)',duration:.88,ease:'power3.out',clearProps:'transform,clipPath',scrollTrigger:{trigger:heading,start:'top 96%',once:true}});
+    }
+    const screen=$('.projection-window');
+    gsap.fromTo('.offgrid img',{scale:1.12},{scale:1,ease:'none',scrollTrigger:{trigger:screen,start:'top bottom',end:'bottom top',scrub:true}});
+  });
 }
-setupMotion();
-$('#motion-toggle').addEventListener('click',()=>{state.override=!state.calm;setupMotion();});
-preference.addEventListener('change',()=>{state.override=undefined;setupMotion();});
-if(gsap&&ScrollTrigger)gsap.to('.progress-line',{scaleX:1,ease:'none',scrollTrigger:{start:0,end:'max',scrub:true}});
-document.fonts.ready.then(()=>ScrollTrigger?.refresh());window.addEventListener('load',()=>ScrollTrigger?.refresh());
 
-import('./scenes.js?v=structure-1').then(({createSculpture})=>{
- try{disposeSculpture=createSculpture($('#hero-art'),$('#sculpture'),state);}catch(e){console.info('Sculpture uses the illustrated fallback.',e.message);}
-}).catch(()=>{});
+import('./exposure.js?v=studio-1122-d').then(({mountExposure})=>mountExposure($('.exposure-stage'))).catch(()=>{
+  // The photograph is already in the document when WebGL is unavailable.
+});
 
-function setMenu(open){menuOpen=open;$('.menu-button').setAttribute('aria-expanded',String(open));$('.menu-button').setAttribute('aria-label',open?'Close navigation':'Open navigation');$('#mobile-menu').hidden=!open;document.body.classList.toggle('dialog-open',open);$('main').inert=open;$('footer').inert=open;if(open&&!state.calm&&gsap)gsap.from('#mobile-menu nav>*',{y:25,autoAlpha:0,stagger:.06,duration:.5,clearProps:'all'});}
-$('.menu-button').addEventListener('click',()=>setMenu(!menuOpen));$$('#mobile-menu a').forEach(a=>a.addEventListener('click',()=>setMenu(false)));window.addEventListener('resize',()=>{if(innerWidth>760&&menuOpen)setMenu(false);});
+const model=$('.optic-stage');
+const modelObserver=new IntersectionObserver(entries=>{
+  if(!entries.some(e=>e.isIntersecting))return;
+  modelObserver.disconnect();
+  import('./optics.js?v=studio-1122-d').then(({mountOptic})=>mountOptic(model)).catch(()=>{});
+});
+modelObserver.observe(model);
 
-function openDialog(dialog,trigger){setMenu(false);lastDialogTrigger=trigger;dialog.showModal();document.body.classList.add('dialog-open');if(gsap&&!state.calm)gsap.fromTo(dialog,{autoAlpha:0,y:30,scale:.97},{autoAlpha:1,y:0,scale:1,duration:.4,ease:'power3.out',clearProps:'transform,opacity,visibility'});}
+const projector=$('.projector');
+const films=$$('.project-frame'),choices=$$('[data-film-choice]');
+const credits=[
+  'Visual identity for an imagined outdoor brand.',
+  'A digital catalogue for an imagined interiors brand.',
+  'A sleeve and motion study for an imagined sound label.'
+];
+let activeFilm=0,transition=null;
+function selectFilm(index,animate=true){
+  const next=(index+films.length)%films.length;
+  if(next===activeFilm && animate)return;
+  transition?.kill();
+  transition=null;
+  if(gsap)gsap.set([...films, $('.film-credit'), $('.form-paper>em'), $('.echo-disc')],{clearProps:'clipPath,transform,opacity'});
+  const previous=activeFilm;activeFilm=next;
+  projector.dataset.ready='';
+  films.forEach((film,i)=>{film.hidden=i!==next;film.setAttribute('aria-hidden',String(i!==next));film.style.zIndex='';});
+  choices.forEach((choice,i)=>choice.setAttribute('aria-pressed',String(i===next)));
+  $('.film-credit').textContent=credits[next];
+  if(!motionAllowed()||!animate||previous===next)return;
+  const incoming=films[next],outgoing=films[previous];outgoing.hidden=false;incoming.style.zIndex=2;
+  const done=()=>{outgoing.hidden=true;incoming.style.zIndex='';transition=null;};
+  transition=gsap.timeline({defaults:{ease:'power3.inOut'},onComplete:done});
+  const masks=['inset(0 0 0 100%)','inset(100% 0 0 0)','circle(0% at 68% 50%)'];
+  const open=next===2?'circle(140% at 68% 50%)':'inset(0 0 0 0)';
+  gsap.set(outgoing,{clearProps:'clipPath,transform,opacity'});
+  transition.fromTo(incoming,{clipPath:masks[next]},{clipPath:open,duration:.78,clearProps:'clipPath'},0);
+  if(next===1)transition.fromTo('.form-paper>em',{yPercent:50},{yPercent:0,duration:.68,clearProps:'transform'},.15);
+  if(next===2)transition.fromTo('.echo-disc',{rotation:-60},{rotation:0,duration:1.1,ease:'power3.out',clearProps:'transform'},.02);
+  transition.fromTo('.film-credit',{y:7,opacity:0},{y:0,opacity:1,duration:.45,clearProps:'transform,opacity'},.18);
+}
+choices.forEach((button,i)=>button.addEventListener('click',()=>selectFilm(i)));
+projector.addEventListener('keydown',event=>{
+  const keys={ArrowLeft:activeFilm-1,ArrowRight:activeFilm+1,Home:0,End:films.length-1};
+  if(!(event.key in keys))return;
+  event.preventDefault();selectFilm(keys[event.key]);if(event.target.closest('.film-choices'))choices[activeFilm].focus();
+});
+const screen=$('.projection-window');
+let start=null;
+screen.addEventListener('pointerdown',e=>{if(e.isPrimary&&e.button===0)start={x:e.clientX,y:e.clientY,id:e.pointerId};});
+screen.addEventListener('pointerup',e=>{
+  if(!start||start.id!==e.pointerId)return;
+  const dx=e.clientX-start.x,dy=e.clientY-start.y;start=null;
+  if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)*1.3)selectFilm(activeFilm+(dx<0?1:-1));
+});
+screen.addEventListener('pointercancel',()=>{start=null;});
+preference.addEventListener('change',()=>{gsap?.set(films,{clearProps:'clipPath,transform'});selectFilm(activeFilm,false);});
+selectFilm(0,false);
+
+let lastDialogTrigger;
+function openDialog(dialog,trigger){
+  document.querySelector('.menu-button[aria-expanded=true]')?.click();
+  lastDialogTrigger=trigger;
+  if(!dialog.open)dialog.showModal();
+  document.body.classList.add('dialog-open');
+  if(motionAllowed())gsap.fromTo(dialog,{opacity:0,y:15},{opacity:1,y:0,duration:.3,clearProps:'transform,opacity'});
+}
 $$('dialog').forEach(dialog=>{dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});dialog.addEventListener('close',()=>{gsap?.killTweensOf(dialog);document.body.classList.remove('dialog-open');lastDialogTrigger?.focus({preventScroll:true});});});
 let selectedPackage='';
-function choosePackage(name,price){selectedPackage=name;const label=$('#selected-package');label.hidden=!name;label.textContent=name?`Selected: ${name}${price?' · '+new Intl.NumberFormat('en-GB').format(price)+' NOK excluding VAT':''}. We’ll confirm the scope before starting.`:'';const brief=$('#inquiry-form textarea');if(name&&!brief.value)brief.value=`I'd like to discuss ${name}.\n\nTimeline: \nBudget: \nProject details: `;}
-$$('[data-inquiry]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.package)choosePackage(b.dataset.package,Number(b.closest('[data-plan],.price-card')?.querySelector('[data-price]')?.dataset.price));openDialog($('#inquiry-dialog'),b);}));
+function choosePackage(name,price){selectedPackage=name;const label=$('#selected-package');label.hidden=!name;label.textContent=name?`Selected: ${name}${price?' · '+new Intl.NumberFormat('en-GB').format(price)+' NOK excluding VAT':''}. We’ll confirm the scope before starting.`:'';if(name)prefillBrief(`I'd like to discuss ${name}.\n\nTimeline: \nBudget: \nProject details: `);}
+let lastSuggestedBrief = '';
+function prefillBrief(text) {
+ const brief = $('#inquiry-form textarea');
+ if (!brief.value.trim() || brief.value === lastSuggestedBrief) {
+  brief.value = lastSuggestedBrief = text;
+  brief.dispatchEvent(new Event('input', {bubbles:true}));
+ }
+}
+$$('[data-inquiry]').forEach(button => button.addEventListener('click', () => {
+ if (button.dataset.package) {
+  const fee=button.closest('details')?.querySelector('[data-price]')?.dataset.price;
+  choosePackage(button.dataset.package, Number(fee));
+ } else {
+  choosePackage('',0);
+  const brief=$('#inquiry-form textarea');
+  if(brief.value===lastSuggestedBrief){brief.value=''; lastSuggestedBrief='';}
+ }
+ form.dispatchEvent(new Event('input'));
+ openDialog($('#inquiry-dialog'), button);
+}));
 const queryPackage=new URLSearchParams(location.search).get('package');
 const queryBundle=new URLSearchParams(location.search).get('packages');
 if(queryPackage||queryBundle)fetch('pricing-data.json').then(r=>r.json()).then(data=>{
@@ -58,38 +129,8 @@ if (inquiryQuery.has('independent') || inquiryQuery.has('budget')) {
   : "I'd like to find a scope that fits our budget.\n\nWhat we need: \nWhat matters most: \nBudget and timing: ";
  openDialog($('#inquiry-dialog'), $('.contact-title'));
 }
-$$('.service').forEach(detail=>detail.addEventListener('toggle',()=>{if(detail.open&&gsap&&!state.calm)gsap.fromTo(detail.querySelector('.service-content'),{autoAlpha:0,y:12},{autoAlpha:1,y:0,duration:.35,clearProps:'all'});ScrollTrigger?.refresh();}));
 
 const form=$('#inquiry-form');let inquiryText='';
 form.addEventListener('submit',e=>{e.preventDefault();if(!form.reportValidity())return;const data=new FormData(form);const services=data.getAll('services');inquiryText=`Hi Red Studio,\n\nI'm ${data.get('name')}, and I'd love to talk about a project.\n\nPackage: ${selectedPackage||'Custom scope'}\nServices: ${services.length?services.join(', '):'To be confirmed'}\n\n${data.get('brief')}\n\nYou can reach me at ${data.get('email')}.\n\n${data.get('name')}`;const link=`mailto:theredstudiopost@gmail.com?subject=${encodeURIComponent('New project inquiry — '+data.get('name'))}&body=${encodeURIComponent(inquiryText)}`;$('#draft-mail-link').href=link;$('#draft-actions').hidden=false;form.querySelector('button[type=submit]').hidden=true;$('#form-status').textContent='Your draft is ready. Open your email app to review and send, or copy the text below.';});
 form.addEventListener('input',()=>{if(!$('#draft-actions').hidden){$('#draft-actions').hidden=true;form.querySelector('button[type=submit]').hidden=false;$('#form-status').textContent='';}});
 $('#copy-brief').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(inquiryText);$('#form-status').textContent='Inquiry copied. Paste it into an email to theredstudiopost@gmail.com.';}catch{let field=$('#copy-fallback');if(!field){field=document.createElement('textarea');field.id='copy-fallback';field.setAttribute('aria-label','Inquiry text to copy');$('#draft-actions').append(field);}field.value=inquiryText;field.focus();field.select();$('#form-status').textContent='Select and copy your inquiry text below.';}});
-
-if(matchMedia('(pointer:fine)').matches&&gsap){$$('.play-icon,.contact-link>span').forEach(el=>{const parent=el.parentElement;const x=gsap.quickTo(el,'x',{duration:.4,ease:'power3'}),y=gsap.quickTo(el,'y',{duration:.4,ease:'power3'});parent.addEventListener('pointermove',e=>{if(state.calm)return;const r=parent.getBoundingClientRect();x((e.clientX-r.left-r.width/2)*.12);y((e.clientY-r.top-r.height/2)*.2);});parent.addEventListener('pointerleave',()=>{x(0);y(0);});});}
-
-window.addEventListener('pagehide',event=>{state.paused=true;if(event.persisted)return;disposeSculpture?.();motionContext?.revert();});
-window.addEventListener('pageshow',event=>{if(event.persisted){state.paused=false;state.needsRender=true;ScrollTrigger?.refresh();}});
-
-document.addEventListener('keydown',e=>{if(!menuOpen)return;if(e.key==='Escape'){setMenu(false);$('.menu-button').focus();}if(e.key==='Tab'){const controls=[$('.menu-button'),...$$('#mobile-menu a')];const first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
-
-// Rate sheets and project cards collapse during module setup. Restore an entry
-// anchor only after that layout is ready, unless the visitor has taken control.
-const entryHash = location.hash;
-if (entryHash && !['#top', '#home'].includes(entryHash)) {
- let interacted = false;
- const controls = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
- const markInteraction = () => { interacted = true; };
- controls.forEach(type => window.addEventListener(type, markInteraction, {once:true, passive:true}));
- const settleEntryAnchor = async () => {
-  await document.fonts.ready;
-  requestAnimationFrame(() => {
-   if (!interacted && location.hash === entryHash && !document.querySelector('dialog[open]')) {
-    let id; try { id = decodeURIComponent(entryHash.slice(1)); } catch { id = ''; }
-    document.getElementById(id)?.scrollIntoView({behavior:'instant', block:'start'});
-   }
-   controls.forEach(type => window.removeEventListener(type, markInteraction));
-  });
- };
- if (document.readyState === 'complete') settleEntryAnchor();
- else window.addEventListener('load', settleEntryAnchor, {once:true});
-}

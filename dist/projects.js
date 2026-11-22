@@ -6,7 +6,6 @@ function initCarousel(root) {
   const stage = root.querySelector('.project-viewport');
   const track = root.querySelector('.project-track');
   const cards = [...root.querySelectorAll('.project-slide')];
-  const dots = [...root.querySelectorAll('[data-project-dot]')];
   const preference = matchMedia('(prefers-reduced-motion: reduce)');
   const events = new AbortController();
   const options = { signal: events.signal };
@@ -41,8 +40,6 @@ function initCarousel(root) {
       card.style.zIndex = String(10 - d);
       card.style.pointerEvents = d > 2 ? 'none' : 'auto';
       card.querySelector('.project-select').hidden = d === 0;
-      dots[i].setAttribute('aria-pressed', String(i === active));
-      dots[i].tabIndex = i === active ? 0 : -1;
     });
     root.querySelector('[data-project-count]').textContent = String(active + 1).padStart(2, '0');
     if (announce) root.querySelector('[data-project-announcement]').textContent = `${cards[active].dataset.name}. ${cards[active].dataset.kind}. ${active + 1} of ${cards.length}.`;
@@ -77,13 +74,12 @@ function initCarousel(root) {
     else gsap.set(track, { x: 0, rotationY: 0 });
   }
 
-  function select(i, keyboardDot = false) {
+  function select(i) {
     resetDrag();
     interacted = true;
     active = wrap(i);
     render();
     updateMeaning(true);
-    if (keyboardDot) dots[active].focus({ preventScroll: true });
   }
 
   function measure() {
@@ -104,7 +100,6 @@ function initCarousel(root) {
 
   root.querySelector('[data-project-prev]').addEventListener('click', () => select(active - 1), options);
   root.querySelector('[data-project-next]').addEventListener('click', () => select(active + 1), options);
-  dots.forEach((dot, i) => dot.addEventListener('click', () => select(i), options));
   cards.forEach((card, i) => card.querySelector('.project-select').addEventListener('click', event => {
     if (performance.now() < suppressClickUntil) { event.preventDefault(); return; }
     select(i);
@@ -112,11 +107,10 @@ function initCarousel(root) {
   }, options));
   root.addEventListener('keydown', event => {
     if (event.altKey || event.ctrlKey || event.metaKey || event.target.matches('input,textarea,select')) return;
-    const dot = event.target.closest('[data-project-dot]');
     const targets = { ArrowLeft: active - 1, ArrowRight: active + 1, Home: 0, End: cards.length - 1 };
     if (!(event.key in targets)) return;
     event.preventDefault();
-    select(targets[event.key], Boolean(dot));
+    select(targets[event.key]);
   }, options);
 
   stage.addEventListener('pointerdown', event => {
