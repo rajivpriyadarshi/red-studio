@@ -1,13 +1,18 @@
 import * as T from "three";
-import { makePress, inkTexture } from "./press-model.js?v=resource-1";
+import { makePress, inkTexture } from "./press-model.js?v=bench-hover-1";
 import {
   createTicketPile,
   stockHeight,
+  stockFeedZ,
   stockCurl,
-} from "./ticket-pile.js?v=resource-1";
-import { createPaperBreeze } from "./paper-breeze.js?v=resource-1";
-import { makeBenchBook } from "./bench-sketchbook.js?v=storyboards-1";
-import { mountPressZoom } from "./press-zoom.js";
+} from "./ticket-pile.js?v=bench-framing-1";
+import { createPaperBreeze } from "./paper-breeze.js?v=bench-hover-1";
+import { createBenchHover } from "./bench-hover.js";
+import { makeBenchBook } from "./bench-sketchbook.js?v=bench-hover-1";
+import { makeStampSet, printStudioSeal } from "./bench-stamp.js?v=bench-hover-1";
+import { pressedHeight, rigStamp, seal } from "./stamp-motion.js?v=bench-framing-1";
+import { makeBenchGround } from "./bench-ground.js";
+import { mountPressZoom } from "./press-zoom.js?v=bench-grid-1";
 
 const asset = (name) =>
   new URL("./assets/ticket-window/" + name, import.meta.url).href;
@@ -38,7 +43,7 @@ function paperMesh(finish) {
   return mesh;
 }
 
-function bendPaper(mesh, length, tremor = 0) {
+function bendPaper(mesh, length, tremor = 0, pressure = 0) {
   const geometry = mesh.geometry,
     pos = geometry.attributes.position,
     uv = geometry.attributes.uv;
@@ -48,7 +53,6 @@ function bendPaper(mesh, length, tremor = 0) {
   for (let row = 0; row <= down; row++) {
     const s = row / down,
       t = s * length;
-    const z = 1.285 + 1.35 * t;
     // The first centimetre leaves the nip horizontally. The leading edge
     // then droops and develops a shallow reverse curl against the tray.
     const y = stockHeight(t);
@@ -58,7 +62,8 @@ function bendPaper(mesh, length, tremor = 0) {
         i = row * (across + 1) + col;
       const lift =
         stockCurl(t, edge) + tremor * 0.065 * Math.sin(t * 5.8) * t * t;
-      pos.setXYZ(i, (u - 0.5) * 3.13, y + lift, z + 0.025 * edge * t * t);
+      const x = (u - 0.5) * 3.13, z = stockFeedZ(t, edge);
+      pos.setXYZ(i, x, pressure ? pressedHeight(x, y + lift, z, pressure) : y + lift, z);
       uv.setXY(i, u, (1 - s) * length);
     }
   }
@@ -86,6 +91,18 @@ function ticketPlates(invalidate) {
     if (!entry.im.complete) entry.waiting.add(plate);
     return entry.im.complete && entry.im.naturalWidth ? entry.im : null;
   }
+  function paintSeal(plate) {
+    const { texture, stamped } = plate;
+    const ctx = stamped.image.getContext("2d");
+    const { width, height } = texture.image;
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(texture.image, 0, 0);
+    ctx.globalCompositeOperation = "source-atop";
+    printStudioSeal(ctx, width * seal.u, height * (1-seal.v), 99, 69, -.10, .91);
+    ctx.globalCompositeOperation = "source-over";
+    stamped.userData.cutout = texture.userData.cutout;
+    stamped.needsUpdate = true;
+  }
   function paint(plate) {
     const { data, texture } = plate;
     const c = texture.image.getContext("2d"),
@@ -95,9 +112,9 @@ function ticketPlates(invalidate) {
     c.fillStyle = data.color;
     c.fillRect(0, 0, w, h);
     const lace = image("engine-turn.webp", plate);
-    if (lace) c.drawImage(lace, 322, 0, 554, h);
+    if (lace) c.drawImage(lace, 555, 0, 310, h);
     const art = image(data.art + ".webp", plate);
-    if (art) c.drawImage(art, 492, 54, 288, 288);
+    if (art) c.drawImage(art, 615, 85, 215, 215);
     const fibre = image("grain.png", plate);
     if (fibre) {
       c.save();
@@ -113,10 +130,21 @@ function ticketPlates(invalidate) {
     c.fillText("THE RED STUDIO", 40, 54);
     c.font = "bold 17px monospace";
     c.fillText("TRONDHEIM", 699, 52);
-    c.font = "900 83px Archivo, Arial, sans-serif";
-    c.fillText(data.name, 37, 182, 460);
-    c.font = "bold 56px Space, Arial, sans-serif";
-    c.fillText(data.fee, 40, 259, 450);
+    c.font = "bold 68px Space, Arial, sans-serif";
+    const titleSize = Math.min(68, Math.floor(68 * 570 / c.measureText(data.name).width));
+    c.font = `bold ${titleSize}px Space, Arial, sans-serif`;
+    c.fillText(data.name, 38, 155);
+    // The fee is near the leading edge, so it is legible before the feed ends.
+    const currencyStart = data.fee.lastIndexOf(" ");
+    const amount = data.priced ? data.fee.slice(0, currencyStart) : data.fee;
+    c.font = data.priced ? "900 126px Archivo, Arial, sans-serif" : "bold 96px Space, Arial, sans-serif";
+    const maxWidth = data.priced ? 445 : 565;
+    c.fillText(amount, 35, 303, maxWidth);
+    if (data.priced) {
+      const width = Math.min(maxWidth, c.measureText(amount).width);
+      c.font = "bold 66px Space, Arial, sans-serif";
+      c.fillText(data.fee.slice(currencyStart + 1), 51 + width, 301);
+    }
     c.fillRect(39, h - 72, 793, 2);
     c.font = "24px monospace";
     c.fillText(data.note, 40, h - 33, 590);
@@ -153,20 +181,27 @@ function ticketPlates(invalidate) {
       c.globalCompositeOperation = "source-over";
     }
     texture.needsUpdate = true;
+    if (plate.stamped) paintSeal(plate);
   }
   document.fonts.ready.then(() => {
     for (const plate of stock.values()) dirtyPlates.add(plate);
     invalidate();
   });
   return {
-    get(data) {
+    get(data, sealed) {
       if (!stock.has(data.key)) {
         const texture = inkTexture(1024, 400, () => {});
         const plate = { data, texture };
         stock.set(data.key, plate);
         paint(plate);
       }
-      return stock.get(data.key).texture;
+      const plate = stock.get(data.key);
+      if (!sealed) return plate.texture;
+      if (!plate.stamped) {
+        plate.stamped = inkTexture(1024, 400, () => {});
+        paintSeal(plate);
+      }
+      return plate.stamped;
     },
     refresh(current) {
       if (!dirtyPlates.size) return false;
@@ -180,8 +215,8 @@ function ticketPlates(invalidate) {
 }
 
 // Through a punched corner the pointer reaches the next exposed ticket.
-function hasInkAt(hit) {
-  const mask = hit.object.material.map?.userData.cutout;
+function hasInkAt(hit, material) {
+  const mask = material.map?.userData.cutout;
   if (!mask || !hit.uv) return true;
   const x = clamp(Math.floor(hit.uv.x * mask.width), 0, mask.width - 1);
   const y = clamp(Math.floor((1 - hit.uv.y) * mask.height), 0, mask.height - 1);
@@ -200,7 +235,7 @@ export async function loadBenchLight() {
   return light;
 }
 
-export async function mountPrinter(host, preference, reprint, light, nextSlice) {
+export async function mountPrinter(host, preference, reprint, light, nextSlice, onStampHit) {
   let visible = false, lost = false, frame = 0, dirty = true;
   const canvas = host.querySelector(".press-viewport");
   const renderer = new T.WebGLRenderer({
@@ -217,12 +252,12 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   renderer.shadowMap.autoUpdate = false;
   renderer.shadowMap.type = T.PCFSoftShadowMap;
   const scene = new T.Scene(),
-    camera = new T.OrthographicCamera();
+    camera = new T.PerspectiveCamera(23, 1, .1, 70);
   scene.environment = light;
-  scene.environmentIntensity = 1.05 * 8;
-  scene.add(new T.HemisphereLight(0xfff2dd, 0x9b9f95, 0.6));
-  const key = new T.DirectionalLight(0xffecd4, 1.56);
-  key.position.set(-2.7, 8.5, 3.5);
+  scene.environmentIntensity = 0.88 * 8;
+  scene.add(new T.HemisphereLight(0xfff6e7, 0x93a196, 0.51));
+  const key = new T.DirectionalLight(0xfff1dd, 1.94);
+  key.position.set(-4.5, 6.4, 3.0);
   key.castShadow = true;
   key.shadow.mapSize.setScalar(compact ? 512 : 1024);
   Object.assign(key.shadow.camera, {
@@ -236,7 +271,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   key.shadow.normalBias = 0.014;
   key.shadow.bias = -0.00015;
   scene.add(key);
-  const rim = new T.DirectionalLight(0xc3ddff, 0.72);
+  const rim = new T.DirectionalLight(0xcfdded, 0.53);
   rim.position.set(4, 3, -3);
   scene.add(rim);
   await nextSlice();
@@ -244,13 +279,13 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   await nextSlice();
   const bench = new T.Group();
   scene.add(bench);
-  machine.model.position.set(-1.94, 0, -.63);
-  machine.model.rotation.y = -.34;
-  machine.model.scale.setScalar(.865);
+  machine.model.position.set(-1.96, 0, -1.04);
+  machine.model.rotation.y = -.235;
+  machine.model.scale.setScalar(.965);
   const book = makeBenchBook(wake);
-  book.group.position.set(1.83, 0, .38);
-  book.group.scale.setScalar(1.10);
-  book.group.rotation.y = -.16;
+  book.group.position.set(1.65, 0, -1.65);
+  book.group.scale.setScalar(1.04);
+  book.group.rotation.y = -.31;
   bench.add(machine.model, book.group);
   machine.model.traverse(part => {
     if (part.isMesh) part.geometry.computeBoundingBox();
@@ -270,33 +305,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   const pointer = new T.Vector2();
   let pointerOver = false,
     pickAgain = false;
-  // Fine stipple in the matte linoleum, with a little long-range variation.
-  const deskGrain = inkTexture(256, 256, (c,w,h) => {
-    const pixels = c.createImageData(w,h);
-    let seed = 1621;
-    for (let i=0; i<pixels.data.length; i+=4) {
-      seed = (Math.imul(seed,1664525) + 1013904223) >>> 0;
-      const x = i/4 % w, y = Math.floor(i/4/w);
-      const fleck = 226 + (seed / 4294967296) * 22
-        + 3*Math.sin(x*2*Math.PI/w)*Math.cos(y*4*Math.PI/h);
-      pixels.data[i] = pixels.data[i+1] = pixels.data[i+2] = fleck;
-      pixels.data[i+3] = 255;
-    }
-    c.putImageData(pixels,0,0);
-  });
-  deskGrain.wrapS=deskGrain.wrapT=T.RepeatWrapping;
-  deskGrain.repeat.set(84,84);
-  const floor = new T.Mesh(
-    new T.PlaneGeometry(120, 120),
-    new T.MeshStandardMaterial({
-      color: 0x9caa98, roughness: .94, metalness: 0,
-      map: deskGrain, bumpMap: deskGrain, bumpScale: .006,
-    }),
-  );
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -0.012;
-  floor.receiveShadow = true;
-  scene.add(floor);
+  bench.add(makeBenchGround());
   const contact = new T.Mesh(
     new T.PlaneGeometry(6.3, 4.4),
     new T.MeshBasicMaterial({
@@ -320,14 +329,32 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   bookContact.scale.set(.49,.78,1);
   bookContact.position.set(.03,.001,.035);
   book.group.add(bookContact);
+  await nextSlice();
+  const kit = makeStampSet(contact);
+  bench.add(kit.group);
+  const stamp = rigStamp(kit, machine.model);
+  const props = createBenchHover(machine, book, kit);
+  function pageFace(mesh, options) {
+    const { widthSegments: cols, heightSegments: rows } = mesh.geometry.parameters;
+    return { mesh, first: 0, cols, rows, ...options };
+  }
+  const notebook = pageFace(book.sheet, {
+    inRoller: true, lift: .23,
+    freedom: (_x, z) => T.MathUtils.smoothstep(z, -1.22, -.80),
+  });
+  const proof = pageFace(kit.slip, {
+    // The stamp holds down the left half of its proof; the right end is loose.
+    freedom: x => T.MathUtils.smoothstep(x, .08, .62),
+  });
+  let hitTime = 0, sealed = false, audibleStrike = false;
 
   let last = 0,
     start = null,
-    startedSpool = 0,
+    stockPosition = 0, stockFrom = 0, stockStop = 0,
     startedDrive = 0;
-  let yaw = 0,
+  let yaw = T.MathUtils.degToRad(-9),
     desiredYaw = yaw,
-    lift = T.MathUtils.degToRad(26),
+    lift = T.MathUtils.degToRad(18.5),
     desiredLift = lift,
     drag = null;
   let issued = 1,
@@ -339,14 +366,17 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   let shadowChanged = true;
   let warmed = false, warmup = null;
   const look = new T.Vector3();
+  const cameraDistance = 15;
+  const viewSize = new T.Vector2();
   function clearPointer() {
     pointerOver = false;
     breeze.aim(null);
+    props.aim(null);
     wake();
   }
   const zoom = mountPressZoom(
     canvas,
-    camera,
+    viewSize,
     () => {
       drag = null;
       clearPointer();
@@ -359,24 +389,21 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   );
   function frameCamera() {
     // The lens and pivot are independent of the pile, orbit and print cycle.
-    const height = Math.max(4.85, 8.95 / aspect);
+    const height = Math.max(5.4, 9.75 / aspect);
+    viewSize.set(height * aspect, height);
     camera.zoom = zoom.scale;
-    camera.left = (-height * aspect) / 2;
-    camera.right = -camera.left;
-    camera.top = height / 2;
-    camera.bottom = -camera.top;
-    camera.near = 0.1;
-    camera.far = 70;
+    camera.aspect = aspect;
+    camera.fov = T.MathUtils.radToDeg(2 * Math.atan(height / (2 * cameraDistance)));
     camera.updateProjectionMatrix();
     look.set(
-      .02 + zoom.x,
-      1.27 + zoom.y * Math.cos(lift),
-      .36 - zoom.y * Math.sin(lift),
+      -1.50 + zoom.x,
+      1.18 + zoom.y * Math.cos(lift),
+      .26 - zoom.y * Math.sin(lift),
     );
     camera.position.set(
       look.x,
-      look.y + 12 * Math.sin(lift),
-      look.z + 12 * Math.cos(lift),
+      look.y + cameraDistance * Math.sin(lift),
+      look.z + cameraDistance * Math.cos(lift),
     );
     camera.lookAt(look);
     bench.rotation.y = yaw;
@@ -411,8 +438,15 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   function endPrint() {
     pickAgain = true;
     start = null;
+    stockPosition = stockStop;
+    machine.setStockPosition(stockPosition);
+    host.dataset.rollPanel = stockStop % 4;
     issued = 1;
     bendPaper(paper, 1);
+    stamp.park();
+    sealed = true;
+    audibleStrike = false;
+    if (current) paper.material.map = plates.get(current, true);
     machine.lever.rotation.x = 0.13;
   }
   async function warmMaterials() {
@@ -448,7 +482,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
         // Keep the illustrated proof on screen while parallel shader compilation finishes.
         warmup = warmMaterials().catch(() => {}).then(() => {
           warmed = true;
-          if (visible && firstView && !preference.matches) startFeed(performance.now());
+          if (visible && firstView && !preference.matches) startFeed(performance.now(), audibleStrike);
           firstView = false;
           wake();
         });
@@ -482,20 +516,33 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
     }
     if (start !== null) {
       const t = (now - start) / 1000;
-      const run =
-        0.77 * smooth((t - 0.07) / 0.57) + 0.23 * smooth((t - 0.68) / 0.33);
+      const impact = t >= hitTime && !sealed;
+      // Even on a missed frame, show the instant of contact before lifting.
+      const playhead = impact ? Math.min(t, hitTime + .044) : t;
+      const pressure = stamp.sample(playhead, hitTime);
+      const run = .76 * smooth((playhead - .06) / .63)
+        + (seal.feed - .76) * smooth((playhead - .72) / .68)
+        + (1 - seal.feed) * smooth((playhead - hitTime - .17) / .26);
+      const braking = Math.max(0, playhead - .53);
+      const rebound = Math.sin(braking * 17) * Math.exp(-braking * 7);
+      if (issued !== 1 || run < 1) bendPaper(paper, run, rebound, pressure);
       issued = run;
-      bendPaper(paper, run, Math.sin(t * 22) * (1 - smooth((t - 0.84) / 0.31)));
-      machine.spool.rotation.x = startedSpool + run * 2.2;
+      if (impact) {
+        sealed = true;
+        paper.material.map = plates.get(current, true);
+        if (audibleStrike) onStampHit();
+      }
+      stockPosition = T.MathUtils.lerp(stockFrom, stockStop, run);
+      machine.setStockPosition(stockPosition);
       machine.drive.rotation.x = startedDrive + run * 9.6;
       machine.wheel.rotation.x = machine.drive.rotation.x * 0.29;
-      machine.leader.offset.y = -machine.spool.rotation.x * 0.48;
       const press = smooth(t / 0.24) * (1 - smooth((t - 0.68) / 0.34));
       machine.lever.rotation.x = 0.13 + 0.65 * press;
-      if (t >= 1.15) endPrint();
+      if (playhead >= hitTime + 1.18) endPrint();
     }
     const wasSketching = book.animating;
     const sketching = wasSketching && book.update(now, preference.matches);
+    if (wasSketching && !sketching) pickAgain = true;
     const hadFalling = pile.inFlight;
     const falling = hadFalling && pile.update(now);
     if (movingCamera || cameraDirty) {
@@ -509,23 +556,34 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
       if (start !== null || falling) pickAgain = true;
       else if (pickAgain || turning) {
         camera.updateMatrixWorld();
-        machine.model.updateWorldMatrix(true, true);
+        bench.updateWorldMatrix(true, true);
         raycaster.setFromCamera(pointer, camera);
         const hits = raycaster.intersectObject(bench, true);
         const hit = hits.find(
-          (hit) => hit.object.visible && hit.object.material.depthWrite && hasInkAt(hit),
+          (hit) => {
+            const material = Array.isArray(hit.object.material)
+              ? hit.object.material[hit.face.materialIndex] : hit.object.material;
+            return hit.object.visible && material.depthWrite && hasInkAt(hit, material);
+          },
         );
-        const sheet =
-          hit && (hit.object === paper ? freshFace : pile.faceAt(hit));
+        let sheet = hit && (hit.object === paper ? freshFace : pile.faceAt(hit));
+        if (hit?.object === kit.slip) sheet = proof;
+        if (hit?.object === book.sheet && !sketching) sheet = notebook;
         breeze.aim(sheet, hit?.uv);
+        props.aim(sheet ? null : hit?.object, now, sketching);
         pickAgain = false;
       }
     }
-    if (preference.matches) breeze.reset();
+    if (preference.matches) {
+      breeze.reset();
+      props.reset();
+    }
     const hadBreeze = breeze.active;
+    const hadPropMotion = props.active;
+    const reacting = hadPropMotion && props.advance(now);
     const flutter = !preference.matches && hadBreeze && breeze.advance(now, dt);
-    const animated = start !== null || falling || turning || flutter || sketching;
-    if (wasPrinting || hadFalling || movingBench || hadBreeze || wasSketching) shadowChanged = true;
+    const animated = start !== null || falling || turning || flutter || reacting || sketching;
+    if (wasPrinting || hadFalling || movingBench || hadBreeze || hadPropMotion || wasSketching) shadowChanged = true;
     if (dirty || refreshedPlate || wasPrinting || hadFalling || turning || hadBreeze || wasSketching || shadowChanged || movingCamera) {
       // Keep the shadow in step with its caster. Lens-only changes can reuse it.
       if (shadowChanged) {
@@ -542,8 +600,14 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
     if (animated || refreshedPlate) schedule();
     else { last = slowSince = 0; }
   }
-  function startFeed(now) {
-    startedSpool = machine.spool.rotation.x;
+  function startFeed(now, sound = false) {
+    sealed = false;
+    audibleStrike = sound;
+    hitTime = stamp.start();
+    paper.material.map = plates.get(current, false);
+    // The opening feed brings the waterfront into view. User prints carry
+    // on from the current position, including a selection made mid-feed.
+    stockFrom = sound ? stockPosition : stockStop - 1;
     startedDrive = machine.drive.rotation.x;
     start = now;
     issued = 0;
@@ -551,6 +615,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   }
   function select(data, issue) {
     breeze.reset();
+    props.reset();
     pickAgain = true;
     shadowChanged = true;
     const now = performance.now();
@@ -558,19 +623,20 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
       issue && !preference.matches && visible && !document.hidden && !lost;
     if (issue && current) {
       pile.release(paper.material.map, issued, now, animate);
+      stockStop = Math.floor(stockPosition + .000001) + 1;
     }
-    if (animate) startFeed(now);
+    const changed = current?.key !== data.key;
+    current = data;
+    if (animate) startFeed(now, true);
     else if (
-      current?.key !== data.key ||
+      changed ||
       preference.matches ||
       start === null ||
       issue
     )
       endPrint();
     if (preference.matches) pile.settle();
-    current = data;
-    paper.material.map = plates.get(data);
-    paper.material.needsUpdate = true;
+
     book.select(data, animate);
     machine.indicator(data.no);
     wake();
@@ -602,6 +668,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
     drag = null;
     zoom.cancel();
     breeze.reset();
+    props.reset();
   }
   function trackPointer(event) {
     if (
@@ -663,7 +730,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
     if (event.key === "ArrowLeft") desiredYaw -= 0.24;
     else if (event.key === "ArrowRight") desiredYaw += 0.24;
     else if (event.key === "Enter" || event.key === " ") reprint();
-    else if (!zoom.key(event)) return;
+    else return;
     event.preventDefault();
     wake();
   });

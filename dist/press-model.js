@@ -110,6 +110,8 @@ function ring(group, mat, x, y, z, radius, tube) {
   return part(group, geo, mat, x, y, z);
 }
 
+export { part as addPart, batch as batchFixedParts };
+
 // Consolidate the fixed parts once. Moving assemblies keep their own origins.
 function batch(group) {
   const plates = new Map();
@@ -147,6 +149,62 @@ function sign(group, width, height, x, y, z, angle, draw) {
   );
   plate.rotation.x = angle;
   return tex;
+}
+
+const rollRadius = .66, stockWidth = 3.13, ticketPitch = 1.72;
+const rollPanels = 4;
+const rollY = 2.65, rollZ = -.58;
+const guideY = 1.979, guideZ = .345, guideRadius = .072;
+
+function stockWebGeometry() {
+  // An internal common tangent takes the web off the front of the reel,
+  // behind the guide and down into the casting. Each row is [y, z, slack].
+  const dy = guideY - rollY, dz = guideZ - rollZ;
+  const peel = Math.atan2(dz, dy) - Math.acos((rollRadius + guideRadius) / Math.hypot(dy, dz));
+  const rows = [];
+  for (let i = 0; i <= 80; i++) {
+    const fraction = i / 80, angle = peel + 2 * Math.PI * (fraction - 1);
+    const radius = rollRadius - .009 * (1 - fraction);
+    rows.push([radius * Math.cos(angle), radius * Math.sin(angle), 0]);
+  }
+  const [peelY, peelZ] = rows[rows.length - 1];
+  const startY = dy - guideRadius * Math.cos(peel), startZ = dz - guideRadius * Math.sin(peel);
+  for (let i = 1; i <= 16; i++) {
+    const t = i / 16;
+    rows.push([T.MathUtils.lerp(peelY, startY, t), T.MathUtils.lerp(peelZ, startZ, t),
+      Math.sin(Math.PI * t) ** 2]);
+  }
+  const guideExit = 4.12;
+  for (let i = 1; i <= 6; i++) {
+    const angle = T.MathUtils.lerp(peel + Math.PI, guideExit, i / 6);
+    rows.push([dy + guideRadius * Math.cos(angle), dz + guideRadius * Math.sin(angle), 0]);
+  }
+  const [exitY, exitZ] = rows[rows.length - 1];
+  rows.push([exitY + .22 * Math.sin(guideExit), exitZ - .22 * Math.cos(guideExit), 0]);
+
+  const columns = 10;
+  const geometry = new T.PlaneGeometry(stockWidth, 1, columns, rows.length - 1);
+  const { position, uv } = geometry.attributes;
+  const colour = new Float32Array(position.count * 3);
+  let travel = 0;
+  rows.forEach(([y, z, slack], row) => {
+    if (row) travel += Math.hypot(y - rows[row-1][0], z - rows[row-1][1]);
+    const nearCasting = T.MathUtils.smoothstep(-y, -.15, .72);
+    for (let col = 0; col <= columns; col++) {
+      const i = row * (columns + 1) + col, u = col / columns;
+      const bow = slack * (.034 * Math.sin(Math.PI * u) + .010 * Math.sin(2 * Math.PI * u));
+      position.setXYZ(i, (u - .5) * stockWidth, y, z - bow);
+      uv.setXY(i, u, .56 + (2 * Math.PI * rollRadius - travel) / ticketPitch);
+      // The cheeks and the enclosed intake shelter this part of the stock.
+      const shade = nearCasting * (.22 + .10 * Math.abs(2*u-1) ** 5);
+      colour[3*i] = 1 - .90*shade;
+      colour[3*i+1] = 1 - shade;
+      colour[3*i+2] = 1 - 1.03*shade;
+    }
+  });
+  geometry.setAttribute("color", new T.BufferAttribute(colour, 3));
+  geometry.computeVertexNormals();
+  return geometry;
 }
 
 export function makePress(invalidate) {
@@ -413,143 +471,55 @@ export function makePress(invalidate) {
     [-0.87, 2.69],
   ];
   for (const side of [-1, 1]) {
-    const x = side * 1.64;
+    const x = side * 1.77;
     part(body, casting(cheek, 0.145, 0.052), enamel, x, 0, 0);
     shaft(body, nickel, x + side * 0.09, 2.65, -0.58, 0.199, 0.08);
     shaft(body, graphite, x + side * 0.14, 2.65, -0.58, 0.125, 0.04);
     shaft(body, bronze, x + side * 0.17, 2.65, -0.58, 0.073, 0.041, 12);
   }
-  shaft(body, nickel, 0, 2.65, -0.58, 0.085, 3.67);
+  shaft(body, nickel, 0, rollY, rollZ, .085, 3.89);
   const spool = new T.Group();
-  spool.position.set(0, 2.65, -0.58);
+  spool.position.set(0, rollY, rollZ);
   body.add(spool);
-  const rollTexture = inkTexture(1024, 512, (c, w, h) => {
-    c.fillStyle = "#ecdfbd";
-    c.fillRect(0, 0, w, h);
-    c.strokeStyle = "#cdbd9e";
-    c.lineWidth = 1;
-    for (let i = 0; i < 31; i++) {
-      const x = (i * 151) % w;
-      c.beginPath();
-      c.moveTo(x, 0);
-      c.lineTo(x + 4, h);
-      c.stroke();
-    }
-    c.fillStyle = "#a14c3b";
-    for (const x of [45, 550]) {
-      c.fillRect(x, 21, 22, 8);
-      c.fillRect(x, h - 29, 22, 8);
-    }
-    c.strokeStyle = "#837661";
-    c.setLineDash([7, 7]);
-    for (const x of [128, 640]) {
-      c.beginPath();
-      c.moveTo(x, 0);
-      c.lineTo(x, h);
-      c.stroke();
-    }
+
+  const stock = finish("roll-stock.webp?v=trondheim-5", 1, 1 / rollPanels, T.SRGBColorSpace);
+  stock.wrapS = T.ClampToEdgeWrapping;
+  const webMaterial = new T.MeshStandardMaterial({
+    map: stock, ...paperFinish, roughness: .98, side: T.DoubleSide, alphaTest: .45, vertexColors: true,
   });
-  const stockMat = new T.MeshStandardMaterial({
-    map: rollTexture,
-    ...paperFinish,
-    roughness: 0.95,
-  });
-  const roll = new T.CylinderGeometry(0.62, 0.62, 2.8, 80, 1, true);
-  roll.rotateZ(-Math.PI / 2);
-  part(spool, roll, stockMat, 0, 0, 0);
-  shaft(spool, ecru, 0, 0, 0, 0.617, 2.798, 72);
-  const woundEdge = inkTexture(384, 384, (ctx, w, h) => {
-    ctx.fillStyle = "#dac7a1";
-    ctx.fillRect(0, 0, w, h);
-    ctx.translate(w / 2, h / 2);
-    const end = Math.PI * 2 * 51;
-    ctx.lineWidth = 0.85;
-    ctx.strokeStyle = "#9b866760";
-    ctx.beginPath();
-    for (let t = 0; t < end; t += 0.13) {
-      const r =
-        24 +
-        ((w * 0.5 - 24) * t) / end +
-        0.72 * Math.sin(t * 2 + 0.5) +
-        0.35 * Math.sin(t * 5);
-      const x = r * Math.cos(t),
-        y = r * Math.sin(t);
-      if (t === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  });
-  const edgeMat = new T.MeshStandardMaterial({
-    map: woundEdge,
-    roughness: 0.93,
-    ...paperFinish,
-  });
+  part(body, stockWebGeometry(), webMaterial, 0, rollY, rollZ);
+  shaft(body, nickel, 0, guideY, guideZ, guideRadius, 3.38);
+
+  // The cut edges are visible beyond the small steel retaining flanges.
+  shaft(spool, ecru, 0, 0, 0, rollRadius - .012, stockWidth - .005, 80);
+  const wound = finish("roll-edge.webp", 1, 1, T.SRGBColorSpace);
+  wound.wrapS = wound.wrapT = T.ClampToEdgeWrapping;
+  const edgeMat = new T.MeshStandardMaterial({ map: wound, ...paperFinish, roughness: .98 });
   for (const side of [-1, 1]) {
-    const end = new T.CircleGeometry(0.616, 80);
-    end.rotateY((side * Math.PI) / 2);
-    part(spool, end, edgeMat, side * 1.405, 0, 0);
-    shaft(spool, bronze, side * 1.447, 0, 0, 0.21, 0.1);
-  }
-  // Spoked steel flanges keep the stock centred on the reel.
-  for (const side of [-1, 1]) {
-    const x = side * 1.45;
-    ring(spool, burgundy, x, 0, 0, 0.627, 0.031);
+    const x = side * (stockWidth / 2 + .045);
+    const end = new T.RingGeometry(.12, rollRadius - .008, 72, 24);
+    const lip = end.attributes.position;
+    for (let i = 0; i < lip.count; i++) {
+      const radius = Math.hypot(lip.getX(i), lip.getY(i));
+      // A few wraps sit slightly proud and catch the grazing light.
+      lip.setZ(i, .007 + .004 * Math.sin(radius * 74) + .003 * Math.sin(radius * 131));
+    }
+    end.computeVertexNormals();
+    end.rotateY(side * Math.PI / 2);
+    part(spool, end, edgeMat, side * stockWidth / 2, 0, 0);
+    shaft(spool, bronze, x, 0, 0, .13, .105);
+    ring(spool, burgundy, x, 0, 0, .385, .026);
     for (let i = 0; i < 3; i++) {
-      const angle = (i * Math.PI * 2) / 3;
-      const spoke = box(
-        spool,
-        burgundy,
-        x,
-        0.365 * Math.cos(angle),
-        0.365 * Math.sin(angle),
-        0.039,
-        0.52,
-        0.072,
-      );
+      const angle = i * Math.PI * 2 / 3;
+      const spoke = box(spool, burgundy, x, .24 * Math.cos(angle), .24 * Math.sin(angle),
+        .036, .28, .052);
       spoke.rotation.x = angle;
     }
   }
-  const guideZ = 0.345;
-  shaft(body, nickel, 0, 1.979, guideZ, 0.072, 3.14);
-  // A continuous strip bridges the roll's front tangent and the intake roller.
-  const stripGeom = new T.PlaneGeometry(2.77, 1, 1, 20);
-  const points = stripGeom.attributes.position;
-  for (let i = 0; i < points.count; i++) {
-    const t = 0.5 - points.getY(i);
-    points.setY(i, 2.694 - 0.724 * t);
-    points.setZ(i, 0.038 + 0.3 * t - 0.055 * Math.sin(Math.PI * t));
+  function setStockPosition(tickets) {
+    spool.rotation.x = tickets * ticketPitch / rollRadius;
+    stock.offset.y = (tickets / rollPanels) % 1;
   }
-  stripGeom.computeVertexNormals();
-  const leader = inkTexture(512, 256, (c, w, h) => {
-    c.fillStyle = "#dfcdab";
-    c.fillRect(0, 0, w, h);
-    c.fillStyle = "#93846b";
-    for (const x of [9, w - 11])
-      for (let y = 7; y < h; y += 22) c.fillRect(x, y, 3, 5);
-    // Faint stock borders and registration targets on the unprinted web.
-    c.strokeStyle = "#b6a385";
-    for (const x of [24, w - 25]) {
-      c.lineWidth = 1;
-      c.strokeRect(x, 0, 2, h);
-      c.beginPath();
-      c.arc(x + (x < 100 ? 10 : -10), 72, 5, 0, Math.PI * 2);
-      c.stroke();
-    }
-    c.strokeStyle = "#b5a38a";
-    c.setLineDash([5, 5]);
-    c.beginPath();
-    c.moveTo(0, 188);
-    c.lineTo(w, 188);
-    c.stroke();
-  });
-  leader.wrapT = T.RepeatWrapping;
-  const stripMat = new T.MeshStandardMaterial({
-    map: leader,
-    ...paperFinish,
-    roughness: 0.94,
-    side: T.DoubleSide,
-  });
-  part(body, stripGeom, stripMat, 0, 0, 0);
 
   const drive = new T.Group();
   drive.position.set(0, 1.075, 1.18);
@@ -596,6 +566,7 @@ export function makePress(invalidate) {
   box(wheel, ecru, 0.339, 0.089, 0, 0.011, 0.1, 0.023);
 
   const lever = new T.Group();
+  lever.name = "Press lever";
   lever.position.copy(wheel.position);
   body.add(lever);
   const armShape = [
@@ -668,5 +639,5 @@ export function makePress(invalidate) {
   batch(wheel);
   batch(lever);
   batch(body);
-  return { model, spool, drive, wheel, lever, leader, indicator, paperFinish };
+  return { model, body, drive, wheel, lever, setStockPosition, indicator, paperFinish };
 }

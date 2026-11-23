@@ -1,5 +1,5 @@
 import { mountSketchbook } from "./sketchbook.js?v=3";
-import { mountDispenser } from "./ticket-dispenser.js?v=native-refresh-1";
+import { mountDispenser } from "./ticket-dispenser.js?v=bench-close-1";
 import { openPackageInquiry } from "./brief.js?v=service-groups-1";
 import { mountPackageDetails } from "./package-details.js?v=launch-rates-1";
 import { playPrintIntro } from "./print-intro.js?v=resource-1";

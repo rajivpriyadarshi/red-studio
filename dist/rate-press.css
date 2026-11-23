@@ -36,7 +36,7 @@
   .cinema-tools {gap:14px}
 }
 
-/* The fare board is paper and ink. The counter is a separate, lit physical set. */
+/* The fare board and the drafting grid share one paper surface. */
 .rates {
   --fare-ink: #183a30;
   --fare-red: #b53523;
@@ -100,7 +100,6 @@
 .counter-scene {
   isolation:isolate;position:relative;overflow:hidden;container-type:inline-size;
   aspect-ratio:1.57;
-  background:radial-gradient(ellipse at 36% 31%,#e1e5d9 0%,#c3cbbd 59%,#9ca99d 100%);
 }
 .press-viewport {
   position:absolute;inset:0;display:block;width:100%;height:100%;
@@ -108,23 +107,33 @@
 }
 .press-viewport:active {cursor:grabbing}
 .press-viewport:focus-visible {outline:2px solid var(--fare-red);outline-offset:-5px}
+/* The still is an empty impression of the same 3D bench. Map the live rate
+   and study onto the slot and page in its 1200 × 850 camera frame. */
 .press-proof {
-  position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;
+  position:absolute;left:0;right:0;top:50%;aspect-ratio:1200/850;
+  transform:translateY(-50%);pointer-events:none;
 }
-.press-proof .fare-paper {position:absolute;left:4%;top:25%;width:53%;transform:rotate(-7deg);box-shadow:0 5px 14px #493b2a55}
+.press-still {position:absolute;inset:0;width:100%;height:100%;display:block}
+/* Only the roll changes in the illustrated fallback's 1200 × 850 frame. */
+.counter-scene[data-roll-panel="2"] {--roll-sprite-y:50%}
+.counter-scene[data-roll-panel="3"] {--roll-sprite-y:100%}
+.counter-scene[data-roll-panel]:not([data-roll-panel="0"]) .press-proof::after {
+  content:"";position:absolute;left:34.2500%;top:15.8824%;width:31.0833%;aspect-ratio:373/179;
+  background:url("assets/ticket-window/press-roll-scenes.webp?v=bench-close-1") center var(--roll-sprite-y,0%)/100% 300% no-repeat;
+}
+.press-proof .fare-paper {
+  position:absolute;left:29.4183%;top:47.3741%;width:35%;aspect-ratio:1024/400;
+  transform-origin:top left;transform:perspective(100cqw) matrix3d(0.788464,0.105223,-0.034271,0,-0.523274,0.668531,0.355859,0,0,0,1,0,0,0,0,1);
+  container-type:inline-size;
+}
 .flat-sketchbook {
-  position:absolute;right:9%;bottom:14%;width:30%;aspect-ratio:.79;
-  overflow:hidden;transform:perspective(850px) rotateX(64deg) rotateZ(8deg);background:#e6dac1;
-  border:2px solid #74483a;border-radius:3% 3% 2% 2%;
-  box-shadow:0 2px #c9bea5,0 4px #694234,1px 7px 9px #40382b40;
+  position:absolute;left:74.2875%;top:48.3812%;width:28.333%;aspect-ratio:2.38/2.82;
+  overflow:hidden;transform-origin:top left;transform:perspective(100cqw) matrix3d(0.692297,0.100707,0.200258,0,-0.228247,0.199716,0.396748,0,0,0,1,0,0,0,0,1);
+  clip-path:inset(8.8% .6% .7%);mix-blend-mode:multiply;
 }
 .flat-sketchbook img {
   width:400%;height:200%;max-width:none;display:block;
   transform:translate(var(--sketch-x,0%),var(--sketch-y,0%));
-}
-.flat-sketchbook::after {
-  content:"";position:absolute;inset:0 5% auto;height:7%;
-  background:repeating-linear-gradient(82deg,transparent 0 5.8%,#4e473f 6% 6.7%,#988f80 6.8% 7.3%,transparent 7.5% 8.3%);
 }
 .model-ready .press-viewport {visibility:visible}
 .model-ready .press-proof {display:none}
@@ -140,7 +149,6 @@
   background:url("assets/ticket-window/engine-turn.webp") right center/76% 125% no-repeat;
 }
 .fare-paper[data-stock="motion"] {mask-image:url("assets/ticket-window/wave-die.png")}
-.fare-paper[data-stock="video"] {background-color:color-mix(in srgb,var(--stock) 93%,transparent)}
 .fare-paper::before {
   content:""; position:absolute;inset:6% 15.5% 6% 2.5%;border:1px solid currentColor;
   opacity:.37;pointer-events:none;
@@ -150,26 +158,27 @@
   left:4.5%;right:18%;font-family:var(--fare-mono);
   line-height:1;white-space:nowrap;
 }
-.paper-issuer {top:10%;font-size:1.35cqw;text-transform:uppercase;font-weight:700;letter-spacing:.035em}
+.paper-issuer {top:10%;font-size:2.1cqw;text-transform:uppercase;font-weight:700;letter-spacing:.035em}
 .paper-issuer span {font-size:.88em}
-.paper-foot {bottom:10.3%;border-top:1px solid #352b254f;padding-top:1.4%;font-size:1.3cqw}
+.paper-foot {bottom:10.3%;border-top:1px solid #352b254f;padding-top:1.4%;font-size:2.1cqw}
 .paper-value {
-  position:absolute;left:4.3%;top:25%;height:47%;
+  position:absolute;left:4.3%;top:21%;height:55%;
   display:flex;flex-direction:column;justify-content:center;
 }
-.paper-value>b {font:900 5.1cqw/.98 var(--heavy);letter-spacing:-.073em}
+.paper-value>b {font:700 5.35cqw/1 var(--sans);letter-spacing:-.035em}
 .paper-value div {display:flex;align-items:baseline;gap:.52em;margin-top:4%;white-space:nowrap}
-.paper-value strong {font-size:3.3cqw;font-weight:700;line-height:1.05;letter-spacing:-.055em}
+.paper-value strong {font:900 10cqw/1 var(--heavy);line-height:1.05;letter-spacing:-.055em}
 .paper-value div span {font:700 1.22cqw/1 var(--fare-mono)}
-.paper-plate {position:absolute;right:16.6%;top:10%;width:36%;height:80%;object-fit:contain}
+.paper-plate {position:absolute;right:18%;top:21%;width:21%;height:56%;object-fit:contain}
+.paper-seal {position:absolute;z-index:1;left:69.8%;top:47.7%;width:19.4%;height:34.6%;color:#92332f;opacity:.91;pointer-events:none}
 .paper-coupon {
   position:absolute;inset:0 0 0 86.5%;
   display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;
   background:linear-gradient(90deg,#47352114,#fff3 3%,transparent 12%);
   border-left:1px dashed #463a2b7a;
 }
-.paper-coupon span {font:700 1.47cqw/1 var(--fare-mono);letter-spacing:.08em}
-.paper-coupon b {font:900 3.55cqw/1 var(--heavy);letter-spacing:-.08em}
+.paper-coupon span {font:700 2.3cqw/1 var(--fare-mono);letter-spacing:.08em}
+.paper-coupon b {font:900 7.3cqw/1 var(--heavy);letter-spacing:-.08em}
 .paper-coupon i {
   width:61%;height:14%;
   background:repeating-linear-gradient(90deg,currentColor 0 1px,transparent 1px 3px,currentColor 3px 5px,transparent 5px 7px,currentColor 7px 8px,transparent 8px 9px);

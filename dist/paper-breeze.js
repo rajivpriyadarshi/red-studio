@@ -21,7 +21,7 @@ export function createPaperBreeze(exposure) {
       const normals = geometry.attributes.normal.array.slice(offset, end);
       const freedom = new Float32Array(rest.length / 3);
       for (let i = 0; i < freedom.length; i++) {
-        freedom[i] = sheet.inRoller
+        freedom[i] = sheet.freedom ? sheet.freedom(rest[3 * i], rest[3 * i + 2]) : sheet.inRoller
           ? 1
           : exposure(rest[3 * i], rest[3 * i + 2], sheet.order);
       }
@@ -97,7 +97,7 @@ export function createPaperBreeze(exposure) {
           0.23 * Math.sin(4.3 * clock - 3.9 * u - 2.4 * v) +
           0.12 * Math.sin(6.4 * clock + 2 * u - 4 * v);
         const lift =
-          0.135 * state.amount * free * pressure * wave * state.freedom[i];
+          (sheet.lift ?? 0.135) * state.amount * free * pressure * wave * state.freedom[i];
         const k = i * 3;
         pos.setXYZ(
           i,

@@ -1,6 +1,6 @@
 import * as T from "three";
 import { mergeGeometries } from "./vendor/BufferGeometryUtils.js";
-import { inkTexture } from "./press-model.js?v=resource-1";
+import { inkTexture } from "./press-model.js?v=bench-hover-1";
 
 const width = 2.38,
   height = 2.82,
@@ -16,7 +16,7 @@ const holes = 12,
   pitch = (width - 0.34) / (holes - 1);
 const holeX = (n) => (n - (holes - 1) / 2) * pitch;
 
-function roundedShape(w, h, r) {
+export function roundedShape(w, h, r) {
   const s = new T.Shape(),
     x = w / 2,
     y = h / 2;
@@ -251,7 +251,7 @@ function sketchMaterial() {
   return { material, uniforms };
 }
 
-const durations = { pickup: 380, erase: 1310, turn: 460, draw: 2300, park: 420 };
+const durations = { pickup: 380, erase: 650, turn: 460, draw: 2300, park: 420 };
 const leadEnd = -1.37, eraserEnd = 1.30;
 const ease = t => t * t * (3 - 2 * t);
 
@@ -261,10 +261,12 @@ export function makeBenchBook(wake) {
   const tool = pencil();
   tool.name = 'Sketch pencil';
   const { material, uniforms } = sketchMaterial();
-  const sheet = new T.Mesh(new T.PlaneGeometry(width, height), material);
+  const pageGeometry = new T.PlaneGeometry(width, height, 16, 18);
+  pageGeometry.rotateX(-Math.PI / 2);
+  const sheet = new T.Mesh(pageGeometry, material);
   sheet.name = 'Sketch page';
-  sheet.rotation.x = -Math.PI / 2;
   sheet.position.y = hingeY;
+  sheet.castShadow = true;
   sheet.receiveShadow = true;
   group.add(wire(), sheet, tool);
 
@@ -383,5 +385,5 @@ export function makeBenchBook(wake) {
     }
     return phase !== null;
   }
-  return { group, select, update, settle, get animating() { return phase !== null; } };
+  return { group, sheet, tool, select, update, settle, get animating() { return phase !== null; } };
 }

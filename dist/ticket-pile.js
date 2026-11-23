@@ -25,13 +25,18 @@ const maxSheetsPerStock = 16;
 const baseSheets = 4;
 const maxAirborne = 4;
 
+// Both the attached sheet and the released one follow the same path out of the nip.
+export function stockFeedZ(t, edge) {
+  return 1.285 + 1.58 * t + 0.025 * edge * t * t;
+}
+
 export function stockHeight(t) {
   return (
-    1.079 - 0.64 * ease((t - 0.02) / 0.96) + 0.058 * ease((t - 0.78) / 0.22)
+    1.079 - 0.65 * ease((t - 0.02) / 0.86) + 0.11 * ease((t - 0.74) / 0.26)
   );
 }
 export function stockCurl(t, edge) {
-  return (0.034 * edge * edge + 0.044 * edge) * t * t;
+  return (0.051 * edge * edge + 0.06 * edge) * t * t;
 }
 
 function makeBatch(group, material) {
@@ -125,7 +130,7 @@ function floorShadow(group) {
     }),
   );
   quad.rotation.x = -Math.PI / 2;
-  quad.position.set(0, 0.001, 3.72);
+  quad.position.set(-0.12, 0.001, 3.68);
   group.add(quad);
   return ({ x, z, angle, plate }) => {
     ink.clearRect(0, 0, stamp.width, stamp.height);
@@ -141,8 +146,8 @@ function floorShadow(group) {
       0,
       0,
       scale,
-      canvas.width / 2,
-      canvas.height / 2 - 3.72 * scale,
+      canvas.width / 2 - quad.position.x * scale,
+      canvas.height / 2 - quad.position.z * scale,
     );
     ctx.translate(x + 0.015, z + 0.014);
     ctx.rotate(-angle);
@@ -178,12 +183,13 @@ export function createTicketPile(group, paperMaterial) {
     );
   }
   function landing() {
-    const x = between(-0.58, 0.62),
-      angle = between(-0.32, 0.32);
+    const x = between(-0.39, 0.15),
+      angle = between(-0.26, 0.26);
     const c = Math.cos(angle),
       n = Math.sin(angle);
     const spanZ = (Math.abs(n) * width + Math.abs(c) * depth) / 2;
-    const z = Math.max(2.61 + spanZ, between(3.49, 3.95));
+    // Leave room for a skewed back corner to clear the lip of the tray.
+    const z = Math.max(2.57 + spanZ, between(3.45, 3.79));
     const corner = Math.random() < 0.5 ? -1 : 1,
       curl = between(0.012, 0.047);
     const target = new Float32Array(vertices * 3);
@@ -286,7 +292,7 @@ export function createTicketPile(group, paperMaterial) {
           u = k / cols,
           edge = 2 * u - 1,
           startX = width * (u - 0.5);
-        const startZ = 1.285 + 1.35 * p + 0.025 * edge * p * p;
+        const startZ = stockFeedZ(p, edge);
         const x = mix(startX, sheet.target[h], turn);
         const z = mix(startZ, sheet.target[h + 2], travel);
         const overhang = ease((z - 2.32) / 0.24);

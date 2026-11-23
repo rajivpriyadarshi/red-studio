@@ -1,7 +1,7 @@
-// Orthographic zoom keeps the point between the visitor's fingers in place.
+// Zoom at the bench pivot keeps the point between the visitor's fingers in place.
 // TouchEvents let the canvas claim a two-finger gesture while a one-finger
 // vertical swipe continues to scroll the page.
-export function mountPressZoom(canvas, camera, interrupt, wake) {
+export function mountPressZoom(canvas, viewSize, interrupt, wake) {
   const min = 0.65,
     max = 2;
   let scale = 1,
@@ -19,33 +19,26 @@ export function mountPressZoom(canvas, camera, interrupt, wake) {
       y: 0.5 - (clientY - rect.top) / rect.height,
     };
   }
-  function change(request, from = center, to = from) {
+  function change(request, from, to = from) {
     const next = clamp(request, min, max);
-    if (next === scale && from.x === to.x && from.y === to.y) return false;
-    const w = camera.right - camera.left,
-      h = camera.top - camera.bottom;
+    if (next === scale && from.x === to.x && from.y === to.y) return;
+    const { width: w, height: h } = viewSize;
     x = clamp(x + w * (from.x / scale - to.x / next), -0.4 * w, 0.4 * w);
     y = clamp(y + h * (from.y / scale - to.y / next), -0.42 * h, 0.42 * h);
     scale = next;
     wake();
-    return true;
   }
   canvas.addEventListener(
     "wheel",
     (e) => {
-      if (pair || safari) {
-        e.preventDefault();
-        return;
-      }
+      // Chromium and Firefox encode trackpad pinches as Ctrl+wheel.
+      if (!e.ctrlKey) return;
+      e.preventDefault();
+      if (pair || safari) return;
       const unit =
         e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? canvas.clientHeight : 1;
-      const factor = Math.exp(
-        -clamp(e.deltaY * unit, -250, 250) * (e.ctrlKey ? 0.009 : 0.002),
-      );
-      const applied = change(scale * factor, point(e.clientX, e.clientY));
-      // At a limit a normal wheel continues down the page; a trackpad pinch
-      // stays inside the model and cannot suddenly magnify the whole document.
-      if (applied || e.ctrlKey) e.preventDefault();
+      const factor = Math.exp(-clamp(e.deltaY * unit, -250, 250) * 0.009);
+      change(scale * factor, point(e.clientX, e.clientY));
     },
     { passive: false },
   );
@@ -109,19 +102,7 @@ export function mountPressZoom(canvas, camera, interrupt, wake) {
     },
     { passive: false },
   );
-  function key(e) {
-    if (e.metaKey || e.ctrlKey || e.altKey) return false;
-    if (e.key === "+" || e.key === "=") change(scale * 1.16);
-    else if (e.key === "-") change(scale / 1.16);
-    else if (e.key === "0") {
-      scale = 1;
-      x = y = 0;
-      wake();
-    } else return false;
-    return true;
-  }
   return {
-    key,
     cancel() {
       pair = safari = null;
     },
