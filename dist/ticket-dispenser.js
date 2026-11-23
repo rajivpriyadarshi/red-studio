@@ -1,127 +1,150 @@
-// The motor track and the paper travel share two feed strokes and a final shear.
-export function mountDispenser(machine, gsap, motionPreference) {
-  const paper = machine.querySelector(".paper-feed");
-  const drum = machine.querySelector(".feed-drum");
-  const blade = machine.querySelector(".cut-blade");
-  const number = machine.querySelector("[data-machine-number]");
-  const sound = machine.querySelector(".press-sound");
-  const track = new Audio();
-  track.preload = "none";
-  track.src = new URL(
-    "./assets/programme/ticket-press.wav",
-    import.meta.url,
-  ).href;
-  let motion;
-  let muted = false;
+// The board and its printed proof work while the 3D machinery loads, and on
+// browsers where creating a WebGL context is unavailable.
+export function mountDispenser(host, preference) {
+  const sound = host.querySelector(".press-sound");
+  const sheet = host.querySelector(".fare-paper");
+  const book = host.querySelector(".flat-sketchbook");
+  const caption = host.querySelector("#press-sketch-caption");
+  const fields = {
+    title: sheet.querySelector("[data-ticket-title]"),
+    note: sheet.querySelector("[data-ticket-time]"),
+    tax: sheet.querySelector("[data-ticket-tax]"),
+    price: sheet.querySelector("[data-ticket-price]"),
+    number: sheet.querySelector("[data-ticket-no]"),
+    art: sheet.querySelector("[data-ticket-art]"),
+  };
+  const audio = new Audio();
+  audio.preload = "none";
+  audio.src = new URL("./assets/programme/ticket-press.wav", import.meta.url);
+  let muted = false,
+    visible = false,
+    loading = false,
+    printer = null,
+    selected = null;
   try {
     muted = sessionStorage.getItem("red-press-muted") === "true";
   } catch {}
   function syncSound() {
     sound.hidden = false;
     sound.setAttribute("aria-pressed", String(!muted));
-    sound.title = muted ? "Turn printer sound on" : "Mute printer";
+    sound.title = muted ? "Turn ticket sound on" : "Mute ticket sound";
   }
   syncSound();
   sound.addEventListener("click", () => {
     muted = !muted;
-    if (muted) track.pause();
+    if (muted) audio.pause();
     try {
       sessionStorage.setItem("red-press-muted", String(muted));
     } catch {}
     syncSound();
   });
-  const nearby = new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting && track.preload === "none") {
-      track.preload = "auto";
-      track.load();
-    }
-    if (!entry.isIntersecting) track.pause();
-  });
-  nearby.observe(machine);
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) track.pause();
-  });
-  window.addEventListener("pagehide", () => track.pause());
 
-  return function print(index, ink, issue) {
-    motion?.kill();
-    track.pause();
-    number.textContent = String(index + 1).padStart(2, "0");
-    if (issue) {
-      const bounds = machine.getBoundingClientRect();
-      if (bounds.bottom > innerHeight && bounds.height <= innerHeight) {
-        machine.scrollIntoView({
-          block: "nearest",
-          behavior: motionPreference.matches ? "instant" : "smooth",
-        });
-      }
+  // Keep actual impressions made while the lazy-loaded model is arriving.
+  const pendingStock = [];
+  let unavailable = false;
+  function issue(data, animate = false) {
+    if (animate && !printer && !unavailable && selected) {
+      if (pendingStock.length === 12) pendingStock.shift();
+      pendingStock.push(selected);
     }
-    if (issue && !muted && !document.hidden) {
-      track.currentTime = 0;
-      track.play().catch(() => {});
+    selected = data;
+    book.style.setProperty("--sketch-x", (-100 * (data.study % 3) / 3) + "%");
+    book.style.setProperty("--sketch-y", data.study < 3 ? "0%" : "-50%");
+    caption.textContent = data.sketch;
+    sheet.dataset.stock = data.key;
+    sheet.style.setProperty("--stock", data.color);
+    fields.title.textContent = data.name;
+    fields.price.textContent = data.fee;
+    fields.note.textContent = data.note;
+    fields.tax.hidden = !data.priced;
+    fields.number.textContent = data.no;
+    fields.art.src = new URL(
+      "./assets/ticket-window/" + data.art + ".webp",
+      import.meta.url,
+    );
+    printer?.select(data, animate);
+    audio.pause();
+    if (animate && !muted && !document.hidden) {
+      audio.currentTime = 0.18;
+      audio.playbackRate = 1.05;
+      audio.play().catch(() => {});
     }
-    if (!issue || !gsap || motionPreference.matches) {
-      machine.classList.remove("feeding");
-      gsap?.set([paper, drum, blade], { clearProps: "transform,opacity" });
-      ink();
-      return;
-    }
-    machine.classList.add("feeding");
-    motion = gsap.timeline({
-      onComplete() {
-        machine.classList.remove("feeding");
-        gsap.set([paper, drum, blade], { clearProps: "transform,opacity" });
-      },
+  }
+  let mount, light, queued = false;
+  let pendingSlice = null, sliceFrame = 0;
+  function resumeBuild() {
+    if (!pendingSlice || sliceFrame || !visible || document.hidden) return;
+    sliceFrame = requestAnimationFrame(() => {
+      sliceFrame = 0;
+      if (!visible || document.hidden) return;
+      const resume = pendingSlice;
+      pendingSlice = null;
+      resume();
     });
-    motion
-      .to(
-        paper,
-        {
-          yPercent: 28,
-          rotation: 3,
-          opacity: 0,
-          duration: 0.19,
-          ease: "power2.in",
-        },
-        0,
-      )
-      .call(ink, [], 0.19)
-      .set(
-        paper,
-        { yPercent: -103, rotation: 0, rotationX: 0, opacity: 1 },
-        0.19,
-      )
-      .to(paper, { yPercent: -47, duration: 0.37, ease: "sine.inOut" }, 0.21)
-      .to(paper, { yPercent: -1.8, duration: 0.385, ease: "sine.inOut" }, 0.6)
-      .fromTo(
-        drum,
-        { y: -2 },
-        { y: 2, repeat: 13, duration: 0.054, ease: "none" },
-        0.21,
-      )
-      .fromTo(
-        blade,
-        { y: -1 },
-        { y: 3, duration: 0.07, yoyo: true, repeat: 1 },
-        0.985,
-      )
-      .to(
-        paper,
-        {
-          yPercent: 0.9,
-          rotation: -0.65,
-          rotationX: 3.5,
-          duration: 0.12,
-          ease: "power2.out",
-        },
-        1.045,
-      )
-      .to(paper, {
-        yPercent: 0,
-        rotation: 0,
-        rotationX: 0,
-        duration: 0.31,
-        ease: "sine.inOut",
-      });
-  };
+  }
+  function nextSlice() {
+    return new Promise(resolve => {
+      pendingSlice = resolve;
+      resumeBuild();
+    });
+  }
+  function scheduleBuild() {
+    if (!visible || document.hidden || !mount || queued || printer || unavailable) return;
+    queued = true;
+    const build = async () => {
+      if (!visible || document.hidden) { queued = false; return; }
+      try {
+        printer = await mount(host, preference, () => {
+          if (selected) issue(selected, true);
+        }, light, nextSlice);
+        if (selected) {
+          pendingStock.push(selected);
+          pendingStock.forEach((stock, index) => printer.select(stock, index > 0));
+        }
+        printer.setVisible(visible);
+      } catch (error) {
+        unavailable = true;
+        console.warn("The ticket is available in print view.", error);
+      }
+      pendingStock.length = 0;
+      queued = false;
+    };
+    if (window.requestIdleCallback) window.requestIdleCallback(build, { timeout: 240 });
+    else setTimeout(build, 0);
+  }
+  async function prepare() {
+    if (loading) return;
+    loading = true;
+    try {
+      const module = await import("./ticket-printer.js?v=pencil-study-1");
+      light = await module.loadBenchLight().catch(() => null);
+      mount = module.mountPrinter;
+      scheduleBuild();
+    } catch (error) {
+      unavailable = true;
+      pendingStock.length = 0;
+      console.warn("The ticket is available in print view.", error);
+    }
+  }
+  const near = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting) return;
+      near.disconnect();
+      prepare();
+    },
+    { rootMargin: "350px" },
+  );
+  near.observe(host);
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    printer?.setVisible(visible);
+    if (visible) { resumeBuild(); scheduleBuild(); }
+    if (!visible) audio.pause();
+  }).observe(host);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) audio.pause();
+    else { resumeBuild(); scheduleBuild(); }
+  });
+  window.addEventListener("pagehide", () => audio.pause());
+  return issue;
 }

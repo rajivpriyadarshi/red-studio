@@ -1,135 +1,95 @@
 {
   "currency": "NOK",
   "vatRate": 0.25,
-  "hourlyRate": 1200,
+  "serviceGroups": [
+    {"name": "Brand & print", "services": ["brand", "campaigns"]},
+    {"name": "Web & apps", "services": ["digital", "apps"]},
+    {"name": "Film, photo & sound", "services": ["video", "sound"]}
+  ],
   "packages": [
     {
       "id": "logo",
-      "name": "Logo design",
-      "price": 15000,
-      "time": "2–3 weeks",
-      "fit": "A new logo or a focused refresh.",
-      "items": [
-        "First conversation and two design directions",
-        "One chosen logo, two feedback rounds",
-        "Versions for print, screen and small icons",
-        "Colours, fonts and a short usage guide",
-        "Editable files plus SVG, PDF and PNG versions"
-      ],
-      "excludes": "Naming, research interviews, templates and font licences.",
-      "group": "brand"
+      "service": "brand",
+      "name": "Simple logo design",
+      "price": 5000,
+      "workload": "2 working days",
+      "fit": "An original mark for your project, brand or band.",
+      "items": ["A logo designed exclusively for you", "A matching colour palette", "An example of the logo in use"]
     },
     {
       "id": "identity",
-      "name": "Logo & design kit",
-      "price": 35000,
-      "time": "4–5 weeks",
-      "fit": "A consistent look your whole team can use.",
-      "items": [
-        "Everything in Logo design",
-        "A workshop to agree your message and visual style",
-        "A usage guide up to 20 pages",
-        "Six editable social templates",
-        "A 10-slide presentation template"
-      ],
-      "excludes": "Naming, copywriting, photography and paid licences.",
-      "group": "brand"
-    },
-    {
-      "id": "website",
-      "name": "One-page website",
-      "price": 35000,
-      "time": "3–4 weeks",
-      "fit": "One clear page for your project, designed and built.",
-      "items": [
-        "Page plan and design for phones and computers",
-        "Build of one page, up to eight sections",
-        "Two feedback rounds and simple animation",
-        "Keyboard, mobile and speed checks",
-        "Publishing to your account and all source files"
-      ],
-      "excludes": "Writing, content management tools, hosting, paid tools and custom 3D.",
-      "group": "digital"
-    },
-    {
-      "id": "product",
-      "name": "App & tool design",
-      "price": 45000,
-      "time": "3–4 weeks",
-      "fit": "Make one task in your app or research tool easier to use.",
-      "items": [
-        "One user task mapped out in simple sketches",
-        "Up to ten different screen designs",
-        "Adaptation for one additional screen size",
-        "Clickable demo and reusable design elements",
-        "Two feedback rounds and files for your developer"
-      ],
-      "excludes": "Coding, recruiting research participants and extra user tasks.",
-      "group": "digital"
+      "service": "brand",
+      "name": "Communication & dissemination kit",
+      "price": 15000,
+      "workload": "1 full working week",
+      "fit": "One visual identity for the places you share your work, from a conference slide to a newsletter.",
+      "items": ["An exclusive logo and matching colour palette", "PowerPoint and newsletter templates", "Email signature and merchandise templates"]
     },
     {
       "id": "campaign",
-      "name": "Slides & poster toolkit",
-      "price": 15000,
-      "time": "2–3 weeks",
-      "fit": "Ready-to-use layouts for sharing your work.",
-      "items": [
-        "One agreed visual style using your existing logo",
-        "Six editable layouts for slides, posters or social posts",
-        "Up to two shapes or sizes per layout",
-        "Two feedback rounds",
-        "Editable files and versions ready to share"
-      ],
-      "excludes": "Writing, data analysis, printing, photography, paid advertising and animation.",
-      "group": "campaigns"
+      "service": "campaigns",
+      "name": "Posters & custom print",
+      "price": null,
+      "fit": "A conference poster, a band poster or a printed profile for your project.",
+      "items": ["Layout for the format we agree with you", "Print-ready artwork"]
     },
     {
-      "id": "motion",
-      "name": "Short animation",
-      "price": 18000,
-      "time": "2–3 weeks",
-      "fit": "A short animated explanation or logo.",
-      "items": [
-        "One 2D animation, up to 15 seconds",
-        "A visual plan and sample frames",
-        "Animation using supplied illustrations or logo files",
-        "Two feedback rounds, two shapes or sizes",
-        "MP4 video and editable animation file"
-      ],
-      "excludes": "3D, character animation, voiceover, music and new illustrations.",
-      "group": "motion"
+      "id": "website",
+      "service": "digital",
+      "name": "One-page website",
+      "price": 5000,
+      "fit": "A single page to introduce your project and give people a place to find you.",
+      "items": ["Design and build of a one-page website"]
+    },
+    {
+      "id": "product",
+      "service": "apps",
+      "name": "App UI/UX design",
+      "price": null,
+      "fit": "Design for a new app or a clearer way through an existing one. We quote once we know which screens and tasks you need.",
+      "items": ["A map of the steps people take in the app", "Screen layouts and a clickable prototype for the agreed flow", "Interface designs and notes for your developer"]
     },
     {
       "id": "video",
-      "name": "Video edit & short cuts",
-      "price": 12000,
-      "time": "2–3 weeks",
-      "fit": "An interview or project update, ready to share.",
-      "items": [
-        "One edited film up to 90 seconds, from up to 20 minutes of supplied footage",
-        "Three short cuts, up to 20 seconds each, in one vertical format",
-        "Basic colour grading, audio cleanup and captions from an approved transcript",
-        "Two feedback rounds",
-        "MP4 exports and the editable project file"
-      ],
-      "excludes": "Filming, voiceover, paid music or footage, translation, complex animation and advanced sound repair.",
-      "group": "video"
+      "service": "video",
+      "name": "Short-form video edit",
+      "price": 1000,
+      "length": "30 seconds",
+      "fit": "Your footage cut into a short story for social media.",
+      "items": ["A 30-second montage from footage you supply", "Story edit and colour correction", "On-screen text"]
+    },
+    {
+      "id": "long-video",
+      "service": "video",
+      "name": "Long-form video edit",
+      "price": 3000,
+      "length": "3–5 minutes",
+      "fit": "A longer cut that gives an interview, event or project story room to unfold.",
+      "items": ["A 3–5 minute montage from footage you supply", "Story edit and colour correction", "On-screen text"]
+    },
+    {
+      "id": "photo",
+      "service": "video",
+      "name": "Photo editing",
+      "price": null,
+      "fit": "A consistent look for a set of photos you supply. The quote depends on the number of images and the retouching they need.",
+      "items": ["Colour and exposure adjustments", "Retouching agreed for the selected images", "Exports sized for their intended use"]
+    },
+    {
+      "id": "motion",
+      "service": "sound",
+      "name": "Logo animation & sound",
+      "price": null,
+      "fit": "A short moving version of your logo with a sound composed to match.",
+      "items": ["A short logo animation", "Original sound design synchronised to the movement"]
     },
     {
       "id": "sound",
-      "name": "Sound signature",
-      "price": 12000,
-      "time": "2–3 weeks",
-      "fit": "A short sound that makes your project recognisable.",
-      "items": [
-        "One original 2–5 second sound signature",
-        "Three related sounds for app actions",
-        "Two feedback rounds",
-        "WAV audio files and a short usage guide",
-        "Usage rights agreed in writing"
-      ],
-      "excludes": "Voiceover, licensed music and long-form composition.",
-      "group": "sound"
+      "service": "sound",
+      "name": "Sonic branding & sound design",
+      "price": null,
+      "fit": "An original sound for your brand, film, game or app.",
+      "items": ["A sound direction based on your brief", "Original audio for the agreed use", "A mix and exports for your chosen platform"]
     }
   ]
 }

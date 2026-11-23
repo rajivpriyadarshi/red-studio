@@ -69,7 +69,7 @@ function makeFaces(mark, width, height, dpr, grain) {
   ];
   const span = nx * width + ny * height;
   const depth = ny * width + nx * height;
-  const ratio = Math.min(dpr, 2400 / Math.max(span, depth));
+  const ratio = Math.min(dpr, 1920 / Math.max(span, depth), Math.sqrt(2000000 / (span * depth)));
   const margin = width * 0.052;
   const available = width - margin * 2;
   const tall = height > width * 1.3;
@@ -168,9 +168,11 @@ function makeFaces(mark, width, height, dpr, grain) {
     }
     return canvas;
   }
-  const front = face(paper, ink);
-  const back = face("#e7cbb1", "#cda990");
-  return front && back ? { front, back, span, depth, ratio, letters } : null;
+  return {
+    span, depth, ratio, letters, front: null, back: null,
+    prepareFront() { this.front ||= face(paper, ink); },
+    prepareBack() { this.back ||= face("#e7cbb1", "#cda990"); }
+  };
 }
 
 // Project a real hinge in two views: the camera sees the face, while the
@@ -271,6 +273,7 @@ export function playPrintIntro(mark, preference) {
     dpr,
     stock,
     frame,
+    lastPaint = -Infinity,
     visibleSince = null,
     elapsed = 0,
     finished = false,
@@ -279,15 +282,22 @@ export function playPrintIntro(mark, preference) {
   const surface = grain && c.createPattern(grain, "repeat");
   const events = new AbortController();
   const options = { signal: events.signal, passive: true, capture: true };
+  function releaseFaces() {
+    for (const face of [stock?.front, stock?.back]) {
+      if (face) face.width = face.height = 1;
+    }
+    stock = null;
+  }
   function resize() {
     const w = document.documentElement.clientWidth,
       h = innerHeight;
     if (width === w && height === h) return;
     width = w;
     height = h;
-    dpr = Math.min(devicePixelRatio || 1, 1.65, 2400 / Math.max(w, h));
+    dpr = Math.min(devicePixelRatio || 1, 1.5, Math.sqrt(2000000 / (w * h)));
     canvas.width = Math.round(w * dpr);
     canvas.height = Math.round(h * dpr);
+    releaseFaces();
     stock = makeFaces(mark, width, height, dpr, grain);
   }
   function finish() {
@@ -296,7 +306,8 @@ export function playPrintIntro(mark, preference) {
     cancelAnimationFrame(frame);
     events.abort();
     canvas.remove();
-    stock = null;
+    canvas.width = canvas.height = 1;
+    releaseFaces();
     document.documentElement.classList.remove("title-running");
     window.dispatchEvent(new Event("studio:title-end"));
   }
@@ -453,6 +464,15 @@ export function playPrintIntro(mark, preference) {
     if (visibleSince === null) visibleSince = now;
     const t = (elapsed + now - visibleSince) / 1000;
     if (t >= endTime) return finish();
+    if (now - lastPaint < 1000 / 30 - 1) {
+      frame = requestAnimationFrame(draw);
+      return;
+    }
+    lastPaint = now;
+    // Prepare each large reverse/face image in a separate frame while type is
+    // setting. A skipped title never has to allocate both surfaces on entry.
+    if (t > 0.65 && !stock.front) stock.prepareFront();
+    else if (t > 1.5 && !stock.back) stock.prepareBack();
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, width, height);
     if (t < lastImpression) {
@@ -466,6 +486,10 @@ export function playPrintIntro(mark, preference) {
         c.fillRect(0, 0, width, height);
       }
     } else {
+      if (!stock.front || !stock.back) {
+        frame = requestAnimationFrame(draw);
+        return;
+      }
       canvas.dataset.phase = "turn";
       c.transform(nx, ny, -ny, nx, ny * ny * width, -nx * ny * width);
       const p =

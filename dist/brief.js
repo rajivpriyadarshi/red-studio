@@ -39,12 +39,15 @@ $$(".inquiry-dialog").forEach((dialog) => {
   });
 });
 let selectedPackage = "";
+const packageFee = (price) => price == null
+  ? "On request"
+  : new Intl.NumberFormat("en-GB").format(price) + " NOK excluding VAT";
 function choosePackage(name, price) {
   selectedPackage = name;
   const label = $("#selected-package");
   label.hidden = !name;
   label.textContent = name
-    ? `Selected: ${name}${price ? " · " + new Intl.NumberFormat("en-GB").format(price) + " NOK excluding VAT" : ""}. We’ll confirm the scope before starting.`
+    ? `${name} · ${packageFee(price)}. We’ll confirm the scope before starting.`
     : "";
   if (name)
     prefillBrief(
@@ -59,11 +62,17 @@ function prefillBrief(text) {
     brief.dispatchEvent(new Event("input", { bubbles: true }));
   }
 }
+export function openPackageInquiry(name, price, trigger) {
+  choosePackage(name, price);
+  form.dispatchEvent(new Event("input"));
+  openDialog($("#inquiry-dialog"), trigger);
+}
 $$("[data-inquiry]").forEach((button) =>
   button.addEventListener("click", () => {
     if (button.dataset.package) {
       const fee = button.closest("[data-plan]")?.dataset.price;
-      choosePackage(button.dataset.package, Number(fee));
+      openPackageInquiry(button.dataset.package, fee ? Number(fee) : null, button);
+      return;
     } else {
       choosePackage("", 0);
       const brief = $("#inquiry-form textarea");
@@ -79,7 +88,7 @@ $$("[data-inquiry]").forEach((button) =>
 const queryPackage = new URLSearchParams(location.search).get("package");
 const queryBundle = new URLSearchParams(location.search).get("packages");
 if (queryPackage || queryBundle)
-  fetch("pricing-data.json")
+  fetch("pricing-data.json?v=service-groups-1")
     .then((r) => r.json())
     .then((data) => {
       const p = data.packages.find((p) => p.id === queryPackage);
@@ -91,14 +100,13 @@ if (queryPackage || queryBundle)
       if (p) {
         choosePackage(p.name, p.price);
         openDialog($("#inquiry-dialog"), $(".signoff-base a"));
-      } else if (queryPackage === "ongoing") {
-        choosePackage("Ongoing design support — 20 hours / month", 22000);
-        openDialog($("#inquiry-dialog"), $(".signoff-base a"));
       } else if (bundle.length) {
-        const total = bundle.reduce((sum, p) => sum + p.price, 0);
+        const total = bundle.every((p) => p.price != null)
+          ? bundle.reduce((sum, p) => sum + p.price, 0)
+          : null;
         choosePackage(bundle.map((p) => p.name).join(" + "), total);
         $("#inquiry-form textarea").value =
-          `I'd like to discuss this combination:\n${bundle.map((p) => `${p.name}: ${p.price.toLocaleString("en-GB")} NOK`).join("\n")}\n\nPackage estimate: ${total.toLocaleString("en-GB")} NOK excluding VAT.\nPlease confirm scope overlap, timing and the final quote.\n\nTimeline: \nProject details: `;
+          `I'd like to discuss this combination:\n${bundle.map((p) => `${p.name}: ${packageFee(p.price)}`).join("\n")}\n\nPackage estimate: ${packageFee(total)}.\nPlease confirm scope overlap, timing and the final quote.\n\nTimeline: \nProject details: `;
         openDialog($("#inquiry-dialog"), $(".signoff-base a"));
       }
     })

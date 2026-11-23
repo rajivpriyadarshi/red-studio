@@ -1,46 +1,44 @@
-// Each band carries a narrow crop of the real page on each side. The turn
-// accumulates their angles from the binding, so every edge meets its neighbour.
-export function turnPaper(bound, from, to, forward, topBound, settled) {
+// A sheet is built once at pickup; the same pose can then be scrubbed in
+// either direction. The live spread and its links stay in place underneath.
+export function createPaper(bound, from, to, forward, single, grip) {
   const art = ".book-art";
   const note = ".book-note";
-  const front = topBound
-    ? (forward ? from : to).querySelector(art)
-    : from.querySelector(forward ? note : art);
-  const reverse = topBound ? null : to.querySelector(forward ? art : note);
-  const sheet = getComputedStyle(front);
-  const width = parseFloat(sheet.width);
-  const height = parseFloat(sheet.height);
-  const length = topBound ? height : width;
-  const count = topBound ? 9 : 14;
-  const bandSize = length / count;
-  const direction = topBound || forward ? 1 : -1;
-  const timing = {
-    duration: topBound ? 630 : 810,
-    easing: "cubic-bezier(.42,.04,.22,1)",
-    fill: "both",
-  };
-
-  function layer(className) {
+  function layer(name) {
     const el = document.createElement("div");
-    el.className = className;
+    el.className = name;
     el.inert = true;
     el.setAttribute("aria-hidden", "true");
     return el;
   }
+  function spread(page) {
+    const copy = layer("book-paper-spread");
+    copy.style.gridTemplateRows = getComputedStyle(page).gridTemplateRows;
+    copy.append(
+      page.querySelector(art).cloneNode(true),
+      page.querySelector(note).cloneNode(true),
+    );
+    return copy;
+  }
 
+  const front = single
+    ? spread(forward ? from : to)
+    : from.querySelector(forward ? note : art);
+  const reverse = single ? null : to.querySelector(forward ? art : note);
+  const size = getComputedStyle(single ? from : front);
+  const width = parseFloat(size.width),
+    height = parseFloat(size.height);
+  const count = single ? 10 : 14;
+  const bandSize = width / count;
+  const direction = single || forward ? 1 : -1;
+
+  const preview = spread(single && !forward ? from : to);
+  preview.classList.add("book-preview");
   const leaf = layer("book-leaf");
   const underlay = layer("book-underlay");
   const shadowClip = layer("book-shadow-clip");
   const shadow = document.createElement("i");
   shadowClip.append(shadow);
-  if (topBound) {
-    leaf.classList.add("top-bound");
-    shadowClip.classList.add("top-bound");
-    if (!forward) {
-      underlay.classList.add("top-bound");
-      underlay.append(from.querySelector(art).cloneNode(true));
-    }
-  } else {
+  if (!single) {
     underlay.style.left = forward ? "0" : "50%";
     underlay.append(from.querySelector(forward ? art : note).cloneNode(true));
   }
@@ -53,21 +51,20 @@ export function turnPaper(bound, from, to, forward, topBound, settled) {
       Object.assign(copy.style, {
         width: width + "px",
         height: height + "px",
-        left: (topBound ? 0 : -crop) + "px",
-        top: (topBound ? -crop : 0) + "px",
+        left: -crop + "px",
+        top: "0",
       });
       surface.append(copy);
     }
     return surface;
   }
-
   const bands = Array.from({ length: count }, (_, i) => {
     const strip = document.createElement("div");
     strip.className = "paper-band";
     const overlap = i === count - 1 ? 0 : 0.55;
-    strip.style[topBound ? "height" : "width"] = bandSize + overlap + "px";
+    strip.style.width = bandSize + overlap + "px";
     const near = i * bandSize;
-    const far = length - near - bandSize;
+    const far = width - near - bandSize;
     const recto = face(front, direction === 1 ? near : far, false);
     const verso = face(
       reverse,
@@ -81,76 +78,49 @@ export function turnPaper(bound, from, to, forward, topBound, settled) {
     verso.append(backInk);
     strip.append(recto, verso);
     leaf.append(strip);
-    return { strip, ink, backInk, pose: [], light: [] };
+    return { strip, ink, backInk };
   });
+  bound.append(preview);
+  if (!single) bound.append(underlay);
+  bound.append(shadowClip, leaf);
 
-  const cast = [];
-  const edge = [];
-  const samples = 28;
-  for (let frame = 0; frame <= samples; frame++) {
-    const time = frame / samples;
-    const p = topBound && !forward ? 1 - time : time;
+  function draw(progress) {
+    const p = single && !forward ? 1 - progress : progress;
     const lift = Math.sin(Math.PI * p);
+    const shear = (grip - 0.5) * height * 0.1 * lift;
     let x = 0,
+      y = 0,
       z = 0,
       shadowMin = 0,
       shadowMax = 0;
-    bands.forEach((band, i) => {
+    bands.forEach(({ strip, ink, backInk }, i) => {
       const u = (i + 0.5) / count;
-      // The free edge curls ahead of the spine, then unfurls onto the desk.
-      const bend = lift * (u - 0.42) * (topBound ? 1.05 : 1.6);
-      const angle = (topBound ? Math.PI * 0.55 : Math.PI) * p + bend;
+      const bend = lift * (u - 0.42) * (single ? 1.3 : 1.6);
+      const angle = Math.PI * (single ? 0.56 : 1) * p + bend;
       const nextX = x + direction * bandSize * Math.cos(angle);
       const nextZ = z + bandSize * Math.sin(angle);
-      const a = (angle * 180) / Math.PI;
-      const origin = direction === 1 ? x : nextX;
-      const depth = direction === 1 ? z : nextZ;
-      const transform = topBound
-        ? `translate3d(0,${origin}px,${depth}px) rotateX(${a}deg)`
-        : `translate3d(${origin}px,0,${depth}px) rotateY(${-direction * a}deg)`;
-      band.pose.push({ transform });
-      band.light.push({
-        opacity: lift * (0.12 + 0.27 * Math.abs(Math.sin(angle))),
-      });
+      const nextY = shear * ((i + 1) / count) ** 2;
+      const skew = direction * Math.atan((nextY - y) / bandSize);
+      const origin = direction === 1 ? [x, y, z] : [nextX, nextY, nextZ];
+      strip.style.transform = `translate3d(${origin[0]}px,${origin[1]}px,${origin[2]}px) rotateY(${-direction * angle}rad) skewY(${skew}rad)`;
+      ink.style.opacity = backInk.style.opacity =
+        lift * (0.12 + 0.27 * Math.abs(Math.sin(angle)));
       x = nextX;
+      y = nextY;
       z = nextZ;
-      // Parallel light from above and left projects the bent edge onto the stock.
-      const projection = x + z * (topBound ? 0.31 : 0.43);
-      shadowMin = Math.min(shadowMin, projection);
-      shadowMax = Math.max(shadowMax, projection);
+      const cast = x + z * 0.43;
+      shadowMin = Math.min(shadowMin, cast);
+      shadowMax = Math.max(shadowMax, cast);
     });
-    const scale = Math.max(0.025, (shadowMax - shadowMin) / length);
-    cast.push({
-      transform: topBound
-        ? `translateY(${shadowMin}px) scaleY(${scale})`
-        : `translateX(${shadowMin}px) scaleX(${scale})`,
-      opacity: lift * 0.72,
-    });
-    // As a top-bound sheet goes edge-on, it clears the small screen.
-    if (topBound) edge.push({ opacity: Math.min(1, (1 - p) * 5) });
-  }
-
-  if (underlay.childElementCount) bound.append(underlay);
-  bound.append(shadowClip, leaf);
-  const animations = [shadow.animate(cast, timing)];
-  if (topBound) animations.push(leaf.animate(edge, timing));
-  for (const band of bands) {
-    animations.push(
-      band.strip.animate(band.pose, timing),
-      band.ink.animate(band.light, timing),
-      band.backInk.animate(band.light, timing),
-    );
+    shadow.style.transform = `translateX(${shadowMin}px) scaleX(${Math.max(0.025, (shadowMax - shadowMin) / width)})`;
+    shadow.style.opacity = lift * 0.72;
+    if (single) leaf.style.opacity = Math.min(1, (1 - p) * 8);
   }
   function remove() {
-    animations[0].onfinish = null;
-    for (const animation of animations) animation.cancel();
+    preview.remove();
+    underlay.remove();
     leaf.remove();
     shadowClip.remove();
-    underlay.remove();
   }
-  animations[0].onfinish = () => {
-    remove();
-    settled();
-  };
-  return remove;
+  return { draw, remove };
 }

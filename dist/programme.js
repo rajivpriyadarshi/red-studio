@@ -1,9 +1,10 @@
-import { mountSketchbook } from "./sketchbook.js?v=2";
-import { mountDispenser } from "./ticket-dispenser.js?v=1";
-import "./brief.js?v=press-3";
-import { playPrintIntro } from "./print-intro.js?v=entry-4";
-import { mountSectionEntrances } from "./section-entrances.js?v=sketchbook-1";
-import { mountScope } from "./scope-motion.js?v=entrances-2";
+import { mountSketchbook } from "./sketchbook.js?v=3";
+import { mountDispenser } from "./ticket-dispenser.js?v=pencil-study-1";
+import { openPackageInquiry } from "./brief.js?v=service-groups-1";
+import { mountPackageDetails } from "./package-details.js?v=launch-rates-1";
+import { playPrintIntro } from "./print-intro.js?v=resource-1";
+import { mountSectionEntrances } from "./section-entrances.js?v=mechanical-1";
+import { mountScope } from "./scope-motion.js?v=resource-1";
 
 const one = (s) => document.querySelector(s);
 const all = (s) => [...document.querySelectorAll(s)];
@@ -89,7 +90,7 @@ clipPlayer.defaultMuted = true;
 clipPlayer.muted = true;
 clipPlayer.setAttribute("aria-hidden", "true");
 clipPlayer.addEventListener("playing", () => clipPlayer.classList.add("playing"));
-let galleryMuted = true;
+let galleryMuted = true, filmRevealed = false;
 let playAttempt = 0;
 function labelSound(button, muted, where) {
   const action = (muted ? "Unmute " : "Mute ") + where;
@@ -152,6 +153,7 @@ function playback() {
   labelSound(previewSound, galleryMuted, "preview");
   if (
     !inView || cinema.open || document.hidden ||
+    (!filmRevealed && document.documentElement.classList.contains("title-running")) ||
     (galleryMuted && (prefs.matches || navigator.connection?.saveData))
   ) {
     stopPreview();
@@ -443,6 +445,12 @@ window.addEventListener("pagehide", () => {
 });
 window.addEventListener("pageshow", playback);
 choose(0);
+for (const event of ["studio:film-reveal", "studio:title-end"]) {
+  window.addEventListener(event, () => {
+    filmRevealed = true;
+    playback();
+  }, { once: true });
+}
 playPrintIntro(mark, prefs);
 
 narrow.addEventListener("change", () => {
@@ -516,115 +524,136 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("pagehide", () => soundClip.pause());
 const signal = { open: 1 };
 const setShape = mountScope(one("#scope-canvas"), prefs, loudness, signal);
+const practice = one("#services");
+const visual = practice.querySelector(".service-visual");
+const sheets = [...visual.querySelectorAll(".proof-sheet")];
+let discipline = 0;
+let showingProofs = false;
+function displayProofs(show) {
+  showingProofs = show;
+  const name = channels[discipline].dataset.channel;
+  for (const sheet of sheets) {
+    sheet.setAttribute("aria-hidden", String(!show || sheet.dataset.proof !== name));
+  }
+  visual.classList.toggle("has-proofs", show);
+  setShape(Number(channels[discipline].dataset.shape), show);
+}
+displayProofs(false);
 function chooseChannel(i) {
+  if (i === discipline && showingProofs) return;
+  discipline = i;
   const channel = channels[i];
   channels.forEach((b, j) => b.setAttribute("aria-pressed", String(i === j)));
   one("#channel-title").textContent = channel.dataset.heading;
   one("#channel-copy").textContent = channel.dataset.copy;
-  listen.hidden = i !== 0;
-  if (i !== 0) soundClip.pause();
-  setShape(i);
+  listen.hidden = channel.dataset.channel !== "sound";
+  if (listen.hidden) soundClip.pause();
+  displayProofs(true);
 }
 channels.forEach((b, i) => {
   b.addEventListener("pointerenter", (e) => {
-    if (e.pointerType === "mouse") chooseChannel(i);
+    if (e.pointerType === "mouse" || e.pointerType === "pen") chooseChannel(i);
   });
   b.addEventListener("click", () => chooseChannel(i));
   b.addEventListener("focus", () => chooseChannel(i));
 });
+practice.addEventListener("pointerleave", (event) => {
+  if (event.pointerType !== "touch" && !practice.contains(document.activeElement)) {
+    displayProofs(false);
+  }
+});
+practice.addEventListener("focusout", (event) => {
+  if (!practice.contains(event.relatedTarget) && !practice.matches(":hover")) {
+    displayProofs(false);
+  }
+});
 
-const keys = all(".press-key"),
-  quotes = all(".quote"),
-  ticket = one(".ticket");
-const ticketFields = {
-  title: one("[data-ticket-title]"),
-  time: one("[data-ticket-time]"),
-  price: one("[data-ticket-price]"),
-  number: one("[data-ticket-no]"),
-};
-const dispense = mountDispenser(one(".ticket-machine"), gsap, prefs);
-let rateIndex = 0,
-  emboss = null;
-function pressRate(i, animate = true) {
-  if (i < 0 || i >= quotes.length) return;
+const keys = all(".fare-row");
+const quotes = all(".fare-quote");
+const fareDisplay = one(".fare-display");
+const fareLayout = one(".fare-layout");
+mountPackageDetails(one("#package-scope"), quotes, narrow, prefs, openPackageInquiry);
+const dispense = mountDispenser(one(".counter-scene"), prefs);
+let rateIndex = 0;
+
+function placeWindow() {
+  const selected = keys[rateIndex];
+  if (narrow.matches) {
+    if (selected.nextElementSibling !== fareDisplay) selected.after(fareDisplay);
+  } else if (fareDisplay.parentElement !== fareLayout) {
+    fareLayout.append(fareDisplay);
+  }
+}
+
+function pressRate(i, issue = false) {
   const quote = quotes[i];
+  if (!quote) return;
+  const changed = rateIndex !== i;
   rateIndex = i;
   keys.forEach((key, j) => {
     if (j === i) key.setAttribute("aria-current", "true");
     else key.removeAttribute("aria-current");
+    quotes[j].hidden = j !== i;
   });
-  quotes.forEach((item, j) => {
-    item.hidden = j !== i;
-  });
-  const face = () => {
-    ticket.style.setProperty("--paper-color", quote.dataset.paper);
-    ticketFields.title.textContent = quote.querySelector("h3").textContent;
-    ticketFields.price.textContent = Number(quote.dataset.price).toLocaleString(
-      "nb-NO",
-    );
-    ticketFields.time.textContent = quote
-      .querySelector(".plain-rate")
-      .textContent.split(" · ")[1];
-    ticketFields.number.textContent = String(i + 1).padStart(2, "0");
-    emboss?.(i);
-  };
-  dispense(i, face, animate);
+  placeWindow();
+  if (issue && changed && narrow.matches) {
+    keys[i].scrollIntoView({ block: "start", behavior: "instant" });
+  }
+  dispense({
+    key: quote.dataset.plan,
+    color: quote.dataset.paper,
+    name: quote.dataset.ticketName,
+    art: quote.dataset.art,
+    study: Number(quote.dataset.study),
+    sketch: quote.dataset.sketch,
+    fee: quote.dataset.fee,
+    priced: quote.dataset.price !== "",
+    note: quote.dataset.note,
+    no: String(i + 1).padStart(2, "0"),
+  }, issue);
+  if (issue) {
+    one("[data-fare-status]").textContent = quote.querySelector("h3").textContent + ", " + quote.querySelector(".fare-meta").textContent;
+  }
 }
 keys.forEach((key, i) => {
-  key.addEventListener("click", (e) => {
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    e.preventDefault();
-    pressRate(i);
-    history.replaceState(null, "", "#" + quotes[i].id);
-  });
-  key.addEventListener("keydown", (e) => {
-    const jump = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 3, ArrowUp: -3 };
-    if (!(e.key in jump)) return;
-    e.preventDefault();
-    const n = (i + jump[e.key] + keys.length) % keys.length;
-    keys[n].focus();
-    pressRate(n);
+  function select(n) {
+    pressRate(n, true);
     history.replaceState(null, "", "#" + quotes[n].id);
+  }
+  key.addEventListener("click", (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    select(i);
+  });
+  key.addEventListener("keydown", (event) => {
+    const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
+    if (!(event.key in step)) return;
+    event.preventDefault();
+    const next = (i + step[event.key] + keys.length) % keys.length;
+    keys[next].focus({preventScroll: true});
+    select(next);
   });
 });
+narrow.addEventListener("change", placeWindow);
 one(".rates").classList.add("press-enhanced");
-pressRate(0, false);
-const observer = new IntersectionObserver(
-  (entries) => {
-    if (!entries.some((e) => e.isIntersecting)) return;
-    observer.disconnect();
-    import("./fee-foil.js?v=press-3")
-      .then(({ mountFoil }) => {
-        emboss = mountFoil(one(".ticket-art"), prefs, rateIndex);
-      })
-      .catch(() => {});
-  },
-  { rootMargin: "200px" },
-);
-observer.observe(one(".ticket-bed"));
+pressRate(0);
 function route() {
   const hash = location.hash.slice(1);
-  const price = quotes.findIndex(
-    (e) =>
-      e.id === hash || (hash === "ongoing" && e.dataset.plan === "ongoing"),
-  );
+  const price = quotes.findIndex((quote) => quote.id === hash);
   if (price !== -1) {
     pressRate(price, false);
-    one("#prices").scrollIntoView({ block: "start" });
+    (narrow.matches ? keys[price] : one("#prices")).scrollIntoView({ block: "start" });
     return;
   }
-  const match = {
-    sound: 0,
-    "motion-sound": 0,
-    motion: 1,
-    video: 1,
-    brand: 2,
-    digital: 2,
-    campaigns: 2,
+  const aliases = {
+    "motion-sound": "sound", motion: "video",
+    "price-ongoing": "campaigns", ongoing: "campaigns",
   };
-  const key = hash.replace(/^example-/, "");
-  if (key in match) {
-    chooseChannel(match[key]);
+  const fragment = hash.replace(/^example-/, "");
+  const key = aliases[fragment] || fragment;
+  const channelIndex = channels.findIndex((button) => button.dataset.channel === key);
+  if (channelIndex !== -1) {
+    chooseChannel(channelIndex);
     one("#services").scrollIntoView();
   }
   if (hash === "for-you" || hash.startsWith("audience-"))
@@ -632,6 +661,17 @@ function route() {
 }
 route();
 window.addEventListener("hashchange", route);
+// The browser can restore the fragment to the scope after modules have run.
+// On the initial visit frame the counter and board together once layout settles.
+window.addEventListener("pageshow", (event) => {
+  if (!event.persisted && location.hash.startsWith("#price-")) {
+    requestAnimationFrame(() => {
+      if (location.hash === keys[rateIndex].hash) {
+        (narrow.matches ? keys[rateIndex] : one("#prices")).scrollIntoView({ block: "start" });
+      }
+    });
+  }
+}, { once: true });
 prefs.addEventListener("change", () => {
   if (prefs.matches) pressRate(rateIndex, false);
 });

@@ -55,52 +55,6 @@ export function mountSectionEntrances(gsap, signal, preference) {
     );
   });
 
-  scene(one(".rates-head"), (tl, layer) => {
-    const heading = one("#rate-title");
-    const title = heading.textContent;
-    [-1, 1].forEach((direction) => {
-      const ink = layer(heading, "press-ink");
-      ink.textContent = title;
-      ink.style.color = direction > 0 ? "#8539ad" : "#eb7656";
-      tl.fromTo(
-        ink,
-        { x: direction * 28, y: -direction * 9, opacity: 0.85 },
-        {
-          x: 0,
-          y: 0,
-          opacity: 0,
-          duration: 1.02,
-          ease: "sine.inOut",
-        },
-        0,
-      );
-    });
-    tl.from(
-      heading,
-      { scaleX: 1.045, transformOrigin: "left bottom", duration: 1.15 },
-      0,
-    );
-  });
-
-  scene(one(".ticket-bed"), (tl) => {
-    tl.fromTo(".paper-entry", { yPercent: -100 }, { yPercent: -43, duration: .46, ease: "sine.inOut" })
-      .to(".paper-entry", { yPercent: 0, duration: .48, ease: "sine.inOut" }, "+=.055");
-  });
-
-  scene(one(".key-bank"), (tl) => {
-    tl.from(
-      ".press-key",
-      {
-        y: 4,
-        scale: 0.93,
-        duration: 0.48,
-        ease: "back.out(1.4)",
-        stagger: { grid: [3, 3], from: 0, amount: 0.38 },
-      },
-      0,
-    );
-  });
-
   document.querySelectorAll(".portrait").forEach((portrait, i) => {
     scene(portrait, (tl, layer) => {
       const image = portrait.querySelector("img");

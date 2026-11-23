@@ -22,13 +22,13 @@ Alternatively, run `npm run dev` if Node.js and Python 3 are available. Serve th
 
 ## Current local edition
 
-The local edition on `november-improvements` uses five supplied films as its opening. Full films load on request. Services include an audio-reactive drawing, and the rate selector issues an animated ticket for each package.
+The local edition on `november-improvements` uses five supplied films as its opening. Full films load on request. Services include an audio-reactive drawing, and the fare board lists all nine fees and a live 3D ticket press prints each package.
 
 ## Source
 
 - `dist/index.html` and `dist/programme.css` contain the page, responsive layouts and film credits.
-- `dist/programme.js` controls the screenings and price press. The shared menu and email draft are in `dist/programme-nav.js` and `dist/brief.js`.
-- `dist/scope-motion.js` draws the service artwork. `dist/fee-foil.js` generates the three-dimensional ticket die.
+- `dist/programme.js` controls the screenings and fare board. The shared menu and email draft are in `dist/programme-nav.js` and `dist/brief.js`.
+- `dist/scope-motion.js` draws the service artwork. The rotating press is built in `dist/press-model.js`. Its feed animation and ticket surfaces are in `dist/ticket-printer.js`. The original ticket plates are in `dist/assets/ticket-window/`.
 - `dist/pricing-data.json` contains the fixed-fee packages. Run `python3 scripts/render-pricing.py` after editing them.
 - `dist/assets/screenings/` contains the posters, short silent previews, full films and audio excerpt.
 - `dist/vendor/`: bundled animation and rendering libraries.

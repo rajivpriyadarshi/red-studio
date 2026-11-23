@@ -9,10 +9,9 @@ export function mountScope(canvas, reduce, readLevel, signal) {
     ["#162f3f", "#b3f7e7", "#53b3cd"],
     ["#542838", "#ffd1ab", "#ff917b"],
   ];
-  const compact = matchMedia("(max-width: 740px)").matches;
-  const samples = compact ? 100 : 152,
-    lines = compact ? 40 : 56,
-    tau = Math.PI * 2;
+  const tau = Math.PI * 2;
+  let lines, angles, dpr = 0, lastPaint = -Infinity;
+
   let weights = [1, 0, 0],
     index = 0,
     width = 0,
@@ -21,29 +20,45 @@ export function mountScope(canvas, reduce, readLevel, signal) {
     shown = false,
     last = 0,
     time = 0;
+  let covered = false;
   let amplitude = 0,
     targetX = 0,
     targetY = 0,
     px = 0,
     py = 0;
   function resize() {
+    if (!shown) return;
     const rect = canvas.getBoundingClientRect();
+    const ratio = Math.min(devicePixelRatio || 1, 1.4, Math.sqrt(700000 / Math.max(1, rect.width * rect.height)));
+    if (width === rect.width && height === rect.height && ratio === dpr) return;
     width = rect.width;
     height = rect.height;
-    const dpr = Math.min(devicePixelRatio, 1.6);
+    dpr = ratio;
+    const samples = Math.max(64, Math.min(116, Math.ceil(width / 5)));
+    lines = width < 440 ? 36 : 48;
+    angles = Array.from({ length: samples + 1 }, (_, i) => {
+      const a = tau * i / samples;
+      return { a, ca: Math.cos(a), sa: Math.sin(a) };
+    });
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     schedule();
   }
   function schedule() {
-    if (!frame && shown && !document.hidden)
+    if (!frame && shown && !covered && !document.hidden)
       frame = requestAnimationFrame(draw);
   }
   function draw(now) {
     frame = 0;
-    if (!shown || document.hidden || !width || !height) return;
-    const dt = Math.min(0.05, (now - (last || now)) / 1000);
+    if (!shown || covered || document.hidden || !width || !height) return;
+    if (!reduce.matches && now - lastPaint < 1000 / 30 - 1) {
+      schedule();
+      return;
+    }
+    lastPaint = now;
+    const samples = angles.length - 1;
+    const dt = Math.min(0.08, (now - (last || now)) / 1000);
     last = now;
     if (!reduce.matches) time += dt;
     const damp = reduce.matches ? 1 : 1 - Math.exp(-dt * 8);
@@ -63,6 +78,7 @@ export function mountScope(canvas, reduce, readLevel, signal) {
     const cosZ = Math.cos(-0.19),
       sinZ = Math.sin(-0.19);
     const reveal = reduce.matches ? 1 : signal.open;
+    const useSound = weights[0] > 0.0003, useFilm = weights[1] > 0.0003, useDesign = weights[2] > 0.0003;
     ctx.lineJoin = "round";
     for (let j = 0; j < lines; j++) {
       const layer = j / (lines - 1),
@@ -73,32 +89,28 @@ export function mountScope(canvas, reduce, readLevel, signal) {
       const open = unfurl * unfurl * (3 - 2 * unfurl);
       ctx.beginPath();
       for (let i = 0; i <= samples; i++) {
-        const a = (tau * i) / samples,
-          ca = Math.cos(a),
-          sa = Math.sin(a);
-        // A bent section of an acoustic wave, a folded film loop, a pleated fan.
-        const lobe =
-          0.58 +
-          0.13 * Math.sin(3 * a + u * 3.4 + time * 0.48) +
-          0.08 * Math.cos(2 * a - u * 2.7) +
-          amplitude * 0.12 * Math.cos(a * 5 + u * 3.5);
-        const x0 = ca * lobe + u * 0.64,
-          y0 = sa * lobe + Math.sin(u * 2.5 + time * 0.42) * 0.23,
-          z0 = u * 0.62 + Math.cos(a + u * 2.1) * 0.3;
-        const ribbon = 0.8 + 0.27 * u * Math.cos(2 * a + 0.5 * time);
-        const x1 = ca * ribbon * 1.24,
-          y1 = sa * ribbon * 0.68 + 0.23 * Math.sin(2 * a + time * 0.27),
-          z1 =
-            0.37 * Math.sin(2 * a + time * 0.27) +
-            0.27 * u * Math.sin(2 * a + 0.5 * time);
-        const r =
-          0.49 + 0.2 * Math.cos(6 * a + u * 2.6 + time * 0.31) + 0.15 * layer;
-        const x2 = r * ca * 1.28 + u * 0.46,
-          y2 = r * sa + 0.27 * Math.sin(1.6 * u),
-          z2 = 0.65 * u + 0.15 * Math.cos(6 * a);
-        const x = x0 * weights[0] + x1 * weights[1] + x2 * weights[2],
-          y = y0 * weights[0] + y1 * weights[1] + y2 * weights[2],
-          z = z0 * weights[0] + z1 * weights[1] + z2 * weights[2];
+        const { a, ca, sa } = angles[i];
+        let x = 0, y = 0, z = 0;
+        if (useSound) {
+          const lobe = 0.58 + 0.13 * Math.sin(3 * a + u * 3.4 + time * 0.48)
+            + 0.08 * Math.cos(2 * a - u * 2.7) + amplitude * 0.12 * Math.cos(a * 5 + u * 3.5);
+          x += (ca * lobe + u * 0.64) * weights[0];
+          y += (sa * lobe + Math.sin(u * 2.5 + time * 0.42) * 0.23) * weights[0];
+          z += (u * 0.62 + Math.cos(a + u * 2.1) * 0.3) * weights[0];
+        }
+        if (useFilm) {
+          const ribbon = 0.8 + 0.27 * u * Math.cos(2 * a + 0.5 * time);
+          const bend = Math.sin(2 * a + time * 0.27);
+          x += ca * ribbon * 1.24 * weights[1];
+          y += (sa * ribbon * 0.68 + 0.23 * bend) * weights[1];
+          z += (0.37 * bend + ribbon - 0.8) * weights[1];
+        }
+        if (useDesign) {
+          const r = 0.49 + 0.2 * Math.cos(6 * a + u * 2.6 + time * 0.31) + 0.15 * layer;
+          x += (r * ca * 1.28 + u * 0.46) * weights[2];
+          y += (r * sa + 0.27 * Math.sin(1.6 * u)) * weights[2];
+          z += (0.65 * u + 0.15 * Math.cos(6 * a)) * weights[2];
+        }
         const xx = x * cosY + z * sinY,
           zz = z * cosY - x * sinY,
           yy = y * cosX - zz * sinX;
@@ -125,14 +137,14 @@ export function mountScope(canvas, reduce, readLevel, signal) {
   }
   new ResizeObserver(resize).observe(canvas);
   new IntersectionObserver(([entry]) => {
-    shown = entry.isIntersecting;
+    shown = entry.isIntersecting && entry.intersectionRatio >= 0.05;
     last = 0;
-    if (shown) schedule();
+    if (shown) { resize(); schedule(); }
     else {
       cancelAnimationFrame(frame);
       frame = 0;
     }
-  }).observe(panel);
+  }, { threshold: 0.05 }).observe(canvas);
   panel.addEventListener("pointermove", (e) => {
     if (reduce.matches || e.pointerType === "touch") return;
     const b = panel.getBoundingClientRect();
@@ -150,7 +162,9 @@ export function mountScope(canvas, reduce, readLevel, signal) {
     targetX = targetY = 0;
     schedule();
   });
-  return (n) => {
+  return (n, proofsVisible = false) => {
+    if (covered !== proofsVisible) last = 0;
+    covered = proofsVisible;
     index = n;
     panel.style.setProperty("--stage", palettes[n][0]);
     schedule();

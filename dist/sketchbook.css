@@ -396,7 +396,7 @@
   pointer-events: none;
 }
 .book-underlay {
-  z-index: 1;
+  z-index: 2;
   width: 50%;
 }
 .book-underlay > * {
@@ -405,7 +405,7 @@
   aspect-ratio: auto;
 }
 .book-shadow-clip {
-  z-index: 2;
+  z-index: 3;
   inset-inline: 0;
   overflow: hidden;
   border-radius: inherit;
@@ -458,11 +458,32 @@
   inset: 0;
   background: #594735;
 }
-.book-ready .book-art {
-  touch-action: pan-y;
+.book-ready .book-bound {
+  touch-action: pan-y pinch-zoom;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
 }
+.book-bound.is-dragging {
+  cursor: grabbing;
+}
+.book-paper-spread {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.book-preview {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.paper-face > .book-paper-spread {
+  position: absolute;
+}
+
 @media (max-width: 700px) {
   .process {
+    overflow-x: clip;
     padding-block: 43px 36px;
   }
   .process-intro {
@@ -517,18 +538,22 @@
   .page-meta {
     padding-bottom: 8px;
   }
+  .book-paper-spread {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .wire-binding {
-    inset: 0 5% auto;
-    transform: translateY(-46%);
-    width: auto;
-    height: 24px;
-    flex-direction: row;
-    align-items: center;
+    inset: 3% auto 3% 0;
+    transform: translateX(-24%);
+    width: 17px;
   }
   .wire-binding i {
-    width: 22px;
-    height: 9px;
-    transform: rotate(89deg);
+    height: 8px;
+  }
+  .book-leaf {
+    left: 0;
+  }
+  .book-shadow-clip i {
+    inset: 0;
   }
   .book-foot {
     gap: 8px;
@@ -565,23 +590,7 @@
     padding-top: 18px;
   }
   .book-art::after {
-    background: linear-gradient(180deg, #3c352b32, transparent 13%);
-  }
-  .top-bound {
-    inset: 0 0 auto;
-    width: 100%;
-    aspect-ratio: 1.48;
-  }
-  .book-leaf.top-bound .paper-band {
-    inset: 0 0 auto;
-  }
-  .book-leaf.top-bound .verso {
-    transform: rotateX(180deg);
-  }
-  .book-shadow-clip.top-bound i {
-    inset: 0;
-    background: linear-gradient(180deg, #322c23c9, #48392ea8 76%, #493e2e31);
-    filter: blur(5px);
+    background: linear-gradient(90deg, #3c352b38, transparent 8%);
   }
 }
 @media (prefers-reduced-motion: reduce) {
