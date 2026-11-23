@@ -38,8 +38,8 @@ def timing_map(path):
 
 
 erase = timing_map(paths["erase"])
-atlas = Image.new("RGB", (w*3, h*2))
+atlas = Image.new("RGB", (w*4, h*2))
 for index, study in enumerate(paths["studies"]):
     tile = Image.merge("RGB", (timing_map(study), erase, Image.new("L", (w, h))))
-    atlas.paste(tile, (index % 3 * w, index // 3 * h))
+    atlas.paste(tile, (index % 4 * w, index // 4 * h))
 atlas.save(assets / "pencil-timing.png", optimize=True)

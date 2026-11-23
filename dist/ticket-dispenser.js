@@ -48,8 +48,8 @@ export function mountDispenser(host, preference) {
       pendingStock.push(selected);
     }
     selected = data;
-    book.style.setProperty("--sketch-x", (-100 * (data.study % 3) / 3) + "%");
-    book.style.setProperty("--sketch-y", data.study < 3 ? "0%" : "-50%");
+    book.style.setProperty("--sketch-x", (-100 * (data.study % 4) / 4) + "%");
+    book.style.setProperty("--sketch-y", data.study < 4 ? "0%" : "-50%");
     caption.textContent = data.sketch;
     sheet.dataset.stock = data.key;
     sheet.style.setProperty("--stock", data.color);
@@ -116,7 +116,7 @@ export function mountDispenser(host, preference) {
     if (loading) return;
     loading = true;
     try {
-      const module = await import("./ticket-printer.js?v=pencil-study-1");
+      const module = await import("./ticket-printer.js?v=native-refresh-1");
       light = await module.loadBenchLight().catch(() => null);
       mount = module.mountPrinter;
       scheduleBuild();

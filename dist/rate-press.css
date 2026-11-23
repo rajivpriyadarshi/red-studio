@@ -119,7 +119,7 @@
   box-shadow:0 2px #c9bea5,0 4px #694234,1px 7px 9px #40382b40;
 }
 .flat-sketchbook img {
-  width:300%;height:200%;max-width:none;display:block;
+  width:400%;height:200%;max-width:none;display:block;
   transform:translate(var(--sketch-x,0%),var(--sketch-y,0%));
 }
 .flat-sketchbook::after {

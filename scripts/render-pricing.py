@@ -16,13 +16,13 @@ stock = {
     "logo": ("Logo", "#f1bd84", "logo", 0, "Logo construction sketches and a pencil study of a coastal mark."),
     "identity": ("Comms kit", "#eebb9e", "identity", 1, "Studies for a poster, slide and folded newsletter with colour swatches."),
     "website": ("Website", "#baddee", "website", 2, "A desktop wireframe and its mobile layout."),
-    "motion": ("Logo in motion", "#f5a67a", "motion", 3, "Animation keyframes and a pencilled sound waveform."),
-    "video": ("Short edit", "#dfc68a", "video", 4, "Three vertical storyboard frames and a short shot sequence."),
+    "motion": ("Logo in motion", "#f5a67a", "motion", 7, "Four logo-animation keyframes. A red dot stretches into a mountain mark and settles on a sound accent."),
+    "video": ("Short edit", "#dfc68a", "video", 6, "A three-shot vertical storyboard for a coffee film. Ice drops into a glass, espresso pours, and a hand slides the finished drink into view."),
     "product": ("App UI/UX", "#b5c7db", "product", 2, "A wireframe study comparing a desktop screen and a phone screen."),
     "campaign": ("Print design", "#dac3a4", "campaign", 1, "Pencil layouts for a poster and other printed pieces."),
     "photo": ("Photo edit", "#dfc8ca", "video", 4, "Framing studies for a sequence of portraits and details."),
     "sound": ("Sound design", "#cec1df", "sound", 3, "A pencil study of timing and a sound waveform."),
-    "long-video": ("Long edit", "#b9d39d", "video", 5, "Wide documentary storyboards and a picture and sound editing timeline."),
+    "long-video": ("Long edit", "#b9d39d", "video", 5, "Four documentary storyboard frames. Enter the restaurant, cut to the chef plating a dumpling, meet a guest, then pull back to the table. The voices carry across the cut."),
 }
 
 def amount(price):
@@ -68,7 +68,7 @@ panel = f'''<div class="fare-layout">
 <canvas class="press-viewport" tabindex="-1" role="button" aria-describedby="press-sketch-caption" aria-label="3D ticket printer and spiral sketchpad. Drag or use the left and right arrow keys to turn it. Pinch, scroll or use plus and minus to zoom. Press 0 to reset the zoom. Tap or press Enter to print again." aria-keyshortcuts="ArrowLeft ArrowRight Enter Space Plus - 0"></canvas>
 <span class="sr-only" id="press-sketch-caption">{first_sketch}</span>
 <div class="press-proof" aria-hidden="true">
-<div class="flat-sketchbook"><img src="assets/ticket-window/pad-studies.webp" loading="lazy" decoding="async" alt=""></div>
+<div class="flat-sketchbook"><img src="assets/ticket-window/pad-studies.webp?v=storyboards-1" loading="lazy" decoding="async" alt=""></div>
 <div class="fare-paper" data-stock="{first_key}" style="--stock:{first_color}">
 <div class="paper-issuer">The Red Studio<span>Trondheim</span></div>
 <div class="paper-value"><b data-ticket-title>{first_title}</b><div><strong data-ticket-price>{first_fee}</strong></div></div>

@@ -6,7 +6,7 @@ import {
   stockCurl,
 } from "./ticket-pile.js?v=resource-1";
 import { createPaperBreeze } from "./paper-breeze.js?v=resource-1";
-import { makeBenchBook } from "./bench-sketchbook.js?v=pencil-study-1";
+import { makeBenchBook } from "./bench-sketchbook.js?v=storyboards-1";
 import { mountPressZoom } from "./press-zoom.js";
 
 const asset = (name) =>
@@ -335,7 +335,8 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
     firstView = true;
   const plates = ticketPlates(wake);
   let aspect = 1, bufferWidth = 0, bufferHeight = 0, pixelRatio = 0;
-  let lastShadow = -Infinity, shadowChanged = true;
+  let slowSince = 0, resolutionScale = 1, cameraDirty = true;
+  let shadowChanged = true;
   let warmed = false, warmup = null;
   const look = new T.Vector3();
   function clearPointer() {
@@ -352,6 +353,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
     },
     () => {
       pickAgain = true;
+      cameraDirty = true;
       wake();
     },
   );
@@ -384,7 +386,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
     if (lost || !visible) return;
     const width = host.clientWidth, height = host.clientHeight;
     if (!width || !height) return;
-    const ratio = Math.min(devicePixelRatio || 1, 1.4,
+    const ratio = resolutionScale * Math.min(devicePixelRatio || 1, 1.4,
       Math.sqrt((compact ? 420000 : 800000) / (width * height)));
     if (width !== bufferWidth || height !== bufferHeight || ratio !== pixelRatio) {
       aspect = width / height;
@@ -392,6 +394,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
       bufferHeight = height;
       pixelRatio = ratio;
       renderer.setDrawingBufferSize(width, height, ratio);
+      cameraDirty = true;
     }
     wake();
   }
@@ -452,16 +455,21 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
       }
       return;
     }
-    const minInterval = drag ? 1000 / 60 : 1000 / 30;
-    if (last && now - last < minInterval - 1) {
-      schedule();
-      return;
-    }
+    const gap = last ? now - last : 0;
+    if (gap >= 25 && gap < 170 && resolutionScale > .75) {
+      if (!slowSince) slowSince = now;
+      if (now - slowSince >= 750) {
+        resolutionScale = Math.max(.75, resolutionScale - .125);
+        slowSince = 0;
+        resize();
+      }
+    } else slowSince = 0;
     const refreshedPlate = plates.refresh(current);
     const wasPrinting = start !== null;
     const dt = Math.min((now - (last || now)) / 1000, 0.06);
     last = now;
-    const movingCamera = yaw !== desiredYaw || lift !== desiredLift;
+    const movingBench = yaw !== desiredYaw;
+    const movingCamera = movingBench || lift !== desiredLift;
     if (preference.matches) {
       yaw = desiredYaw;
       lift = desiredLift;
@@ -490,7 +498,10 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
     const sketching = wasSketching && book.update(now, preference.matches);
     const hadFalling = pile.inFlight;
     const falling = hadFalling && pile.update(now);
-    frameCamera();
+    if (movingCamera || cameraDirty) {
+      frameCamera();
+      cameraDirty = false;
+    }
     const turning =
       Math.abs(desiredYaw - yaw) > 0.0003 ||
       Math.abs(desiredLift - lift) > 0.0003;
@@ -514,13 +525,13 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
     const hadBreeze = breeze.active;
     const flutter = !preference.matches && hadBreeze && breeze.advance(now, dt);
     const animated = start !== null || falling || turning || flutter || sketching;
+    if (wasPrinting || hadFalling || movingBench || hadBreeze || wasSketching) shadowChanged = true;
     if (dirty || refreshedPlate || wasPrinting || hadFalling || turning || hadBreeze || wasSketching || shadowChanged || movingCamera) {
-      // Shadow depth can run at half the paper cadence. Always capture the final pose.
-      if (!animated || now - lastShadow >= 65) {
+      // Keep the shadow in step with its caster. Lens-only changes can reuse it.
+      if (shadowChanged) {
         renderer.shadowMap.needsUpdate = true;
-        lastShadow = now;
         shadowChanged = false;
-      } else shadowChanged = true;
+      }
       renderer.render(scene, camera);
       if (!host.classList.contains("model-ready")) {
         host.classList.add("model-ready");
@@ -528,7 +539,8 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
       }
       dirty = false;
     }
-    if (animated || shadowChanged || refreshedPlate) schedule();
+    if (animated || refreshedPlate) schedule();
+    else { last = slowSince = 0; }
   }
   function startFeed(now) {
     startedSpool = machine.spool.rotation.x;
@@ -540,6 +552,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   function select(data, issue) {
     breeze.reset();
     pickAgain = true;
+    shadowChanged = true;
     const now = performance.now();
     const animate =
       issue && !preference.matches && visible && !document.hidden && !lost;
@@ -565,6 +578,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   function setVisible(on) {
     visible = on;
     if (!on) {
+      shadowChanged = true;
       resetGestures();
       cancelAnimationFrame(frame);
       frame = 0;
@@ -572,7 +586,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
       pile.settle();
       book.settle();
     } else {
-      last = 0;
+      last = slowSince = 0;
       if (warmed && firstView && current && !lost) {
         firstView = false;
         if (!preference.matches) {
@@ -655,6 +669,8 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
+      last = slowSince = 0;
+      shadowChanged = true;
       resetGestures();
       cancelAnimationFrame(frame);
       frame = 0;
@@ -677,6 +693,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice) 
   });
   canvas.addEventListener("webglcontextrestored", () => {
     lost = false;
+    shadowChanged = true;
     if (scene.environment) scene.environment.needsUpdate = true;
     resize();
     wake();

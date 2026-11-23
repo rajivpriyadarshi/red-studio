@@ -1,4 +1,5 @@
 import * as T from "three";
+import { mergeGeometries } from "./vendor/BufferGeometryUtils.js";
 import { inkTexture } from "./press-model.js?v=resource-1";
 
 const width = 2.38,
@@ -69,29 +70,34 @@ function wire() {
 
 function pencil() {
   const group = new T.Group();
-  const mat = (color, metalness = 0, roughness = 0.75) =>
-    new T.MeshStandardMaterial({
-      color,
-      metalness,
-      roughness,
-      flatShading: true,
-    });
-  const brass = mat(0xb49d74, 0.68, 0.4);
-  function section(r1, r2, length, x, material, sides) {
-    const geometry = new T.CylinderGeometry(r2, r1, length, sides);
-    geometry.rotateZ(-Math.PI / 2);
-    const mesh = new T.Mesh(geometry, material);
-    mesh.position.x = x;
+  // The pencil moves as one object. Only the metal sleeve needs its own finish.
+  const barrel = [], ferrule = [];
+  function section(r1, r2, length, x, colour, sides = 6) {
+    const geo = new T.CylinderGeometry(r2, r1, length, sides);
+    geo.rotateZ(-Math.PI / 2);
+    geo.translate(x, 0, 0);
+    if (colour === null) { ferrule.push(geo); return; }
+    const tint = new T.Color(colour);
+    const colours = new Float32Array(3 * geo.attributes.position.count);
+    for (let i = 0; i < colours.length; i += 3) tint.toArray(colours, i);
+    geo.setAttribute('color', new T.BufferAttribute(colours, 3));
+    barrel.push(geo);
+  }
+  section(.043, .043, 2.15, 0, 0x8e3127);
+  section(.015, .043, .215, -1.1825, 0xd7a873);
+  section(0, .015, .08, -1.33, 0x343531, 8);
+  section(.046, .046, .14, 1.145, null, 20);
+  section(.042, .04, .085, 1.2575, 0xa96658, 16);
+  for (const x of [1.09, 1.11, 1.18, 1.2]) section(.047, .047, .01, x, null, 20);
+  for (const [parts, finish] of [
+    [barrel, { vertexColors: true, roughness: .57 }],
+    [ferrule, { color: 0xb49d74, metalness: .68, roughness: .4 }],
+  ]) {
+    const mesh = new T.Mesh(mergeGeometries(parts), new T.MeshStandardMaterial({ ...finish, flatShading: true }));
     mesh.castShadow = true;
     group.add(mesh);
+    parts.forEach(geo => geo.dispose());
   }
-  section(0.043, 0.043, 2.15, 0, mat(0x8e3127, 0.05, 0.42), 6);
-  section(0.015, 0.043, 0.215, -1.1825, mat(0xd7a873), 6);
-  section(0, 0.015, 0.08, -1.33, mat(0x343531), 8);
-  section(0.046, 0.046, 0.14, 1.145, brass, 20);
-  section(0.042, 0.04, 0.085, 1.2575, mat(0xa96658), 16);
-  for (const x of [1.09, 1.11, 1.18, 1.2])
-    section(0.047, 0.047, 0.01, x, brass, 20);
   group.rotation.y = -1.47;
   group.position.set(width / 2 + 0.27, 0.047, -0.05);
   return group;
@@ -231,12 +237,12 @@ function sketchMaterial() {
       #ifdef USE_MAP
         if (graphite < 1.0 || rubbed > 0.0) {
           vec2 pageUV = clamp(vAlphaMapUv, vec2(.005), vec2(.995));
-          vec2 order = texture2D(timingMap, studyOrigin + pageUV / vec2(3., 2.)).rg;
+          vec2 order = texture2D(timingMap, studyOrigin + pageUV / vec2(4., 2.)).rg;
           float drawn = smoothstep(order.r - .017, order.r + .017, graphite);
           float erased = smoothstep(order.g - .017, order.g + .017, rubbed);
           // Reuse the unmarked paper above the binding for the rubbed surface.
           vec2 grainUV = vec2(.03 + pageUV.x * .94, .96 + .022 * sin(pageUV.y * 27.));
-          vec3 clean = diffuse * texture2D(map, studyOrigin + grainUV / vec2(3., 2.)).rgb;
+          vec3 clean = diffuse * texture2D(map, studyOrigin + grainUV / vec2(4., 2.)).rgb;
           diffuseColor.rgb = mix(clean, diffuseColor.rgb, drawn * (1. - erased));
         }
       #endif
@@ -268,22 +274,22 @@ export function makeBenchBook(wake) {
   function showStudy(index) {
     study = index;
     const origin = uniforms.studyOrigin.value;
-    origin.set((index % 3) / 3, (1 - Math.floor(index / 3)) / 2);
+    origin.set((index % 4) / 4, (1 - Math.floor(index / 4)) / 2);
     // The page uses one atlas throughout, including when two packages share art.
-    material.map?.offset.set(origin.x + .004 / 3, origin.y + .004 / 2);
+    material.map?.offset.set(origin.x + .004 / 4, origin.y + .004 / 2);
   }
-  loader.load(asset('pad-studies.webp'), atlas => {
+  loader.load(asset('pad-studies.webp?v=storyboards-1'), atlas => {
     atlas.colorSpace = T.SRGBColorSpace;
     atlas.anisotropy = 8;
-    atlas.repeat.set(.992 / 3, .992 / 2);
+    atlas.repeat.set(.992 / 4, .992 / 2);
     material.map = atlas;
     material.needsUpdate = true;
     showStudy(study);
     wake();
   });
   Promise.all([
-    fetch(asset('pencil-paths.json')).then(r => r.json()),
-    loader.loadAsync(asset('pencil-timing.png')),
+    fetch(asset('pencil-paths.json?v=storyboards-1')).then(r => r.json()),
+    loader.loadAsync(asset('pencil-timing.png?v=storyboards-1')),
   ]).then(([design, timing]) => {
     timing.generateMipmaps = false;
     timing.minFilter = T.LinearFilter;
