@@ -23,7 +23,7 @@ export function mountPackageDetails(
     header.querySelector("p").textContent =
       quote.querySelector(".fare-meta").textContent;
     header.querySelector("img").src = new URL(
-      "./assets/ticket-window/" + quote.dataset.art + ".webp",
+      "./assets/ticket-window/" + quote.dataset.art + ".webp?v=bird-1",
       import.meta.url,
     );
     card.style.setProperty("--scope-stock", quote.dataset.paper);

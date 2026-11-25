@@ -3,8 +3,11 @@ from html import escape
 from pathlib import Path
 import json
 import re
+from xml.etree import ElementTree
 
 dist = Path(__file__).resolve().parents[1] / "dist"
+mark = ElementTree.parse(dist / "assets/programme/mark.svg").find(".//*[@id='ticket-bird']")
+bird_path = " ".join(mark.attrib["d"].split())
 rates = json.loads((dist / "pricing-data.json").read_text())
 groups = rates["serviceGroups"]
 service_groups = {service: group["name"] for group in groups for service in group["services"]}
@@ -28,7 +31,6 @@ stock = {
 def amount(price):
     return f"{price:,}".replace(",", "\u202f")
 
-quotes = []
 for i, plan in enumerate(plans, 1):
     key, name, price = plan["id"], escape(plan["name"]), plan["price"]
     title, color, art, study, sketch = stock[key]
@@ -45,14 +47,16 @@ for i, plan in enumerate(plans, 1):
         first_fee, first_note, first_sketch = fee, note, sketch
         first_tax = " hidden" if price is None else ""
     number = f"{i:02}"
-    rows[service_groups[plan["service"]]].append(f'''<a class="fare-row" data-rate-key="{key}" href="#price-{key}">
-<span class="fare-number" aria-hidden="true">{number}</span><span>{name}</span><span class="fare-price">{board_fee}</span></a>''')
     items = "".join(f"<li>{escape(item)}</li>" for item in plan["items"])
     process = '<p><a href="#process">See our logo process ↓</a></p>' if key == "logo" else ""
-    quotes.append(f'''<article class="fare-quote" id="price-{key}" data-plan="{key}" data-art="{art}" data-study="{study}" data-sketch="{escape(sketch)}" data-price="{price if price is not None else ''}" data-fee="{fee}" data-paper="{color}" data-ticket-name="{title}" data-note="{note}">
-<h3>{name}</h3><p class="fare-fit">{escape(plan['fit'])}</p><p class="fare-meta">{meta}</p>
-<button type="button" class="scope-opener" aria-haspopup="dialog" aria-controls="package-scope" hidden>What’s included <span aria-hidden="true">↗</span></button>
-<div class="fare-scope"><h4>What’s included</h4><ul>{items}</ul>{process}</div></article>''')
+    basis = f"<p>{escape(plan['quoteBasis'])}</p>" if 'quoteBasis' in plan else ""
+    rows[service_groups[plan["service"]]].append(f'''<a class="fare-row" data-rate-key="{key}" href="#price-{key}">
+<span class="fare-number" aria-hidden="true">{number}</span><span>{name}</span><span class="fare-price">{board_fee}</span></a>
+<article class="fare-quote" id="price-{key}" aria-labelledby="fare-name-{key}" data-plan="{key}" data-art="{art}" data-study="{study}" data-sketch="{escape(sketch)}" data-price="{price if price is not None else ''}" data-fee="{fee}" data-paper="{color}" data-ticket-name="{title}" data-note="{note}">
+<h3 id="fare-name-{key}">{name}</h3><p class="fare-meta">{meta}</p>
+<div class="fare-caption"><p class="fare-fit">{escape(plan['fit'])}</p>
+<button type="button" class="scope-opener" aria-label="What’s included in {name}" aria-haspopup="dialog" aria-controls="package-scope" hidden>What’s included <span aria-hidden="true">↗</span></button></div>
+<div class="fare-scope"><h4>What’s included</h4><ul>{items}</ul>{basis}{process}</div></article>''')
 
 board = []
 for group_name, links in rows.items():
@@ -65,22 +69,21 @@ panel = f'''<div class="fare-layout">
 {chr(10).join(board)}</div>
 <div class="fare-display">
 <div class="counter-scene">
-<canvas class="press-viewport" tabindex="-1" role="button" aria-describedby="press-sketch-caption" aria-label="3D ticket printer and spiral sketchpad. Drag or use the left and right arrow keys to turn it. Pinch to zoom. Tap or press Enter to print again." aria-keyshortcuts="ArrowLeft ArrowRight Enter Space"></canvas>
+<canvas class="press-viewport" tabindex="-1" role="button" aria-describedby="press-sketch-caption" aria-label="3D ticket printer beside a standing spiral sketchbook. Drag or use the left and right arrow keys to turn it. Pinch to zoom. Tap or press Enter to print again." aria-keyshortcuts="ArrowLeft ArrowRight Enter Space"></canvas>
 <span class="sr-only" id="press-sketch-caption">{first_sketch}</span>
 <div class="press-proof" aria-hidden="true">
-<img class="press-still" src="assets/ticket-window/press-at-rest.webp?v=bench-close-1" width="1200" height="850" loading="lazy" decoding="async" alt="">
-<div class="flat-sketchbook"><img src="assets/ticket-window/pad-studies.webp?v=storyboards-1" loading="lazy" decoding="async" alt=""></div>
+<img class="press-still" src="assets/ticket-window/press-at-rest.webp?v=bird-1" width="1200" height="850" loading="lazy" decoding="async" alt="">
+<div class="proof-sketchbook"><img src="assets/ticket-window/pad-studies.webp?v=storyboards-1" loading="lazy" decoding="async" alt=""></div>
 <div class="fare-paper" data-stock="{first_key}" style="--stock:{first_color}">
 <div class="paper-issuer">The Red Studio<span>Trondheim</span></div>
 <div class="paper-value"><b data-ticket-title>{first_title}</b><div><strong data-ticket-price>{first_fee}</strong></div></div>
-<img class="paper-plate" data-ticket-art src="assets/ticket-window/{first_art}.webp" width="480" height="480" alt="">
-<svg class="paper-seal" viewBox="-43 -43 86 86" preserveAspectRatio="none" aria-hidden="true"><circle r="40" fill="none" stroke="currentColor" stroke-width="3"/><path transform="rotate(-6) translate(-20 -20)" fill="currentColor" fill-rule="evenodd" d="M0 0h24q14 0 14 14 0 8-8 11l10 15H26L16 26h-3v14H0zm13 10v7h10q4 0 4-3.5T23 10z"/></svg>
+<img class="paper-plate" data-ticket-art src="assets/ticket-window/{first_art}.webp?v=bird-1" width="480" height="480" alt="">
+<svg class="paper-seal" viewBox="-43 -43 86 86" preserveAspectRatio="none" aria-hidden="true"><circle r="41" fill="none" stroke="currentColor" stroke-width="3"/><path transform="rotate(-6) scale(.92) translate(-32 -31)" fill="currentColor" fill-rule="evenodd" d="{bird_path}"/></svg>
 <div class="paper-foot"><span data-ticket-time>{first_note}</span><span data-ticket-tax{first_tax}>Excl. VAT</span></div>
 <div class="paper-coupon"><span>TRD</span><b data-ticket-no>01</b><i></i></div>
 </div></div>
 <button class="sound-switch press-sound" type="button" aria-label="Ticket sound" aria-pressed="true" hidden>Ticket sound</button>
 </div>
-<div class="fare-scopes">{''.join(quotes)}</div>
 </div></div>
 <dialog class="scope-dialog" id="package-scope" aria-labelledby="scope-name">
 <div class="scope-card">
@@ -91,7 +94,7 @@ panel = f'''<div class="fare-layout">
 <footer class="scope-foot"><button type="button" class="scope-enquiry">Discuss this package <span aria-hidden="true">↗</span></button></footer>
 </div></div></dialog>
 <p class="sr-only" data-fare-status role="status"></p>
-<div class="terms"><div id="independent"><b>Independent rate.</b> Self-funded bands and independent brands can ask for a reduced fee.</div>
+<div class="terms"><div>Indicative fees in Norwegian kroner, excluding VAT.</div>
 <details><summary>Payment &amp; terms</summary><p>Half at kickoff, half before handoff. We agree the scope and cost of any extra work with you in advance. We confirm licences, outside costs and the rights to the finished work with you in writing.</p></details></div>'''
 page = dist / "index.html"
 updated, count = re.subn(r'<!-- pricing start -->.*?<!-- pricing end -->', lambda _: '<!-- pricing start -->\n' + panel + '\n<!-- pricing end -->', page.read_text(), flags=re.S)

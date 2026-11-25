@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Studio study artwork</title>
+<style>
+@font-face{font-family:Space;src:url("../../dist/assets/space-regular.ttf")}@font-face{font-family:Space;src:url("../../dist/assets/space-bold.ttf");font-weight:700}@font-face{font-family:Archivo;src:url("../../dist/assets/programme/archivo-black.ttf")}@font-face{font-family:Instrument;src:url("../../dist/assets/optics/instrument-serif.ttf")}@font-face{font-family:Instrument;src:url("../../dist/assets/optics/instrument-serif-italic.ttf");font-style:italic}
+*{box-sizing:border-box}
+body{margin:0;font-family:Space,Arial,sans-serif}
+figure,h1,h2,p{margin:0}
+figure{position:relative;isolation:isolate;overflow:hidden}
+.row{display:flex;align-items:center;justify-content:space-between}
+.stock::after{content:"";position:absolute;inset:0;background:url("../../dist/assets/ticket-window/paper-tooth.webp") repeat;background-size:290px;opacity:.11;mix-blend-mode:multiply;pointer-events:none}
+#identity{width:1200px;height:900px}
+#identity,#identity-portrait{background:radial-gradient(ellipse at 9% 3%,#55796c,transparent 62%),#254e48}
+.identity-slip{position:absolute;width:760px;height:412px;box-shadow:0 3px 3px #09282055,2px 10px 8px -4px #072b2888,10px 28px 34px -16px #06262199}
+.reverse{left:310px;top:397px;transform:rotate(8deg);background:#183936;color:#f0e8ce;overflow:hidden;padding:26px 32px}
+.reverse img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1);opacity:.69;mix-blend-mode:luminosity}
+.reverse::before{content:"";position:absolute;inset:0;background:#183d35}
+.reverse strong{position:absolute;bottom:20px;font:italic 74px Instrument;letter-spacing:-.035em;text-shadow:0 2px 8px #142f2b}
+.reverse span{position:absolute;right:25px;bottom:35px;font-size:17px}
+.face{left:117px;top:123px;transform:rotate(-9deg);background:#eee9d5;color:#102f34;padding:30px 36px;display:flex;flex-direction:column}
+.face .row{font-size:19px;border-bottom:1.5px solid #153638;padding-bottom:11px}
+.face .lockup{display:flex;gap:25px;align-items:center;margin:auto;letter-spacing:-5px;font:76px Archivo}
+.face .foot{border-top:1px solid #24444b;border-bottom:0;padding:11px 0 0;font-size:18px}
+.swatches{display:flex;gap:5px}.swatches i{width:34px;height:16px;background:#17353a}.swatches i:nth-child(2){background:#fd875d}.swatches i:nth-child(3){background:#a8bdad}
+#web,#mobile{width:960px;height:1000px;background:linear-gradient(148deg,#d4c9bf,#b6aaa1 75%,#a3978e);color:#23221f}
+.web-window{position:absolute;left:10%;width:80%;top:9%;background:#faf6ed;box-shadow:0 6px 6px #443c3720,0 20px 30px -12px #423a3563;overflow:hidden}
+.web-top,.mobile-top{margin:0 34px;border-bottom:1.5px solid #302c27;height:65px;font-size:18px}
+.web-top b,.mobile-top b{font-weight:700;letter-spacing:-1.5px;font-size:25px}
+.web-title{margin:22px 34px 10px;font:147px/.96 Instrument;letter-spacing:-7px}
+.web-title i{font-weight:400}
+.web-desc{margin:0 35px 23px;font-size:21px}
+.object-image{position:relative;overflow:hidden}.object-image img{display:block;width:100%;height:100%;object-fit:cover}
+.web-window .object-image{height:390px;margin:0 23px}
+.web-window footer{padding:17px 34px 26px;align-items:baseline}
+footer small{font-size:17px}
+.web-window footer strong{font:46px Instrument;letter-spacing:-1.5px}
+.web-index{margin:0 34px 22px;padding-top:12px;border-top:1px solid #5f584e;font-size:18px}
+#mobile{background:#333a38}
+.mobile-page{position:absolute;background:#fbf7ec;top:8%;bottom:8%;left:25%;width:50%;padding-bottom:25px;box-shadow:0 3px 3px #10171588,8px 18px 25px #141b1880}
+.mobile-top{margin:0 22px;height:62px}
+.mobile-top span{font-size:19px}.mobile-page header{padding:28px 23px 20px}
+.mobile-page h2{font:84px/.97 Instrument;letter-spacing:-3px;margin-top:12px}
+.mobile-page .object-image{height:365px;margin:0 16px}
+.mobile-page p{font-size:23px;line-height:1.28;padding:19px 23px}
+#poster,#poster-b{width:960px;height:1000px;display:grid;place-items:center;background:#adbece}
+#poster-b{background:#4b6153}
+.print{position:relative;width:687px;height:862px;box-shadow:1px 5px 5px #131d2b50,9px 22px 32px -10px #1926345c;overflow:hidden;transform:rotate(2.75deg);color:#f6f1d8;background:#2634a6}
+#poster-b .print{transform:rotate(-2deg);background:#efd59a;color:#3b2241}
+.print .row{position:absolute;left:30px;right:30px;font:20px Space}
+.print header{top:23px;padding-bottom:13px;border-bottom:1.5px solid currentColor}
+.print footer{bottom:22px;border-top:1.5px solid currentColor;padding-top:12px}
+.print h2{position:absolute;top:86px;left:20px;margin:0;font:164px/.77 Archivo;letter-spacing:-13px;z-index:1}
+.print h2 span{display:block}
+.print canvas{position:absolute;bottom:72px;width:100%;height:420px}
+#identity-portrait{width:800px;height:1000px}
+#identity-portrait .face{left:7%;top:18%;transform:rotate(-7deg) scale(.84);transform-origin:top left}
+#identity-portrait .reverse{left:16%;top:47%;transform:rotate(7deg) scale(.78);transform-origin:top left}
+/* Wide compositions for the expanding desktop strip. */
+.wide-spread{width:1520px;height:940px}
+#web-wide{background:linear-gradient(135deg,#d7cabe,#b9a99c 67%,#c6b8aa);color:#23221f}
+#web-wide .web-window{top:7%;left:10%;width:835px;transform-origin:top left;transform:rotate(-2deg) scale(.95)}
+#web-wide .mobile-page{left:66%;top:19%;bottom:auto;width:438px;transform:rotate(3deg) scale(.83);transform-origin:top left}
+#poster-wide{background:linear-gradient(115deg,#aebfc9,#889da8)}
+#poster-wide .print{position:absolute;top:9.5%;left:14%;transform:rotate(-4deg) scale(.87);transform-origin:top left;z-index:1}
+#poster-wide .print + .print{z-index:0;top:15%;left:55%;transform:rotate(5deg) scale(.80);background:#efd59a;color:#3b2241}
+</style>
+<figure id="identity" class="stock"><div class="identity-slip reverse"><img src="../../dist/assets/optics/coast.webp" alt=""><strong>Field notes</strong><span>Soundings</span></div>
+<div class="identity-slip face stock"><div class="row"><span>Coastal research</span><span>Identity master</span></div><div class="lockup">
+<canvas width="120" height="116" id="mark"></canvas>Soundings</div><div class="row foot"><span>Ridge &amp; reflection</span><div class="swatches"><i></i><i></i><i></i></div></div></div></figure>
+<figure id="web"><article class="web-window"><div class="row web-top"><b>F/i</b><span>Objects &nbsp;&nbsp; / &nbsp;&nbsp; Index</span></div><h2 class="web-title">Form <i>Index</i></h2><p class="web-desc">An independent journal of objects and materials.</p><div class="object-image"><img src="../../dist/assets/directions/glass.webp" alt=""></div><footer class="row"><strong>Liquid form</strong><small>Glass / Object 01</small></footer><div class="row web-index"><span>Next in the index</span><span>Light in resin</span></div></article></figure>
+<figure id="mobile"><article class="mobile-page"><div class="row mobile-top"><b>F/i</b><span>Object index</span></div><header><span>Object 02 &nbsp; / &nbsp; Resin</span><h2>Light in <i>resin</i></h2></header><div class="object-image"><img src="../../dist/assets/directions/gradient.webp" alt=""></div><p>A column of colour. Light passes through the cast form and gathers along its edges.</p></article></figure>
+<figure id="poster"><div class="print stock"><header class="row"><span>Trondheim</span><span>Listening sessions</span></header><h2>Etter<span>klang.</span></h2><canvas width="1040" height="636"></canvas><footer class="row"><span>Etterklang</span><span>Side A &nbsp; / &nbsp; Pulse</span></footer></div></figure>
+<figure id="poster-b"><div class="print stock"><header class="row"><span>Trondheim</span><span>Listening sessions</span></header><h2>Etter<span>klang.</span></h2><canvas width="1040" height="636"></canvas><footer class="row"><span>Etterklang</span><span>Side B &nbsp; / &nbsp; Drift</span></footer></div></figure>
+<figure class="stock" id="identity-portrait"></figure>
+<figure class="wide-spread" id="web-wide"></figure>
+<figure class="wide-spread stock" id="poster-wide"></figure>
+<script>
+const mark=document.getElementById('mark').getContext('2d');
+mark.fillStyle='#102f34';
+for(const points of [[[0,54],[42,0],[67,31],[88,6],[120,52],[94,52],[87,42],[67,66],[42,32],[24,54]],[[2,64],[27,64],[40,80],[52,65],[65,83],[40,114]],[[72,72],[82,62],[119,62],[94,92]]]){
+  mark.beginPath();points.forEach(([x,y],i)=>i?mark.lineTo(x,y):mark.moveTo(x,y));mark.closePath();mark.fill();
+}
+for(const [index,canvas] of [...document.querySelectorAll('.print canvas')].entries()){
+  const pen=canvas.getContext('2d');
+  pen.scale(canvas.width/687,canvas.height/420);
+  pen.lineWidth=3;pen.strokeStyle=index?'#78365f':'#dfed79';
+  for(let line=0;line<88;line++){
+    const u=line/87;
+    pen.beginPath();
+    for(let x=-5;x<=695;x+=2){
+      const a=x/687, phase=a*Math.PI*2;
+      const centre=index?220-147*Math.sin(phase-.4):220-94*Math.sin(phase*1.35);
+      const height=38+113*Math.pow(Math.sin(Math.PI*a),2);
+      const y=centre+height*Math.sin((u-.5)*2.45+phase*(index?1.5:.7))+(u-.5)*160;
+      if(x===-5)pen.moveTo(x,y);else pen.lineTo(x,y);
+    }
+    pen.stroke();
+  }
+}
+// Use the same layouts and inks as the individual project plates.
+for (const [board, originals] of [
+  ['identity-portrait', ['#identity .reverse', '#identity .face']],
+  ['web-wide', ['#web .web-window', '#mobile .mobile-page']],
+  ['poster-wide', ['#poster .print', '#poster-b .print']],
+]) {
+  for (const selector of originals) {
+    const source = document.querySelector(selector);
+    const proof = source.cloneNode(true);
+    const canvas = proof.querySelector('canvas');
+    if (canvas) {
+      canvas.removeAttribute('id');
+      canvas.getContext('2d').drawImage(source.querySelector('canvas'), 0, 0);
+    }
+    document.getElementById(board).append(proof);
+  }
+}
+</script></html>

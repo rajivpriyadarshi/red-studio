@@ -85,6 +85,14 @@ $$("[data-inquiry]").forEach((button) =>
     openDialog($("#inquiry-dialog"), button);
   }),
 );
+function showLinkedInquiry() {
+  const show = () => openDialog($("#inquiry-dialog"), $(".signoff-base a"));
+  if (document.documentElement.classList.contains("title-running")) {
+    window.addEventListener("studio:title-end", show, { once: true });
+  } else {
+    show();
+  }
+}
 const queryPackage = new URLSearchParams(location.search).get("package");
 const queryBundle = new URLSearchParams(location.search).get("packages");
 if (queryPackage || queryBundle)
@@ -99,7 +107,7 @@ if (queryPackage || queryBundle)
         bundle = bundle.filter((p) => p.id !== "logo");
       if (p) {
         choosePackage(p.name, p.price);
-        openDialog($("#inquiry-dialog"), $(".signoff-base a"));
+        showLinkedInquiry();
       } else if (bundle.length) {
         const total = bundle.every((p) => p.price != null)
           ? bundle.reduce((sum, p) => sum + p.price, 0)
@@ -107,7 +115,7 @@ if (queryPackage || queryBundle)
         choosePackage(bundle.map((p) => p.name).join(" + "), total);
         $("#inquiry-form textarea").value =
           `I'd like to discuss this combination:\n${bundle.map((p) => `${p.name}: ${packageFee(p.price)}`).join("\n")}\n\nPackage estimate: ${packageFee(total)}.\nPlease confirm scope overlap, timing and the final quote.\n\nTimeline: \nProject details: `;
-        openDialog($("#inquiry-dialog"), $(".signoff-base a"));
+        showLinkedInquiry();
       }
     })
     .catch(() => {});
@@ -117,7 +125,7 @@ if (inquiryQuery.has("independent") || inquiryQuery.has("budget")) {
   $("#inquiry-form textarea").value = independent
     ? "I'd like to ask about the independent rate.\n\nAbout our band or brand: \nWhat we need: \nBudget and timing: "
     : "I'd like to find a scope that fits our budget.\n\nWhat we need: \nWhat matters most: \nBudget and timing: ";
-  openDialog($("#inquiry-dialog"), $(".signoff-base a"));
+  showLinkedInquiry();
 }
 
 const form = $("#inquiry-form");

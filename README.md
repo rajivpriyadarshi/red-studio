@@ -113,7 +113,7 @@ The photographic artwork is credited Lummi reference imagery, not studio-authore
 
 The homepage now leads with “Your research. Made clear.” and Trondheim, Norway. The stock-image directions filmstrip is removed from the homepage so there is one work showcase. Dedicated services include logos, websites/apps, slides/posters/reports, animation, video editing/colour grading and sound signatures. Existing project statuses remain labelled; no new research-client credentials are claimed.
 
-`dist/research.css` styles the updated sections. `scripts/render-offerings.py` generates the shared static service previews and motion/sound section for the home and Services pages; `dist/offerings.js` enhances them with keyboard and pointer selection. Mobile services scroll horizontally. Animations respect the motion toggle and system preference. The sound sample starts only on an explicit click, can be stopped, and stops on page hide.
+The home page lists services and indicative fees together. `scripts/render-pricing.py` renders the service board and package details. `scripts/render-offerings.py` keeps the enquiry form in the same service order.
 
 The new Video edit & short cuts package is an effort-based studio offer at NOK 12,000 excluding VAT, not a market benchmark: a supplied-footage edit up to 90 seconds plus three short cuts, basic colour/audio treatment, approved captions and two feedback rounds. The independent-rate offer is quoted individually; the written quote shows the standard fee, discount and total. No unapproved blanket discount percentage is published.
 

@@ -3,9 +3,9 @@ const section = document.currentScript.dataset.section;
 const fragment = location.hash.slice(1);
 const destination = new URL('index.html', location.href);
 destination.search = location.search;
-let anchor = section;
+let anchor = section === "prices" ? "services" : section;
 if (fragment === 'contact') anchor = 'contact';
-if (section === 'studio' && fragment === 'principles') anchor = 'compliance';
+if (section === 'studio' && fragment === 'principles') anchor = 'principles';
 if (section === 'services') {
   const service = fragment.replace(/^example-/, '');
   if (['brand', 'digital', 'apps', 'campaigns', 'motion', 'video', 'sound'].includes(service)) anchor = 'example-' + service;

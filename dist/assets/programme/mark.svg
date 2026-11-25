@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" rx="5" fill="#ff4329"/><g transform="translate(4 4)"><path fill="currentColor" d="M0 0h24q14 0 14 14 0 8-8 11l10 15H26L16 26h-3v14H0zm13 10v7h10q4 0 4-3.5T23 10z" fill-rule="evenodd"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>The Red Studio — ticket bird</title>
+  <rect width="64" height="64" rx="6" fill="#ff472e"/>
+  <path id="ticket-bird" fill="currentColor" fill-rule="evenodd" d="
+    M2 9 21 22 14 9 28 22
+    C31 20 32 14 35 11 38 7 45 7 49 10L52 15 60 18 51 20
+    C51 30 47 38 37 43L34 48 39 52 27 51 29 45 22 45 18 50 23 54 11 52 16 44
+    C11 41 8 36 7 31L1 19 14 27Z
+    M13 27C20 32 28 32 37 25 33 35 22 38 13 27Z
+    M44 12.5a2.1 2.1 0 1 0 0 4.2 2.1 2.1 0 0 0 0-4.2Z
+    M59 18 63 20 62 25Q57.8 25.7 61 29L59.8 34 50.3 31.8 54.4 21.3Z"/>
+</svg>

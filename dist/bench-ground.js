@@ -57,6 +57,16 @@ export function makeBenchGround() {
   const shadows = new T.Mesh(geometry, new T.ShadowMaterial({
     color: 0x363329, opacity: .25, depthWrite: false, toneMapped: false,
   }));
+  shadows.material.onBeforeCompile = shader => {
+    shader.vertexShader = 'varying vec4 groundClip;\n' + shader.vertexShader.replace(
+      '#include <project_vertex>', '#include <project_vertex>\n groundClip = gl_Position;');
+    shader.fragmentShader = 'varying vec4 groundClip;\n' + shader.fragmentShader.replace(
+      '#include <tonemapping_fragment>', `
+        vec2 edge = abs(groundClip.xy / groundClip.w);
+        gl_FragColor.a *= 1. - smoothstep(.82, 1., max(edge.x, edge.y));
+        #include <tonemapping_fragment>
+      `);
+  };
   shadows.receiveShadow = true;
   shadows.renderOrder = -2;
   ground.add(shadows);

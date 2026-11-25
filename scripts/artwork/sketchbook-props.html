@@ -1,0 +1,446 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Sketchbook desk props</title>
+<script type="importmap">
+  { "imports": { "three": "../../dist/vendor/three.module.js" } }
+</script>
+<script type="module">
+  // Bake each movable object with its own contact shadow. The live book uses only stills.
+  import * as T from "three";
+  import { loadBenchLight } from "../../dist/ticket-printer.js";
+
+  const renderer = new T.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
+  renderer.setClearColor(0, 0);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = T.PCFSoftShadowMap;
+  renderer.toneMapping = T.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.96;
+  document.body.append(renderer.domElement);
+  const environment = await loadBenchLight();
+  const material = (color, roughness, extra = {}) =>
+    new T.MeshStandardMaterial({ color, roughness, ...extra });
+
+  let seed = 87351;
+  function random() {
+    seed = (Math.imul(1664525, seed) + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+  function texture(draw) {
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 512;
+    draw(canvas.getContext("2d"));
+    const map = new T.CanvasTexture(canvas);
+    map.colorSpace = T.SRGBColorSpace;
+    return map;
+  }
+  function surface(group, geometry, finish) {
+    const part = new T.Mesh(geometry, finish);
+    part.castShadow = part.receiveShadow = true;
+    group.add(part);
+    return part;
+  }
+  function lathe(group, profile, finish, segments = 112) {
+    return surface(
+      group,
+      new T.LatheGeometry(
+        profile.map(([r, y]) => new T.Vector2(r, y)),
+        segments,
+      ),
+      finish,
+    );
+  }
+
+  function coffeeMug() {
+    const mug = new T.Group();
+    const stoneware = material(0xffffff, 0.29, {
+      map: texture((c) => {
+        c.fillStyle = "#eae0cc";
+        c.fillRect(0, 0, 512, 512);
+        for (let i = 0; i < 3500; i++) {
+          c.fillStyle = "rgba(98,70,45," + (0.05 + random() * 0.29) + ")";
+          c.beginPath();
+          c.arc(random() * 512, random() * 512, 0.25 + random() * 0.8, 0, 2 * Math.PI);
+          c.fill();
+        }
+      }),
+    });
+    const oxide = material(0x7b271e, 0.28);
+    const clay = material(0xb68d68, 0.89);
+    lathe(
+      mug,
+      [
+        [0, 0],
+        [0.65, 0],
+        [0.7, 0.018],
+        [0.72, 0.076],
+      ],
+      clay,
+    );
+    lathe(
+      mug,
+      [
+        [0.67, 0.04],
+        [0.72, 0.055],
+        [0.755, 0.11],
+        [0.78, 0.28],
+        [0.85, 1.24],
+        [0.862, 1.39],
+        [0.859, 1.437],
+        [0.842, 1.46],
+        [0.813, 1.462],
+        [0.788, 1.436],
+        [0.782, 1.39],
+        [0.733, 0.37],
+        [0.68, 0.24],
+        [0, 0.24],
+      ],
+      stoneware,
+    );
+    lathe(
+      mug,
+      [
+        [0.855, 1.408],
+        [0.862, 1.428],
+        [0.856, 1.45],
+        [0.842, 1.466],
+        [0.82, 1.468],
+        [0.802, 1.458],
+        [0.793, 1.448],
+      ],
+      oxide,
+    );
+    lathe(
+      mug,
+      [
+        [0.853, 1.253],
+        [0.855, 1.269],
+      ],
+      oxide,
+    );
+    const handleCurve = new T.CatmullRomCurve3(
+      [
+        [0.79, 1.19, 0],
+        [1.13, 1.2, 0],
+        [1.37, 1.05, 0],
+        [1.42, 0.82, 0],
+        [1.31, 0.57, 0],
+        [1.08, 0.43, 0],
+        [0.74, 0.4, 0],
+      ].map((p) => new T.Vector3(...p)),
+    );
+    surface(mug, new T.TubeGeometry(handleCurve, 70, 0.106, 20, false), stoneware);
+    const coffee = material(0x351b0e, 0.16, { metalness: 0.05, envMapIntensity: 0.3 });
+    lathe(
+      mug,
+      [
+        [0, 1.274],
+        [0.74, 1.274],
+        [0.777, 1.28],
+        [0.781, 1.29],
+      ].reverse(),
+      coffee,
+    );
+    const bubbles = texture((c) => {
+      // A broken window reflection runs into the meniscus on the far side.
+      c.save();
+      c.beginPath();
+      c.arc(256, 256, 248, 0, Math.PI * 2);
+      c.clip();
+      c.filter = "blur(3px)";
+      c.fillStyle = "rgba(167,175,159,.22)";
+      c.beginPath();
+      c.moveTo(38, 133);
+      c.quadraticCurveTo(59, 88, 96, 61);
+      c.lineTo(175, 51);
+      c.lineTo(144, 103);
+      c.quadraticCurveTo(85, 110, 38, 133);
+      c.fill();
+      c.fillStyle = "rgba(172,180,163,.17)";
+      c.beginPath();
+      c.moveTo(101, 56);
+      c.quadraticCurveTo(135, 25, 185, 12);
+      c.lineTo(215, 10);
+      c.lineTo(186, 43);
+      c.closePath();
+      c.fill();
+      c.restore();
+      // Crema breaks up along one side of a freshly poured black coffee.
+      for (let i = 0; i < 510; i++) {
+        const a = -0.5 + random() * 2.4 + random() * 0.2;
+        const r = 243 - 27 * random() ** 2;
+        const x = 256 + Math.cos(a) * r,
+          y = 256 + Math.sin(a) * r,
+          size = 0.55 + random() ** 2 * 3.7;
+        c.fillStyle = "rgba(168,112,57,.62)";
+        c.beginPath();
+        c.arc(x, y, size, 0, 2 * Math.PI);
+        c.fill();
+        c.fillStyle = "rgba(47,25,14,.78)";
+        c.beginPath();
+        c.arc(x + 0.1, y + 0.25, size * 0.72, 0, 2 * Math.PI);
+        c.fill();
+        c.strokeStyle = "rgba(242,203,140,.86)";
+        c.lineWidth = 0.6;
+        c.beginPath();
+        c.arc(x, y, size * 0.87, 3.7, 5.6);
+        c.stroke();
+      }
+    });
+    const foam = new T.Mesh(
+      new T.PlaneGeometry(1.56, 1.56),
+      new T.MeshBasicMaterial({ map: bubbles, transparent: true, depthWrite: false }),
+    );
+    foam.rotation.x = -Math.PI / 2;
+    foam.position.y = 1.282;
+    mug.add(foam);
+    mug.rotation.y = -0.46;
+    return mug;
+  }
+
+  function drawingMarker() {
+    const set = new T.Group();
+    const barrel = new T.Group(),
+      cap = new T.Group();
+    set.add(barrel, cap);
+    const bone = material(0xdedac7, 0.49),
+      lacquer = material(0x963126, 0.35),
+      grip = material(0x39352e, 0.59),
+      nib = material(0x8a261c, 0.96),
+      seam = material(0x56261f, 0.51);
+    barrel.rotation.z = -Math.PI / 2;
+    barrel.position.set(-1.7, 0.18, 0);
+    lathe(
+      barrel,
+      [
+        [0, 0],
+        [0.126, 0],
+        [0.153, 0.035],
+        [0.162, 0.13],
+        [0.162, 2.4],
+        [0.15, 2.53],
+        [0.108, 2.64],
+      ],
+      bone,
+    );
+    lathe(
+      barrel,
+      [
+        [0, -0.008],
+        [0.125, -0.008],
+        [0.152, 0.032],
+        [0.158, 0.082],
+      ],
+      lacquer,
+    );
+    for (const y of [0.26, 0.31, 2.07])
+      lathe(
+        barrel,
+        [
+          [0.163, y],
+          [0.163, y + (y === 0.31 ? 0.045 : 0.022)],
+        ],
+        lacquer,
+      );
+    lathe(
+      barrel,
+      [
+        [0.108, 2.61],
+        [0.117, 2.63],
+        [0.116, 2.75],
+        [0.08, 2.84],
+        [0.065, 2.86],
+      ],
+      grip,
+    );
+    const tip = surface(barrel, new T.CylinderGeometry(0.06, 0.071, 0.192, 28), nib);
+    const vertices = tip.geometry.attributes.position;
+    for (let i = 0; i < vertices.count; i++)
+      if (vertices.getY(i) > 0) vertices.setY(i, 0.089 + vertices.getX(i) * 0.82);
+    tip.geometry.computeVertexNormals();
+    tip.position.y = 2.94;
+    cap.rotation.order = "YXZ";
+    cap.rotation.y = -0.18;
+    cap.rotation.z = -Math.PI / 2;
+    cap.position.set(-1.72, 0.19, 0.49);
+    lathe(
+      cap,
+      [
+        [0.149, 0],
+        [0.178, 0],
+        [0.183, 0.022],
+        [0.185, 0.12],
+        [0.182, 0.87],
+        [0.172, 0.95],
+        [0.148, 0.985],
+        [0, 0.985],
+      ],
+      lacquer,
+    );
+    lathe(
+      cap,
+      [
+        [0.147, 0.13],
+        [0.144, 0.018],
+        [0.149, 0.0],
+        [0.178, 0],
+      ],
+      seam,
+    );
+    lathe(
+      cap,
+      [
+        [0.179, 0.084],
+        [0.186, 0.085],
+        [0.186, 0.098],
+        [0.179, 0.1],
+      ],
+      seam,
+    );
+    // The clip springs above the barrel and curls back toward its open end.
+    const clip = new T.Shape();
+    clip.moveTo(0.16, 0.84);
+    clip.quadraticCurveTo(0.28, 0.85, 0.27, 0.7);
+    clip.lineTo(0.239, 0.22);
+    clip.quadraticCurveTo(0.236, 0.168, 0.196, 0.16);
+    clip.lineTo(0.19, 0.19);
+    clip.lineTo(0.222, 0.23);
+    clip.lineTo(0.237, 0.71);
+    clip.quadraticCurveTo(0.24, 0.77, 0.164, 0.76);
+    clip.closePath();
+    const tongue = surface(
+      cap,
+      new T.ExtrudeGeometry(clip, {
+        depth: 0.065,
+        bevelEnabled: true,
+        bevelSize: 0.008,
+        bevelThickness: 0.008,
+        bevelSegments: 3,
+      }),
+      lacquer,
+    );
+    tongue.rotation.y = 2.85;
+    const swatch = texture((c) => {
+      c.fillStyle = "#e6d8bc";
+      c.fillRect(0, 0, 512, 512);
+      for (let i = 0; i < 9000; i++) {
+        c.fillStyle = random() > 0.5 ? "rgba(93,70,45,.075)" : "rgba(255,250,228,.4)";
+        c.fillRect(random() * 512, random() * 512, 1 + random() * 3, 1);
+      }
+      c.lineCap = "round";
+      for (let i = 0; i < 22; i++) {
+        const y = 185 + random() * 76;
+        c.strokeStyle = "rgba(156,41,24,.34)";
+        c.lineWidth = 3 + random() * 6;
+        c.beginPath();
+        c.moveTo(77 + random() * 22, y);
+        c.bezierCurveTo(131, y - 32, 230, y - 52, 317 + random() * 30, y - 56);
+        c.stroke();
+      }
+      c.strokeStyle = "#a23226";
+      c.lineWidth = 7;
+      c.beginPath();
+      c.moveTo(324, 321);
+      c.bezierCurveTo(432, 243, 435, 233, 399, 276);
+      c.lineTo(355, 338);
+      c.lineTo(442, 295);
+      c.stroke();
+    });
+    const scrap = surface(
+      set,
+      new T.PlaneGeometry(1.03, 0.63, 10, 4),
+      material(0xffffff, 0.96, { map: swatch, side: T.DoubleSide }),
+    );
+    scrap.geometry.rotateX(-Math.PI / 2);
+    const paper = scrap.geometry.attributes.position;
+    for (let i = 0; i < paper.count; i++) {
+      const edge = Math.max(0, paper.getX(i)) / 0.515;
+      paper.setY(i, 0.002 + 0.019 * edge ** 4 + (random() - 0.5) * 0.0017);
+    }
+    scrap.geometry.computeVertexNormals();
+    scrap.rotation.y = -0.14;
+    scrap.position.set(0.79, 0.003, 0.34);
+    barrel.name = "barrel";
+    cap.name = "cap";
+    scrap.name = "swatch";
+    set.rotation.y = -0.22;
+    return set;
+  }
+
+  function render(model, width, height, span, aim) {
+    const scene = new T.Scene();
+    scene.environment = environment;
+    scene.environmentIntensity = 5.9;
+    scene.add(model, new T.HemisphereLight(0xfff3d9, 0x919d87, 0.85));
+    const floor = new T.Mesh(
+      new T.PlaneGeometry(32, 32),
+      new T.ShadowMaterial({ color: 0x343b2d, opacity: 0.43 }),
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -0.008;
+    floor.receiveShadow = true;
+    scene.add(floor);
+    const key = new T.DirectionalLight(0xfff5e4, 2);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    Object.assign(key.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 0.2, far: 18 });
+    key.shadow.bias = -0.00012;
+    key.shadow.normalBias = 0.012;
+    scene.add(key);
+    const camera = new T.OrthographicCamera(
+      -span / 2,
+      span / 2,
+      (span * height) / width / 2,
+      (-span * height) / width / 2,
+      0.1,
+      35,
+    );
+    camera.position.set(aim.x, aim.y + 8.6, aim.z + 4.4);
+    camera.lookAt(aim);
+    renderer.setSize(width, height);
+    // Sample a broad window once at bake time. The handle and cap cast their own shadows.
+    const plate = document.createElement("canvas");
+    plate.width = width;
+    plate.height = height;
+    const dest = plate.getContext("2d", { willReadFrequently: true });
+    const sum = new Float32Array(width * height * 4);
+    const samples = 36;
+    for (let i = 0; i < samples; i++) {
+      const a = i * 2.39996,
+        r = Math.sqrt((i + 0.5) / samples);
+      key.position.set(-3.2 + 2.1 * r * Math.cos(a), 7.5, -2.9 + 2.1 * r * Math.sin(a));
+      renderer.render(scene, camera);
+      dest.clearRect(0, 0, width, height);
+      dest.drawImage(renderer.domElement, 0, 0);
+      const rgba = dest.getImageData(0, 0, width, height).data;
+      for (let j = 0; j < rgba.length; j += 4) {
+        const alpha = rgba[j + 3];
+        sum[j] += rgba[j] * alpha;
+        sum[j + 1] += rgba[j + 1] * alpha;
+        sum[j + 2] += rgba[j + 2] * alpha;
+        sum[j + 3] += alpha;
+      }
+    }
+    const output = dest.createImageData(width, height);
+    for (let j = 0; j < sum.length; j += 4) {
+      const a = sum[j + 3];
+      if (!a) continue;
+      output.data[j] = sum[j] / a;
+      output.data[j + 1] = sum[j + 1] / a;
+      output.data[j + 2] = sum[j + 2] / a;
+      output.data[j + 3] = a / samples;
+    }
+    dest.putImageData(output, 0, 0);
+    return plate.toDataURL();
+  }
+  window.makeDeskProps = () => {
+    seed = 87351;
+    const images = { cup: render(coffeeMug(), 800, 780, 3.7, new T.Vector3(0.41, 0.48, 0.23)) };
+    const marker = drawingMarker();
+    const aim = new T.Vector3(-0.11, 0.1, 0.3);
+    for (const part of marker.children) {
+      for (const sibling of marker.children) sibling.visible = sibling === part;
+      images[part.name] = render(marker, 940, 390, 4.1, aim);
+    }
+    return images;
+  };
+</script>

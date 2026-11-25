@@ -1,14 +1,21 @@
-"""Original ticket dies, ink plates and paper grain. Requires Pillow."""
+"""Original ticket dies, ink plates and paper grain. Requires Pillow and ImageMagick."""
+import io
 import math
 import random
+import subprocess
 from pathlib import Path
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+from xml.etree import ElementTree
+from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 assets = Path(__file__).resolve().parents[2] / "dist/assets"
 out = assets / "ticket-window"
 out.mkdir(exist_ok=True)
 S = 600
-font = ImageFont.truetype(str(assets / "programme/archivo-black.ttf"), 515)
+bird = ElementTree.parse(assets / "programme/mark.svg").find(".//*[@id='ticket-bird']")
+artwork = f'<svg xmlns="http://www.w3.org/2000/svg" width="{S}" height="{S}" viewBox="0 0 64 64"><path fill-rule="evenodd" d="{bird.attrib["d"]}"/></svg>'
+rendered = subprocess.run(["magick", "-background", "none", "svg:-", "png:-"],
+                          input=artwork.encode(), stdout=subprocess.PIPE, check=True)
+bird_mask = Image.open(io.BytesIO(rendered.stdout)).convert("RGBA").getchannel("A")
 ink = (32, 45, 36, 255)
 rng = random.Random(59)
 grain = Image.new("RGBA", (160, 160))
@@ -59,10 +66,9 @@ for key in ("logo", "identity", "website", "product", "campaign", "motion", "vid
     plate = Image.new("RGBA", (S,S))
     d = ImageDraw.Draw(plate)
     if key == "logo":
-        # Curved engraving ridges shift over the edge of a blind-pressed initial.
+        # Curved engraving ridges run through the studio's bird.
         mask = Image.new("L", plate.size)
-        g = ImageDraw.Draw(mask)
-        g.text((300, 285), "R", font=font, anchor="mm", fill=255)
+        mask.paste(bird_mask.resize((452, 452), Image.Resampling.LANCZOS), (74, 69))
         ridges = Image.new("RGBA", plate.size)
         engrave = ImageDraw.Draw(ridges)
         for y in range(-80, 750, 9):
@@ -77,11 +83,12 @@ for key in ("logo", "identity", "website", "product", "campaign", "motion", "vid
             d.line((x-10,y,x+10,y),fill=ink,width=2)
             d.line((x,y-10,x,y+10),fill=ink,width=2)
     elif key == "identity":
+        block = bird_mask.resize((151, 151), Image.Resampling.LANCZOS)
         for row in range(3):
             for col in range(3):
                 x, y = 85+col*158, 65+row*164
                 c = [(139,35,31,255), ink, (232,114,51,255)][(row+col)%3]
-                d.text((x+65,y+63),"R",font=font.font_variant(size=181),anchor="mm",fill=c)
+                plate.paste(c, (x-10, y-8, x-10+151, y-8+151), block)
     elif key in ("website","product"):
         if key == "website":
             for i in range(11):

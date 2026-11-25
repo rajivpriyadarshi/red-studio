@@ -5,13 +5,13 @@ import {
   stockHeight,
   stockFeedZ,
   stockCurl,
-} from "./ticket-pile.js?v=bench-framing-1";
+} from "./ticket-pile.js?v=bench-space-1";
 import { createPaperBreeze } from "./paper-breeze.js?v=bench-hover-1";
 import { createBenchHover } from "./bench-hover.js";
-import { makeBenchBook } from "./bench-sketchbook.js?v=bench-hover-1";
-import { makeStampSet, printStudioSeal } from "./bench-stamp.js?v=bench-hover-1";
-import { pressedHeight, rigStamp, seal } from "./stamp-motion.js?v=bench-framing-1";
-import { makeBenchGround } from "./bench-ground.js";
+import { makeBenchBook } from "./bench-sketchbook.js?v=standing-book-1";
+import { makeStampSet, printStudioSeal } from "./bench-stamp.js?v=bird-1";
+import { pressedHeight, rigStamp, seal } from "./stamp-motion.js?v=bench-space-1";
+import { makeBenchGround } from "./bench-ground.js?v=standing-book-1";
 import { mountPressZoom } from "./press-zoom.js?v=bench-grid-1";
 
 const asset = (name) =>
@@ -72,7 +72,7 @@ function bendPaper(mesh, length, tremor = 0, pressure = 0) {
   pos.needsUpdate = uv.needsUpdate = true;
 }
 
-function ticketPlates(invalidate) {
+function ticketPlates(invalidate, studioMark) {
   const stock = new Map(), images = new Map(), dirtyPlates = new Set();
   function image(file, plate) {
     let entry = images.get(file);
@@ -98,7 +98,7 @@ function ticketPlates(invalidate) {
     ctx.clearRect(0, 0, width, height);
     ctx.drawImage(texture.image, 0, 0);
     ctx.globalCompositeOperation = "source-atop";
-    printStudioSeal(ctx, width * seal.u, height * (1-seal.v), 99, 69, -.10, .91);
+    printStudioSeal(ctx, studioMark, width * seal.u, height * (1-seal.v), 99, 69, -.10, .91);
     ctx.globalCompositeOperation = "source-over";
     stamped.userData.cutout = texture.userData.cutout;
     stamped.needsUpdate = true;
@@ -113,8 +113,12 @@ function ticketPlates(invalidate) {
     c.fillRect(0, 0, w, h);
     const lace = image("engine-turn.webp", plate);
     if (lace) c.drawImage(lace, 555, 0, 310, h);
-    const art = image(data.art + ".webp", plate);
-    if (art) c.drawImage(art, 615, 85, 215, 215);
+    const art = image(data.art + ".webp?v=bird-1", plate);
+    if (art) {
+      // The identity proofs sit above the die so the two impressions read separately.
+      if (data.art === "logo" || data.art === "identity") c.drawImage(art, 595, 52, 178, 178);
+      else c.drawImage(art, 615, 85, 215, 215);
+    }
     const fibre = image("grain.png", plate);
     if (fibre) {
       c.save();
@@ -238,6 +242,7 @@ export async function loadBenchLight() {
 export async function mountPrinter(host, preference, reprint, light, nextSlice, onStampHit) {
   let visible = false, lost = false, frame = 0, dirty = true;
   const canvas = host.querySelector(".press-viewport");
+  const studioMark = new Path2D(host.querySelector(".paper-seal path").getAttribute("d"));
   const renderer = new T.WebGLRenderer({
     canvas,
     antialias: true,
@@ -283,9 +288,9 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice, 
   machine.model.rotation.y = -.235;
   machine.model.scale.setScalar(.965);
   const book = makeBenchBook(wake);
-  book.group.position.set(1.65, 0, -1.65);
+  book.group.position.set(1.82, 0, -.78);
   book.group.scale.setScalar(1.04);
-  book.group.rotation.y = -.31;
+  book.group.rotation.y = -.43;
   bench.add(machine.model, book.group);
   machine.model.traverse(part => {
     if (part.isMesh) part.geometry.computeBoundingBox();
@@ -326,11 +331,11 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice, 
   contact.position.set(0, 0.003, 0.06);
   machine.model.add(contact);
   const bookContact = contact.clone();
-  bookContact.scale.set(.49,.78,1);
-  bookContact.position.set(.03,.001,.035);
+  bookContact.scale.set(.49,.62,1);
+  bookContact.position.set(.03,.001,-.45);
   book.group.add(bookContact);
   await nextSlice();
-  const kit = makeStampSet(contact);
+  const kit = makeStampSet(contact, studioMark);
   bench.add(kit.group);
   const stamp = rigStamp(kit, machine.model);
   const props = createBenchHover(machine, book, kit);
@@ -360,7 +365,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice, 
   let issued = 1,
     current = null,
     firstView = true;
-  const plates = ticketPlates(wake);
+  const plates = ticketPlates(wake, studioMark);
   let aspect = 1, bufferWidth = 0, bufferHeight = 0, pixelRatio = 0;
   let slowSince = 0, resolutionScale = 1, cameraDirty = true;
   let shadowChanged = true;
@@ -396,7 +401,7 @@ export async function mountPrinter(host, preference, reprint, light, nextSlice, 
     camera.fov = T.MathUtils.radToDeg(2 * Math.atan(height / (2 * cameraDistance)));
     camera.updateProjectionMatrix();
     look.set(
-      -1.50 + zoom.x,
+      -1.11 + zoom.x,
       1.18 + zoom.y * Math.cos(lift),
       .26 - zoom.y * Math.sin(lift),
     );

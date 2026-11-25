@@ -308,13 +308,13 @@ export function mountSketchbook(book, motionPreference) {
     object.style.removeProperty("--book-yaw");
     object.style.removeProperty("--book-pitch");
   }
-  book.addEventListener("pointermove", (e) => {
+  object.addEventListener("pointermove", (e) => {
     if (drag || !canTilt.matches || e.pointerType !== "mouse") return;
     pointerX = e.clientX;
     pointerY = e.clientY;
     if (!frame) frame = requestAnimationFrame(updateView);
   });
-  book.addEventListener("pointerleave", restView);
+  object.addEventListener("pointerleave", restView);
   canTilt.addEventListener("change", restView);
   window.addEventListener("resize", interrupt);
   motionPreference.addEventListener("change", () => {

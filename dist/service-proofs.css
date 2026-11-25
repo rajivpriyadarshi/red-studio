@@ -236,42 +236,14 @@
   line-height: 1.15;
   padding-block: .07em;
 }
-.proof-sheet[data-proof="campaigns"] .proof-tile { grid-area: 1 / 1 / -1 / -1; }
-.proof-sheet[data-proof="campaigns"] img { object-fit: contain; background: #f3e8da; }
-.proof-sheet[data-proof="digital"] {
-  --accent: #c3dbe6;
-  --mount: #253b43;
-  grid-template-columns: 2.2fr 1fr;
-  grid-template-rows: 1fr;
+.proof-sheet:is([data-proof="digital"], [data-proof="campaigns"]) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
 }
-.proof-sheet[data-proof="digital"] .proof-tile { grid-row: 1; }
-.web-study {
-  display: grid;
-  place-items: center;
-  padding: 6%;
-  background: #aabbac;
-  container-type: inline-size;
-}
-.web-page {
-  width: 100%;
-  padding: 5%;
-  background: #f7f4e8;
-  color: #243830;
-  box-shadow: 0 4px 16px #18251f35;
-}
-.web-mast {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: .35em;
-  margin-bottom: .45em;
-  border-bottom: 1px solid;
-  font: 600 clamp(16px, 10cqw, 48px)/1 Georgia, serif;
-  letter-spacing: -.065em;
-}
-.web-page img { width: 100%; height: auto; aspect-ratio: 1.85; object-fit: cover; }
-.web-page strong { display: block; margin-top: .55em; font-size: clamp(12px, 5cqw, 24px); }
-.proof-sheet[data-proof="digital"] .proof-tile:nth-child(2) img { aspect-ratio: .78; }
+.proof-sheet:is([data-proof="digital"], [data-proof="campaigns"]) .proof-tile { grid-row: 1; }
+.proof-sheet[data-proof="digital"] { --mount: #38342f; --accent: #d8c8b3; }
+.proof-sheet[data-proof="campaigns"] { --mount: #302426; --accent: #efb7ae; }
+.proof-sheet[data-proof="campaigns"] img { object-fit: contain; }
 @media (max-width: 740px) {
   .practice .channels { display: grid; gap: 0; }
   .channels .channel {

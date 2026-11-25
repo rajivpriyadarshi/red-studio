@@ -5,7 +5,7 @@ import { inkTexture } from "./press-model.js?v=bench-hover-1";
 const width = 2.38,
   height = 2.82,
   margin = 0.088;
-// The back cover sits directly on the counter. The wire just clears its surface.
+// Pad geometry and drawing paths share the same flat page coordinates.
 const radius = 0.136,
   hingeY = 0.15,
   coverThickness = 0.027;
@@ -98,8 +98,6 @@ function pencil() {
     group.add(mesh);
     parts.forEach(geo => geo.dispose());
   }
-  group.rotation.y = -1.47;
-  group.position.set(width / 2 + 0.27, 0.047, -0.05);
   return group;
 }
 
@@ -126,11 +124,7 @@ function punchMask() {
   return mask;
 }
 
-function addPad(group) {
-  const cloth = new T.MeshStandardMaterial({
-    color: 0x643931,
-    roughness: 0.93,
-  });
+function addPad(group, cloth) {
   const edgeInk = inkTexture(256, 128, (c, w, h) => {
     c.fillStyle = "#d2c6ad";
     c.fillRect(0, 0, w, h);
@@ -257,8 +251,33 @@ const ease = t => t * t * (3 - 2 * t);
 
 export function makeBenchBook(wake) {
   const group = new T.Group();
-  addPad(group);
+  const cloth = new T.MeshStandardMaterial({ color: 0x643931, roughness: .93 });
+  const pageFrame = new T.Group();
+  const tilt = T.MathUtils.degToRad(64);
+  const halfCover = (height + .065) / 2;
+  const footY = .024;
+  pageFrame.rotation.x = tilt;
+  pageFrame.position.y = footY + halfCover * Math.sin(tilt) - coverBase * Math.cos(tilt);
+  pageFrame.updateMatrix();
+  group.add(pageFrame);
+  addPad(pageFrame, cloth);
+
+  // Both covers meet below the binding. Their feet and the folding base rest on the desk.
+  const hinge = new T.Vector3(0, coverBase, -halfCover + .03).applyMatrix4(pageFrame.matrix);
+  const frontZ = halfCover * Math.cos(tilt) + coverBase * Math.sin(tilt);
+  const rearZ = -1.65;
+  const rise = hinge.y - footY;
+  const run = hinge.z - rearZ;
+  const back = card(width + .065, Math.hypot(rise, run), coverThickness, cloth, .045);
+  back.rotation.x = Math.atan2(run, rise);
+  back.position.set(0, footY + rise / 2, rearZ + run / 2);
+  const base = card(width + .065, frontZ - rearZ, footY, cloth, .035);
+  base.rotation.x = -Math.PI / 2;
+  base.position.z = (frontZ + rearZ) / 2;
+  group.add(back, base);
+
   const tool = pencil();
+  tool.position.set(0, .048, frontZ + .18).applyMatrix4(pageFrame.matrix.clone().invert());
   tool.name = 'Sketch pencil';
   const { material, uniforms } = sketchMaterial();
   const pageGeometry = new T.PlaneGeometry(width, height, 16, 18);
@@ -268,7 +287,7 @@ export function makeBenchBook(wake) {
   sheet.position.y = hingeY;
   sheet.castShadow = true;
   sheet.receiveShadow = true;
-  group.add(wire(), sheet, tool);
+  pageFrame.add(wire(), sheet, tool);
 
   const asset = name => new URL('./assets/ticket-window/' + name, import.meta.url).href;
   const loader = new T.TextureLoader();

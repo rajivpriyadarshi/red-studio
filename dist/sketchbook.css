@@ -6,34 +6,35 @@
 }
 .process {
   color: #1c302b;
-  background-color: #bac7ab;
+  background-color: #b8c5ae;
   background-image:
-    radial-gradient(ellipse at 14% 5%, #e1e6c95c, transparent 58%),
-    linear-gradient(122deg, transparent 65%, #709c8d45);
+    url(assets/ticket-window/grain.png),
+    radial-gradient(ellipse at 16% 8%, #e7ead66e, transparent 65%),
+    linear-gradient(124deg, transparent 47%, #67867b40);
+  background-size: 128px, auto, auto;
   padding: clamp(45px, 6vw, 108px) var(--edge) clamp(38px, 4vw, 76px);
 }
 .process-intro,
-.sketchbook,
-.project-control {
+.sketchbook {
   max-width: 1500px;
   margin-inline: auto;
 }
-.process-intro,
-.project-control {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 30px;
+.process-intro {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: clamp(12px, 1.4vw, 22px);
 }
 .process-intro h2 {
   font: 900 clamp(52px, 7.9vw, 144px) / 0.93 var(--heavy);
   letter-spacing: -0.075em;
 }
-.process-intro h2 span {
+.process-intro h2 .title-stop {
   color: #ad3827;
 }
 .process-intro p {
-  max-width: 42ch;
+  max-width: 56ch;
+  text-wrap: balance;
   font-size: clamp(16px, 1.3vw, 22px);
   line-height: 1.43;
 }
@@ -41,7 +42,104 @@
   font-weight: 700;
 }
 .sketchbook {
+  --pulp: url(assets/soundings/rag-paper.webp);
+  position: relative;
+  isolation: isolate;
   margin-top: clamp(30px, 3.2vw, 58px);
+}
+.desk-prop {
+  position: absolute;
+  display: block;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+.desk-cup {
+  --hit-shape: polygon(0 15%, 12% 1%, 43% 0, 57% 12%, 60% 35%, 75% 43%, 78% 55%, 70% 62%, 54% 59%, 42% 69%, 21% 70%, 6% 57%, 0 38%);
+  --nudge: translate(-2px, 1px) rotate(-4deg);
+  width: clamp(104px, 12vw, 190px);
+  right: 1.5%;
+  bottom: calc(100% + clamp(14px, 1.5vw, 28px));
+}
+.desk-marker {
+  aspect-ratio: 760 / 339;
+  width: clamp(140px, 17vw, 250px);
+  left: 6%;
+  bottom: calc(100% - clamp(18px, 2.7vw, 46px));
+}
+.cup-body,
+.desk-part img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.cup-body {
+  position: relative;
+  transform-origin: 32% 56%;
+}
+.desk-marker .desk-part {
+  position: absolute;
+}
+.ink-test {
+  --hit-shape: polygon(19% 0, 100% 35%, 81% 100%, 0 61%);
+  --nudge: perspective(240px) rotateX(12deg) rotate(-2deg);
+  left: 59.08%;
+  top: 39.23%;
+  width: 37.11%;
+}
+.ink-test img {
+  transform-origin: 12% 78%;
+}
+.marker-cap {
+  --hit-shape: polygon(10% 0, 24% 0, 78% 30%, 87% 42%, 82% 78%, 72% 81%, 0 43%, 0 34%);
+  --nudge: translate(2px, 3px) rotate(-8deg);
+  left: 0;
+  top: 26.84%;
+  width: 37.63%;
+}
+.marker-barrel {
+  --hit-shape: polygon(1% 0, 85% 51%, 99% 69%, 99% 83%, 1% 34%, 0 23%);
+  --nudge: translate(-2px, -4px) rotate(3deg);
+  left: 4.74%;
+  top: 0;
+  width: 95.26%;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* The hit silhouettes stay put as the art moves. Shadows and gaps pass the pointer through. */
+  .desk-part::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    clip-path: var(--hit-shape);
+    pointer-events: auto;
+  }
+  .desk-part > * {
+    transition: transform 360ms cubic-bezier(.22, .8, .22, 1);
+  }
+  .desk-part:hover > * {
+    transform: var(--nudge);
+    transition: transform 280ms cubic-bezier(.18, 1.25, .32, 1);
+  }
+  .cup-body::after {
+    content: "";
+    position: absolute;
+    left: 4.5%;
+    top: 5.6%;
+    width: 49%;
+    height: 43%;
+    border: 1px solid;
+    border-color: #ffe2ad77 #ffdfa61c #ffdfa654 #ffdfa624;
+    border-radius: 50%;
+    opacity: 0;
+  }
+  .desk-cup:hover .cup-body::after {
+    animation: coffee-ripple 650ms ease-out;
+  }
+}
+@keyframes coffee-ripple {
+  0% { opacity: 0; transform: translateY(3%) scale(.58); }
+  18% { opacity: .85; }
+  100% { opacity: 0; transform: translateY(0) scale(.98); }
 }
 .book-tabs {
   display: flex;
@@ -54,20 +152,23 @@
 }
 .book-tabs button {
   color: #23392e;
-  background: #c8d5b9;
-  border: 1px solid #627466;
+  background: linear-gradient(0deg, #70674745, transparent 30%, #fff9dc20) padding-box,
+    var(--pulp) 10% 30% / 195px;
+  border: 1px solid #8c886f;
   border-bottom: 0;
   border-radius: 7px 9px 0 0;
   padding: 10px clamp(12px, 1.7vw, 30px) 12px;
   min-height: 44px;
   font: 700 clamp(14px, 1.2vw, 19px) / 1 var(--sans);
-  box-shadow: inset 0 2px 1px #ffffff45;
+  box-shadow: inset 0 1px #fffbe2, 1px -1px #d4cbb4, 2px 0 1px #4d4b363b;
   transition:
     transform 0.22s ease,
     background 0.22s ease;
 }
 .book-tabs button[aria-selected="true"] {
-  background: #263d33;
+  background: linear-gradient(#ffffff12, #162e223b), url(assets/soundings/bookcloth.webp) 0 0 / 145px;
+  border-color: #354e40;
+  box-shadow: inset 0 1px #88957a, 1px -1px #495d4d, 2px 0 1px #414b344d;
   color: #fff1d6;
 }
 @media (hover: hover) {
@@ -77,12 +178,22 @@
 }
 .book-object {
   position: relative;
+  z-index: 1;
 }
 @media (min-width: 701px) {
+  /* Let a longer note set the height of the spread on narrow desktops. */
+  .book-spread > .book-art::before {
+    content: "";
+    display: block;
+    aspect-ratio: 1.25;
+  }
   .book-ready .book-object {
-    transform: perspective(2100px) rotateX(calc(7deg + var(--book-pitch, 0deg)))
-      rotateY(calc(-1deg + var(--book-yaw, 0deg))) rotateZ(-0.65deg);
-    transform-origin: 50% 62%;
+    width: 93%;
+    margin-inline: auto;
+    transform: translateX(-2.2%) perspective(clamp(1050px, 108vw, 1850px))
+      rotateX(calc(18deg + var(--book-pitch, 0deg)))
+      rotateY(calc(-6deg + var(--book-yaw, 0deg))) rotateZ(-1.8deg);
+    transform-origin: 50% 54%;
   }
 }
 @media (min-width: 701px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
@@ -92,24 +203,24 @@
 }
 .book-cover {
   position: relative;
-  padding: clamp(5px, 0.7vw, 12px);
-  padding-bottom: 22px;
+  padding: clamp(8px, 1.05vw, 17px);
+  padding-bottom: clamp(24px, 2.1vw, 34px);
   border: 1px solid #293e31;
-  border-radius: 6px 13px 13px 7px;
+  border-radius: 9px 17px 15px 9px;
   background-color: #354b40;
   background-image:
-    linear-gradient(105deg, #c4d6aa26, transparent 45%, #0b1c1659),
-    repeating-linear-gradient(11deg, transparent 0 2px, #f2e7c10d 2px 3px),
-    repeating-linear-gradient(100deg, transparent 0 2px, #10271b45 2px 3px);
+    linear-gradient(90deg, transparent 47.9%, #0b1e1694 48.65%, #c5cba332 49%, #243b2b33 50%, #10261b85 51.15%, transparent 51.85%),
+    linear-gradient(126deg, #d4ddbc30, transparent 41%, #122b2038),
+    url(assets/soundings/bookcloth.webp);
+  background-size: auto, auto, 172px;
   box-shadow:
     inset 0 1px 1px #d1d7bb82,
     inset 1px 0 1px #849779,
-    0 1px #1a3024,
-    0 3px #23382a,
-    1px 5px #15291d,
-    2px 9px 7px -4px #263629c2,
-    7px 23px 21px -13px #253b2bad,
-    16px 40px 42px -24px #304d3999;
+    inset 0 -2px 1px #1d3022a6,
+    1px 2px #24392c, 2px 4px #3a4a38, 3px 6px #24362a,
+    4px 8px 4px -2px #26382ca6,
+    11px 20px 15px -10px #24372c99,
+    23px 39px 35px -16px #3447376b;
 }
 .book-bound {
   --read-stack: 4px;
@@ -134,16 +245,12 @@
   background:
     linear-gradient(
       90deg,
-      #5a4e392b,
-      transparent 28%,
-      #fff6d51f 76%,
-      #59483335
+      #6e604e38, transparent 12%, #fff8dd38 44%, #62533e28 94%, #493c2f4d
     ),
     repeating-linear-gradient(
       0deg,
-      #b6a78e 0 1px,
-      #e3d7c1 1px 2.5px,
-      #f2e7ce 2.5px 3.5px
+      #b4a68e 0 .7px, #ebdfc7 .7px 2px, #cfc1a6 2px 3px,
+      #f5ead1 3px 4.5px, #c4b69d 4.5px 5.4px, #e3d6bb 5.4px 7px
     );
   transition: height 0.74s cubic-bezier(0.4, 0.04, 0.22, 1);
 }
@@ -190,9 +297,6 @@
   inset: 0;
   object-fit: cover;
 }
-.book-art {
-  min-height: 100%;
-}
 .book-art::after,
 .book-note::after {
   content: "";
@@ -203,11 +307,8 @@
 .book-art::after {
   background: linear-gradient(
     90deg,
-    #fff8dc15,
-    transparent 8% 78%,
-    #3025150a 89%,
-    #43351e3b 98.5%,
-    #342b206e
+    #302f1a14, #fff8dc1a 3%, transparent 17% 72%,
+    #fff9df11 82%, #765e3014 91%, #423b2963 98.5%, #2b291fa8
   );
 }
 .book-note {
@@ -216,21 +317,18 @@
   justify-content: center;
   padding: clamp(29px, 4vw, 75px) clamp(24px, 4vw, 72px) clamp(36px, 4vw, 75px)
     clamp(35px, 5.1vw, 89px);
-  aspect-ratio: 1.25;
   border-radius: 0 6px 4px 0;
   color: #272d27;
   background-color: #f8f1e0;
   background-image:
     linear-gradient(
       90deg,
-      #66594077,
-      #99876738 3.5%,
-      #e1d5b629 8%,
-      transparent 18%,
-      #fffef31f 90%,
-      #b8a9871c
+      #574c3c8f, #7d694b48 2.8%, #c4b28b18 7%,
+      #fffbea40 13%, transparent 28% 89%, #b29b7024 99%, #e5dbc54d
     ),
-    radial-gradient(ellipse at 80% 15%, #fffaf0, transparent 90%);
+    linear-gradient(153deg, #fffdf020, transparent 55%, #ac8f5714),
+    var(--pulp);
+  background-size: auto, auto, 218px;
 }
 .book-note::after {
   border: 1px solid #31251212;
@@ -261,9 +359,7 @@
   line-height: 1.44;
   max-width: 40ch;
 }
-.book-note a,
-.book-foot a,
-.project-control a {
+.book-note a {
   font-weight: 700;
   text-underline-offset: 0.2em;
 }
@@ -273,79 +369,24 @@
   z-index: 5;
   inset: 3.5% auto 3.5% 50%;
   transform: translateX(-50%);
-  width: clamp(25px, 3.8vw, 66px);
+  width: clamp(34px, 4.2vw, 72px);
   display: flex;
   flex-direction: column;
   justify-content: space-around;
 }
 .wire-binding i {
-  position: relative;
   display: block;
   width: 100%;
-  height: clamp(9px, 1.12vw, 18px);
-  background:
-    radial-gradient(
-      ellipse 8% 54% at 6% 55%,
-      #282826 67%,
-      #6a634e 82%,
-      transparent 98%
-    ),
-    radial-gradient(
-      ellipse 8% 54% at 94% 54%,
-      #282826 67%,
-      #6a634e 82%,
-      transparent 98%
-    );
-}
-.wire-binding i::before,
-.wire-binding i::after {
-  content: "";
-  position: absolute;
-  inset: -8% 4% 5%;
-  border-radius: 45% 37% 34% 42% / 58%;
-  transform: rotate(-9deg);
-}
-.wire-binding i::before {
-  background: #392c1b;
-  opacity: 0.47;
-  transform: translate(3px, 4px) rotate(-9deg);
-  filter: blur(2px);
-}
-.wire-binding i::after {
-  padding: clamp(2px, 0.28vw, 4.5px);
-  background: conic-gradient(
-    from 100deg,
-    #554f41,
-    #d2cec0 8%,
-    #706e5d 22%,
-    #fff9df 36%,
-    #a69f87 48%,
-    #3b3d33 57%,
-    #d4d4c3 72%,
-    #827c68 86%,
-    #393e32
-  );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
-}
-.book-foot {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 24px 1px 0;
-  min-height: 56px;
+  aspect-ratio: 68 / 37;
+  background: url(assets/soundings/binding-wire.webp) center / contain no-repeat;
 }
 .book-pager {
   display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: 7px;
+  padding: 24px 1px 0;
+  min-height: 56px;
 }
 .book-pager button {
   min-height: 44px;
@@ -365,27 +406,6 @@
 .book-pager button:disabled {
   opacity: 0.38;
   cursor: default;
-}
-.book-foot a {
-  font-size: 16px;
-}
-.project-control {
-  align-items: start;
-  margin-top: clamp(40px, 4.4vw, 82px);
-  padding-top: 18px;
-  border-top: 1px solid #43533d77;
-}
-.project-control h3 {
-  font: 700 clamp(21px, 2vw, 34px) / 1.13 var(--sans);
-  letter-spacing: -0.045em;
-}
-.project-control > div {
-  max-width: 66ch;
-}
-.project-control p {
-  font-size: clamp(16px, 1.22vw, 21px);
-  line-height: 1.43;
-  margin: 0 0 8px;
 }
 .book-leaf,
 .book-underlay,
@@ -486,17 +506,25 @@
     overflow-x: clip;
     padding-block: 43px 36px;
   }
-  .process-intro {
-    display: block;
-  }
   .process-intro h2 {
     font-size: clamp(45px, 9.5vw, 80px);
   }
-  .process-intro p {
-    margin-top: 12px;
-  }
   .sketchbook {
-    margin-top: 23px;
+    margin-top: clamp(90px, 16vw, 110px);
+  }
+  .desk-cup {
+    width: clamp(72px, 15vw, 90px);
+    right: 2%;
+    bottom: calc(100% + 3px);
+  }
+  .desk-marker {
+    width: clamp(112px, 27vw, 155px);
+    left: 5%;
+    bottom: calc(100% + 10px);
+  }
+  .book-ready .book-object {
+    transform: perspective(1050px) rotateX(4deg) rotateY(-1.5deg) rotateZ(-.5deg);
+    transform-origin: center;
   }
   .book-tabs {
     justify-content: stretch;
@@ -506,6 +534,7 @@
   .book-tabs button {
     flex: 1 1 auto;
     min-width: 0;
+    min-height: 47px;
     padding: 9px 3px 11px;
     font-size: 14px;
   }
@@ -525,7 +554,8 @@
     min-height: 215px;
     padding: 20px 22px 26px;
     border-radius: 0 0 4px 3px;
-    background-image: linear-gradient(#c9bda344, transparent 12%);
+    background-image: linear-gradient(90deg, #58452630, transparent 7%),
+      linear-gradient(160deg, #fffcf024, transparent 55%, #a78e5f1a), var(--pulp);
   }
   .book-note h3 {
     font-size: clamp(40px, 8.5vw, 62px);
@@ -543,11 +573,8 @@
   }
   .wire-binding {
     inset: 3% auto 3% 0;
-    transform: translateX(-24%);
-    width: 17px;
-  }
-  .wire-binding i {
-    height: 8px;
+    transform: translateX(-34%);
+    width: 22px;
   }
   .book-leaf {
     left: 0;
@@ -555,25 +582,12 @@
   .book-shadow-clip i {
     inset: 0;
   }
-  .book-foot {
-    gap: 8px;
-  }
-  .book-foot a {
-    font-size: 15px;
-  }
   .book-pager button {
     font-size: 14px;
     padding-inline: 11px;
   }
   .book-pager button:last-child span {
     margin-left: 5px;
-  }
-  .project-control {
-    display: block;
-    margin-top: 30px;
-  }
-  .project-control p {
-    margin-top: 9px;
   }
   .book-cover {
     padding-bottom: 17px;
@@ -586,7 +600,7 @@
   .book-ready .book-bound::after {
     display: none;
   }
-  .book-foot {
+  .book-pager {
     padding-top: 18px;
   }
   .book-art::after {
@@ -624,10 +638,25 @@
   .process-intro h2 {
     font-size: clamp(52px, 6.8vw, 98px);
   }
-  .sketchbook {
-    margin-top: 22px;
-  }
   .book-note h3 {
     font-size: clamp(44px, 5.3vw, 78px);
+  }
+}
+
+@media (min-width: 701px) and (max-width: 1050px), (min-width: 701px) and (max-height: 815px) {
+  .process-intro p {
+    max-width: min(56ch, 55%);
+  }
+  .sketchbook {
+    margin-top: 45px;
+  }
+  .desk-cup {
+    width: clamp(82px, 11%, 128px);
+    bottom: calc(100% + 2px);
+  }
+  .desk-marker {
+    width: clamp(112px, 15%, 170px);
+    left: 2%;
+    bottom: calc(100% - 35px);
   }
 }

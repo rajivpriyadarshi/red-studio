@@ -48,7 +48,7 @@ function makeStampSound() {
 export function mountDispenser(host, preference) {
   const sound = host.querySelector(".press-sound");
   const sheet = host.querySelector(".fare-paper");
-  const book = host.querySelector(".flat-sketchbook");
+  const book = host.querySelector(".proof-sketchbook");
   const caption = host.querySelector("#press-sketch-caption");
   const fields = {
     title: sheet.querySelector("[data-ticket-title]"),
@@ -117,7 +117,7 @@ export function mountDispenser(host, preference) {
     fields.tax.hidden = !data.priced;
     fields.number.textContent = data.no;
     fields.art.src = new URL(
-      "./assets/ticket-window/" + data.art + ".webp",
+      "./assets/ticket-window/" + data.art + ".webp?v=bird-1",
       import.meta.url,
     );
     // On phones the rate board moves the scene directly below the chosen row.
@@ -183,7 +183,7 @@ export function mountDispenser(host, preference) {
     if (loading) return;
     loading = true;
     try {
-      const module = await import("./ticket-printer.js?v=bench-close-1");
+      const module = await import("./ticket-printer.js?v=bird-1");
       light = await module.loadBenchLight().catch(() => null);
       mount = module.mountPrinter;
       scheduleBuild();

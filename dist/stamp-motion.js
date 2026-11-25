@@ -1,5 +1,5 @@
 import * as T from "three";
-import { stockCurl, stockFeedZ, stockHeight } from "./ticket-pile.js?v=bench-framing-1";
+import { stockCurl, stockFeedZ, stockHeight } from "./ticket-pile.js?v=bench-space-1";
 
 const clamp = T.MathUtils.clamp;
 const smooth = t => T.MathUtils.smootherstep(t, 0, 1);

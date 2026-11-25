@@ -1,6 +1,6 @@
 import * as T from "three";
 import { addPart, batchFixedParts, inkTexture } from "./press-model.js?v=bench-hover-1";
-import { roundedShape } from "./bench-sketchbook.js?v=bench-hover-1";
+import { roundedShape } from "./bench-sketchbook.js?v=standing-book-1";
 
 function turned(profile) {
   return new T.LatheGeometry(profile.map(([r, y]) => new T.Vector2(r, y)), 36);
@@ -36,7 +36,7 @@ function mapleGrain() {
   });
 }
 
-function makeStamp(metal, rubber) {
+function makeStamp(metal, rubber, studioMark) {
   const stamp = new T.Group();
   const maple = new T.MeshStandardMaterial({ map: mapleGrain(), roughness: .37, metalness: .02 });
   const grip = turned([
@@ -48,6 +48,17 @@ function makeStamp(metal, rubber) {
   addPart(stamp, grip, maple, 0, 0, 0);
   addPart(stamp, turned([[0,.004],[.294,.004],[.305,.012],[.306,.066],[.298,.077],[0,.077]]), rubber, 0, 0, 0);
   addPart(stamp, turned([[.108,.309],[.122,.310],[.124,.323],[.113,.335],[.106,.335]]), metal, 0, 0, 0);
+  // The rubber reads backwards when lifted, so its impression reads forwards.
+  const face = inkTexture(192, 192, (ctx, w, h) => {
+    ctx.fillStyle = "#39302c";
+    ctx.fillRect(0, 0, w, h);
+    ctx.translate(0, h);
+    ctx.scale(1, -1);
+    printStudioSeal(ctx, studioMark, w / 2, h / 2, 86, 86, -.10, 1, "#803735");
+  });
+  const die = new T.CircleGeometry(.293, 36);
+  die.rotateX(Math.PI / 2);
+  addPart(stamp, die, new T.MeshStandardMaterial({ map: face, roughness: .79 }), 0, .002, 0);
   return stamp;
 }
 
@@ -109,31 +120,30 @@ function makeInkPad(metal, enamel, rubber) {
   return { pad, lid };
 }
 
-const studioMark = new Path2D("M0 0h24q14 0 14 14 0 8-8 11l10 15H26L16 26h-3v14H0zm13 10v7h10q4 0 4-3.5T23 10z");
-
-export function printStudioSeal(ctx, x, y, radiusX, radiusY, turn, opacity) {
+export function printStudioSeal(ctx, studioMark, x, y, radiusX, radiusY, turn, opacity, ink = "#92332f") {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(radiusX / 41, radiusY / 41);
   ctx.rotate(turn);
   ctx.globalAlpha = opacity;
-  ctx.strokeStyle = ctx.fillStyle = "#92332f";
+  ctx.strokeStyle = ctx.fillStyle = ink;
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.arc(0, 0, 41, 0, Math.PI * 2);
   ctx.stroke();
-  ctx.translate(-20, -20);
+  ctx.scale(.92, .92);
+  ctx.translate(-32, -31);
   ctx.fill(studioMark, "evenodd");
   ctx.restore();
 }
 
-function proofSlip() {
+function proofSlip(studioMark) {
   const proof = inkTexture(384, 208, (ctx, w, h) => {
     ctx.fillStyle = "#d5c8b0";
     ctx.fillRect(0, 0, w, h);
     // Ink builds up unevenly on a second impression from the same stamp.
-    printStudioSeal(ctx, 247, 91, 73.8, 73.8, -.13, .84);
-    printStudioSeal(ctx, 374, 178, 73.8, 73.8, .14, .34);
+    printStudioSeal(ctx, studioMark, 247, 91, 73.8, 73.8, -.13, .84);
+    printStudioSeal(ctx, studioMark, 374, 178, 73.8, 73.8, .14, .34);
     let seed = 719;
     const pixels = ctx.getImageData(0, 0, w, h);
     for (let i = 0; i < pixels.data.length; i += 4) {
@@ -164,7 +174,7 @@ function proofSlip() {
   return mesh;
 }
 
-export function makeStampSet(contactShadow) {
+export function makeStampSet(contactShadow, studioMark) {
   const group = new T.Group();
   group.name = "Stamp and ink pad";
   const metal = new T.MeshStandardMaterial({ color: 0xb0a790, metalness: .72, roughness: .44 });
@@ -173,11 +183,11 @@ export function makeStampSet(contactShadow) {
   const { pad, lid } = makeInkPad(metal, enamel, rubber);
   pad.position.set(-.68, 0, -.12);
   pad.rotation.y = -.26;
-  const slip = proofSlip();
+  const slip = proofSlip(studioMark);
   slip.name = "Stamp proof";
   slip.position.set(.52, 0, .11);
   slip.rotation.y = .23;
-  const stamp = makeStamp(metal, rubber);
+  const stamp = makeStamp(metal, rubber, studioMark);
   stamp.position.set(.20, .003, .16);
   group.add(pad, slip);
 
@@ -188,7 +198,7 @@ export function makeStampSet(contactShadow) {
   batchFixedParts(stamp);
   stamp.name = "Hand stamp";
   group.add(stamp);
-  group.position.set(.95, 0, 1.65);
+  group.position.set(1.05, 0, 2.4);
   const ink = pad.position.clone();
   ink.y = .153; // Top of the felt, including its bevel.
   return { group, stamp, pad, lid, slip, ink };

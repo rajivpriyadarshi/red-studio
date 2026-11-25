@@ -13,7 +13,7 @@
       "name": "Simple logo design",
       "price": 5000,
       "workload": "2 working days",
-      "fit": "An original mark for your project, brand or band.",
+      "fit": "A logo, a matching palette and an example of how to use them together.",
       "items": ["A logo designed exclusively for you", "A matching colour palette", "An example of the logo in use"]
     },
     {
@@ -22,7 +22,7 @@
       "name": "Communication & dissemination kit",
       "price": 15000,
       "workload": "1 full working week",
-      "fit": "One visual identity for the places you share your work, from a conference slide to a newsletter.",
+      "fit": "One logo, with matching templates for the slides, newsletters and updates your team sends out.",
       "items": ["An exclusive logo and matching colour palette", "PowerPoint and newsletter templates", "Email signature and merchandise templates"]
     },
     {
@@ -30,7 +30,7 @@
       "service": "campaigns",
       "name": "Posters & custom print",
       "price": null,
-      "fit": "A conference poster, a band poster or a printed profile for your project.",
+      "fit": "Turn a research finding, a gig announcement or a story into a print-ready piece.",
       "items": ["Layout for the format we agree with you", "Print-ready artwork"]
     },
     {
@@ -38,7 +38,7 @@
       "service": "digital",
       "name": "One-page website",
       "price": 5000,
-      "fit": "A single page to introduce your project and give people a place to find you.",
+      "fit": "A landing page for your next launch, whether it’s a product, a project or a new idea.",
       "items": ["Design and build of a one-page website"]
     },
     {
@@ -46,7 +46,8 @@
       "service": "apps",
       "name": "App UI/UX design",
       "price": null,
-      "fit": "Design for a new app or a clearer way through an existing one. We quote once we know which screens and tasks you need.",
+      "fit": "Try each step of your app in a clickable prototype before it’s built.",
+      "quoteBasis": "We base the quote on the screens and tasks you need.",
       "items": ["A map of the steps people take in the app", "Screen layouts and a clickable prototype for the agreed flow", "Interface designs and notes for your developer"]
     },
     {
@@ -55,7 +56,7 @@
       "name": "Short-form video edit",
       "price": 1000,
       "length": "30 seconds",
-      "fit": "Your footage cut into a short story for social media.",
+      "fit": "Cut your footage into a 30-second story with colour correction and on-screen text.",
       "items": ["A 30-second montage from footage you supply", "Story edit and colour correction", "On-screen text"]
     },
     {
@@ -64,7 +65,7 @@
       "name": "Long-form video edit",
       "price": 3000,
       "length": "3–5 minutes",
-      "fit": "A longer cut that gives an interview, event or project story room to unfold.",
+      "fit": "Shape an interview, event or project into a 3–5 minute film.",
       "items": ["A 3–5 minute montage from footage you supply", "Story edit and colour correction", "On-screen text"]
     },
     {
@@ -72,7 +73,8 @@
       "service": "video",
       "name": "Photo editing",
       "price": null,
-      "fit": "A consistent look for a set of photos you supply. The quote depends on the number of images and the retouching they need.",
+      "fit": "Bring a set of photographs together with consistent colour, exposure and retouching.",
+      "quoteBasis": "We base the quote on the number of images and the retouching they need.",
       "items": ["Colour and exposure adjustments", "Retouching agreed for the selected images", "Exports sized for their intended use"]
     },
     {
@@ -80,7 +82,7 @@
       "service": "sound",
       "name": "Logo animation & sound",
       "price": null,
-      "fit": "A short moving version of your logo with a sound composed to match.",
+      "fit": "Put your logo in motion with an original sound timed to the movement.",
       "items": ["A short logo animation", "Original sound design synchronised to the movement"]
     },
     {
@@ -88,7 +90,7 @@
       "service": "sound",
       "name": "Sonic branding & sound design",
       "price": null,
-      "fit": "An original sound for your brand, film, game or app.",
+      "fit": "Create a signature sound for a brand, a game, a film or an app.",
       "items": ["A sound direction based on your brief", "Original audio for the agreed use", "A mix and exports for your chosen platform"]
     }
   ]

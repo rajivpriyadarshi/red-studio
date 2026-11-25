@@ -183,13 +183,13 @@ export function createTicketPile(group, paperMaterial) {
     );
   }
   function landing() {
-    const x = between(-0.39, 0.15),
+    const x = between(-0.28, 0.28),
       angle = between(-0.26, 0.26);
     const c = Math.cos(angle),
       n = Math.sin(angle);
     const spanZ = (Math.abs(n) * width + Math.abs(c) * depth) / 2;
     // Leave room for a skewed back corner to clear the lip of the tray.
-    const z = Math.max(2.57 + spanZ, between(3.45, 3.79));
+    const z = Math.max(2.57 + spanZ, between(3.7, 4.08));
     const corner = Math.random() < 0.5 ? -1 : 1,
       curl = between(0.012, 0.047);
     const target = new Float32Array(vertices * 3);
